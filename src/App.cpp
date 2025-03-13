@@ -5,9 +5,15 @@
 #include "Util/Keycode.hpp"
 #include "Util/Logger.hpp"
 
+App::App() : m_Map(1){
+
+}
+
 void App::Start() {
     LOG_TRACE("Start");
     m_CurrentState = State::UPDATE;
+    m_Root.AddChildren(m_Map.getChildren());
+    m_Map.startAnimations();
 }
 
 void App::Update() {
@@ -22,6 +28,8 @@ void App::Update() {
         Util::Input::IfExit()) {
         m_CurrentState = State::END;
     }
+    m_Root.Update();
+    // m_Map.checkTileFrameWork();
 }
 
 void App::End() { // NOLINT(this method will mutate members in the future)

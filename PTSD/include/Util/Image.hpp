@@ -31,7 +31,7 @@ public:
      * @param useAA Flag indicating whether anti-aliasing should be enabled
      * (default is true).
      */
-    Image(const std::string &filepath, bool useAA = true);
+    Image(const std::string &filepath, bool useAA = false);
 
     /**
      * @brief Retrieves the size of the image.

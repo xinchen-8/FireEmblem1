@@ -5,8 +5,6 @@ This is a [PTSD](https://github.com/ntut-open-source-club/practical-tools-for-si
 ```sh
 cmake -DCMAKE_BUILD_TYPE=Debug -B build -G Ninja
 ```
-
-<BR>
  
 ## You can make some changes to make it better
-![alt text](changeNEAREST.png)
+![alt text](README/changeNEAREST.png)

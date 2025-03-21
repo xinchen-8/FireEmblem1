@@ -4,16 +4,15 @@
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
 #include "Util/Logger.hpp"
+#include <iostream>
 
-App::App() : m_Map(1){
-
+App::App(){
+    
 }
 
 void App::Start() {
     LOG_TRACE("Start");
     m_CurrentState = State::UPDATE;
-    m_Root.AddChildren(m_Map.getChildren());
-    m_Map.startAnimations();
 }
 
 void App::Update() {
@@ -28,10 +27,29 @@ void App::Update() {
         Util::Input::IfExit()) {
         m_CurrentState = State::END;
     }
-    m_Root.Update();
+
+    if (Util::Input::IsKeyPressed(Util::Keycode::UP)) {
+        selection->moveDirectly({ 0, TILE_SIZE * TILE_SCALE });
+    }
+    
+    if (Util::Input::IsKeyPressed(Util::Keycode::DOWN)){
+        selection->moveDirectly({ 0, -TILE_SIZE * TILE_SCALE });
+    }
+
+    if (Util::Input::IsKeyPressed(Util::Keycode::LEFT)){
+        selection->moveDirectly({ -TILE_SIZE * TILE_SCALE, 0 });
+    }
+
+    if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT)) {
+        selection->moveDirectly({ TILE_SIZE * TILE_SCALE, 0 });
+    }
+
+
+    camera->update();
     // m_Map.checkTileFrameWork();
 }
 
 void App::End() { // NOLINT(this method will mutate members in the future)
     LOG_TRACE("End");
 }
+

@@ -113,7 +113,7 @@ void TileManager::loadMap(int level){
 
         for(size_t i=0; i<e.size(); i++){
             std::string t = e[i];
-            row.push_back(std::make_shared<Tile>(*tileTable[t], getTilesAbsolutePos({ i, j })));
+            row.push_back(std::make_shared<Tile>(*tileTable[t], getTilesAbsolutePos({ i, j-2 })));
         }
         map.push_back(row);
     }
@@ -137,7 +137,7 @@ void TileManager::stopAnimations(){
 }
 
 glm::vec2 TileManager::getTilesAbsolutePos(glm::vec2 pos) {
-    return {pos.x * TILE_SIZE * TILE_SCALE, (tileNum.y - pos.y) * TILE_SIZE * TILE_SCALE };
+    return {pos.x * TILE_SIZE * TILE_SCALE, (tileNum.y - 1 - pos.y) * TILE_SIZE * TILE_SCALE };
 }
 
 std::shared_ptr<Tile> TileManager::getTile(glm::vec2 pos) {

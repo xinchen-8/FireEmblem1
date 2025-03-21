@@ -1,9 +1,9 @@
 #ifndef INTEGRATION_HPP
 #define INTEGRATION_HPP
 
-#define TILE_SCALE 3
+#define TILE_SCALE 4
 #define TILE_SIZE 16
-#define TILE_INTERVAL 750
+#define TILE_INTERVAL 150
 #define ASSETS "../../../assets/"
 
 

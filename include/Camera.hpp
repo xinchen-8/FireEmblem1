@@ -1,7 +1,9 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
+#include <math.h>
 #include "Util/Renderer.hpp"
+#include "config.hpp"
 #include "Selection.hpp"
 #include "Tile.hpp"
 
@@ -17,7 +19,7 @@ private:
 	std::shared_ptr<Selection> selection = nullptr;
 	Util::Renderer renderer;
 
-	glm::vec2 absolutePos = {0, 0};
+	glm::vec2 absolutePos = { 0, 0 };
 };
 
 #endif

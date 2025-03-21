@@ -49,7 +49,7 @@ public:
     void setAbsolutePos(glm::vec2 a_pos) { absolutePos = a_pos; }
     
     glm::vec2 getTilesAbsolutePos(glm::vec2 pos);
-    glm::vec2 getMapSize() const { return glm::vec2(map.size() * TILE_SIZE * TILE_SCALE, map[0].size() * TILE_SIZE * TILE_SCALE); }
+    glm::vec2 getMapSize() const { return glm::vec2(map[0].size() * TILE_SIZE * TILE_SCALE, map.size() * TILE_SIZE * TILE_SCALE); }
     glm::vec2 getAbsolutePos() const { return absolutePos; }
     int getLevel() const { return level; }
     std::shared_ptr<Tile> getTile(glm::vec2 pos);
@@ -58,7 +58,7 @@ public:
 private:
     int level = 0;
     glm::vec2 tileNum = {0, 0};
-    glm::vec2 absolutePos = glm::vec2( -0.5f * TILE_SIZE * TILE_SCALE, -0.5f * TILE_SIZE* TILE_SCALE); //main point of camera is down left corner of map
+    glm::vec2 absolutePos = {0, 0}; //main point of camera is down left corner of map
     std::unordered_map<std::string, std::shared_ptr<Tile>> tileTable;
     std::vector<std::vector<std::shared_ptr<Tile>>> map = {};
 };

@@ -6,5 +6,6 @@ This is a [PTSD](https://github.com/ntut-open-source-club/practical-tools-for-si
 cmake -DCMAKE_BUILD_TYPE=Debug -B build -G Ninja
 ```
  
-## You can make some changes to make it better
-![alt text](README/changeNEAREST.png)
+## You must to make some changes ~ 
+1. animation with nearest (useAA = false)
+    ![alt text](README/changeNEAREST.png)

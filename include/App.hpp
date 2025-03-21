@@ -21,20 +21,20 @@ public:
     void Update();
     void End(); // NOLINT(readability-convert-member-functions-to-static)
 
-    float getCurrentTileScale() const { return Tile_Scale; }
 
 private:
-    void ValidTask();
+    //void ValidTask();
 
 private:
-    const float Tile_Scale = TILE_SCALE;
-    const int Tile_Size = TILE_SIZE;
 
     State m_CurrentState = State::START;
+    const int delayLimit = 10;
+    const int delayCheck = 4;
+    int delayCounter = delayLimit;
     
     std::shared_ptr<TileManager> tileManager = std::make_shared<TileManager>(1);
     std::shared_ptr<Selection> selection = std::make_shared<Selection>();
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>(tileManager, selection);;
+    std::shared_ptr<Camera> camera = std::make_shared<Camera>(tileManager, selection);
 
 };
 

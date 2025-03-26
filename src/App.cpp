@@ -17,50 +17,59 @@ void App::Start() {
 
 void App::Update() {
     
-    //TODO: do your things here and delete this line <3
-    
-    /*
-     * Do not touch the code below as they serve the purpose for
-     * closing the window.
-     */
+    //end
     if (Util::Input::IsKeyUp(Util::Keycode::ESCAPE) ||
         Util::Input::IfExit()) {
         m_CurrentState = State::END;
     }
 
+    // selection move
     if (((Util::Input::IsKeyPressed(Util::Keycode::UP) && delayCounter <= delayCheck) ||
         (Util::Input::IsKeyDown(Util::Keycode::UP))) &&
-        selection->getAbsolutePos().y < tileManager->getMapSize().y - TILE_SCALE*TILE_SIZE) {
+        selection->getAbsolutePos().y < tileManager->getMapSize().y - TILE_SIZE) {
 
-        selection->moveDirectly({ 0, TILE_SIZE * TILE_SCALE });
+        selection->moveDirectly({ 0, TILE_SIZE });
         delayCounter = delayLimit;
+
+        uiManager->update();
     }
     
     if (((Util::Input::IsKeyPressed(Util::Keycode::DOWN) && delayCounter <= delayCheck) ||
         (Util::Input::IsKeyDown(Util::Keycode::DOWN))) &&
         selection->getAbsolutePos().y > 0){
 
-        selection->moveDirectly({ 0, -TILE_SIZE * TILE_SCALE });
+        selection->moveDirectly({ 0, -TILE_SIZE });
         delayCounter = delayLimit;
+
+        uiManager->update();
     }
 
     if (((Util::Input::IsKeyPressed(Util::Keycode::LEFT) && delayCounter <= delayCheck) ||
         (Util::Input::IsKeyDown(Util::Keycode::LEFT))) &&
         selection->getAbsolutePos().x > 0){
 
-        selection->moveDirectly({ -TILE_SIZE * TILE_SCALE, 0 });
+        selection->moveDirectly({ -TILE_SIZE, 0 });
         delayCounter = delayLimit;
+
+        uiManager->update();
     }
 
     if (((Util::Input::IsKeyPressed(Util::Keycode::RIGHT) && delayCounter <= delayCheck) ||
         (Util::Input::IsKeyDown(Util::Keycode::RIGHT))) && 
-        selection->getAbsolutePos().x < tileManager->getMapSize().x - TILE_SCALE * TILE_SIZE){
+        selection->getAbsolutePos().x < tileManager->getMapSize().x - TILE_SIZE){
         
-        selection->moveDirectly({ TILE_SIZE * TILE_SCALE, 0 });
+        selection->moveDirectly({ TILE_SIZE, 0 });
         delayCounter = delayLimit;
+
+        uiManager->update();
     }
 
+    //info UI
+    if (Util::Input::IsKeyDown(Util::Keycode::F1)) {
+        uiManager->changeVisibleTileInfo();
+    }
 
+    //update
     camera->update();
     if (!--delayCounter) delayCounter = delayLimit;
 }

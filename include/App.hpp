@@ -29,12 +29,17 @@ private:
 
     State m_CurrentState = State::START;
     const int delayLimit = 10;
-    const int delayCheck = 4;
+    const int delayCheck = 2;
     int delayCounter = delayLimit;
     
-    std::shared_ptr<TileManager> tileManager = std::make_shared<TileManager>(1);
     std::shared_ptr<Selection> selection = std::make_shared<Selection>();
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>(tileManager, selection);
+    std::shared_ptr<TileManager> tileManager = std::make_shared<TileManager>(1);
+    std::shared_ptr<UIManager> uiManager = std::make_shared<UIManager>(
+        selection, tileManager
+    );
+    std::shared_ptr<Camera> camera = std::make_shared<Camera>(
+        tileManager, uiManager, selection
+    );
 
 };
 

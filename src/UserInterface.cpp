@@ -73,8 +73,8 @@ glm::vec2 UserInterface::getTileRelativePos(glm::vec2 pos) {
 	return glm::vec2{ pos.x * TILE_SIZE, (UItileNum.y - 1 - pos.y) * TILE_SIZE };
 }
 
-std::vector<std::shared_ptr<CameraGameObject>> UserInterface::getChildren() {
-	std::vector<std::shared_ptr<CameraGameObject>> children;
+std::vector<std::shared_ptr<Util::GameObject>> UserInterface::getChildren() {
+	std::vector<std::shared_ptr<Util::GameObject>> children;
 	for (auto& row : form) {
 		for (auto& tile : row) {
 			children.push_back(tile);
@@ -94,7 +94,7 @@ TileInfoUI::TileInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
 
 void TileInfoUI::update(Tile tile) {
 	setString(tile.getName()+"\navoid +"+std::to_string(tile.getAvoid()));
-	setAbsolutePos({ TILE_SIZE, TILE_SIZE });
+	// setAbsolutePos({ TILE_SIZE, TILE_SIZE });
 }
 
 UIManager::UIManager(
@@ -121,10 +121,10 @@ void UIManager::changeVisibleTileInfo() {
 	tileInfo->setVisible(!tileInfo->getVisible());
 }
 
-std::vector<std::shared_ptr<CameraGameObject>> UIManager::getChildren() {
-	std::vector<std::shared_ptr<CameraGameObject>> children = {};
-	std::vector<std::shared_ptr<CameraGameObject>> reg = tileInfo->getChildren();
-	children.insert(children.end(), reg.begin(), reg.end());
+std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
+	std::vector<std::shared_ptr<Util::GameObject>> children = {};
+	std::vector<std::shared_ptr<Util::GameObject>> reg = tileInfo->getChildren();
+	for (auto &e : reg) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(tileInfo);
 	return children;
 }

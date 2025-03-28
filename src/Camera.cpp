@@ -10,8 +10,8 @@ Camera::Camera(
 	children.insert(children.end(), tiles.begin(), tiles.end());
 	children.push_back(selection);
 
-	tiles = uiManager->getChildren();
-	UIchildren.insert(UIchildren.end(), tiles.begin(), tiles.end());
+	std::vector<std::shared_ptr<Util::GameObject>> ui_tiles = uiManager->getChildren();
+	UIchildren.insert(UIchildren.end(), ui_tiles.begin(), ui_tiles.end());
 
 	for (auto& element : children) {
 		renderer.AddChild(element);

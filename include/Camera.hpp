@@ -21,7 +21,7 @@ public:
 
 private:
 	std::vector<std::shared_ptr<CameraGameObject>> children = {};
-	std::vector<std::shared_ptr<CameraGameObject>> UIchildren = {};
+	std::vector<std::shared_ptr<Util::GameObject>> UIchildren = {};
 	std::shared_ptr<TileManager> tileManager = nullptr;
 	std::shared_ptr<Selection> selection = nullptr;
 	std::shared_ptr<UIManager> uiManager = nullptr;

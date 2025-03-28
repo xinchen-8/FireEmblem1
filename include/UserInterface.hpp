@@ -19,6 +19,7 @@ public:
 	glm::vec2 getUISize() { return { UItileNum.x * TILE_SIZE, UItileNum.y * TILE_SIZE }; }
 	bool getVisible() const { return m_Visible; }
 	std::vector<std::shared_ptr<CameraGameObject>> getChildren();
+
 private:
 	glm::vec2 UItileNum = { 0, 0 };
 	std::vector<std::vector<std::shared_ptr<Tile>>> form = {};
@@ -43,6 +44,7 @@ public:
 	void update();
 	void changeVisibleTileInfo();
 	std::vector<std::shared_ptr<CameraGameObject>> getChildren();
+
 private:
 	std::shared_ptr<TileManager> tileManager;
 	std::shared_ptr<Selection> selection;

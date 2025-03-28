@@ -29,7 +29,7 @@ private:
 
     State m_CurrentState = State::START;
     const int delayLimit = 10;
-    const int delayCheck = 2;
+    const int delayCheck = 4;
     int delayCounter = delayLimit;
     
     std::shared_ptr<Selection> selection = std::make_shared<Selection>();

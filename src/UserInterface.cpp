@@ -17,7 +17,7 @@ void UserInterface::setVisible(bool visible) {
 
 void UserInterface::setRelativePos(glm::vec2 r_pos) {
 	m_Transform.translation = r_pos + glm::vec2{
-		floor(UItileNum.x * TILE_SIZE / 2.5),
+		floor(UItileNum.x * TILE_SIZE / 2.7),
 		floor(UItileNum.y * TILE_SIZE / 3.5),
 	};
 

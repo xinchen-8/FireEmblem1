@@ -7,12 +7,12 @@
 #define TILE_INTERVAL 250
 #define FONT_SIZE 32
 
-#define ASSETS "../../../assets/"
-#define TILES_FOLDER "tiles_map/"
-#define UI_FOLDER "tiles_UI/"
-#define MAP_FOLDER "level_map/"
-#define SELECTION_FOLDER "tiles_selection/"
-#define FONTPATH "font/Cubic_11_1.010_R.ttf"
+#define ASSETS "assets/"
+#define TILES_FOLDER "tiles/tiles_map/"
+#define UI_FOLDER "tiles/tiles_UI/"
+#define MAP_FOLDER "data/level/"
+#define SELECTION_FOLDER "tiles/tiles_selection/"
+#define FONTPATH "ref/font/Cubic_11_1.010_R.ttf"
 
 #include "pch.hpp"
 #include "Util/Logger.hpp"
@@ -24,6 +24,14 @@ enum class Accessable {
 	Swimmable,
 	Flyable,
 	Inaccessible
+};
+
+enum class E_AtkWeapon {
+	Sword,
+	Lance,
+	Bow,
+	Staff,
+	Axe
 };
 
 class CameraGameObject : public Util::GameObject {

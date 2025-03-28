@@ -21,8 +21,8 @@ Camera::Camera(
 	}
 	
 	glm::vec2 BorderDistance = {
-	ceil(PTSD_Config::WINDOW_WIDTH / (TILE_SIZE * 2)) * TILE_SIZE,
-	ceil(PTSD_Config::WINDOW_HEIGHT / (TILE_SIZE * 2)) * TILE_SIZE
+		round(PTSD_Config::WINDOW_WIDTH / (TILE_SIZE * 2)) * TILE_SIZE,
+		round(PTSD_Config::WINDOW_HEIGHT / (TILE_SIZE * 2)) * TILE_SIZE
 	};
 	glm::vec2 mapSize = tileManager->getMapSize();
 
@@ -47,8 +47,8 @@ void Camera::setChildrenRelativePos() {
 
 void Camera::update() {
 	glm::vec2 BorderDistance = {
-		ceil(PTSD_Config::WINDOW_WIDTH / (TILE_SIZE * 2)) * TILE_SIZE,
-		ceil(PTSD_Config::WINDOW_HEIGHT / (TILE_SIZE * 2)) * TILE_SIZE
+		round(PTSD_Config::WINDOW_WIDTH / (TILE_SIZE * 2)) * TILE_SIZE,
+		round(PTSD_Config::WINDOW_HEIGHT / (TILE_SIZE * 2)) * TILE_SIZE
 	};
 	glm::vec2 mapSize = tileManager->getMapSize();
 	glm::vec2 selectionPos = selection->getAbsolutePos();

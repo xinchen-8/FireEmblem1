@@ -4,6 +4,7 @@
 
 int main(int, char**) {
     auto context = Core::Context::GetInstance();
+    context->SetWindowIcon("assets/ref/textures/FE1.png");
     App app;
 
     while (!context->GetExit()) {

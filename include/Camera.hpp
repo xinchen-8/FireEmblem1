@@ -18,6 +18,7 @@ public:
 	);
 	void setChildrenRelativePos();
 	void update();
+
 private:
 	std::vector<std::shared_ptr<CameraGameObject>> children = {};
 	std::vector<std::shared_ptr<CameraGameObject>> UIchildren = {};

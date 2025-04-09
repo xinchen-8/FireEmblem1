@@ -7,12 +7,14 @@
 #include "Selection.hpp"
 #include "Tile.hpp"
 #include "UserInterface.hpp"
+#include "Character.hpp"
 
 class Camera {
 
 public:
 	Camera(
-		std::shared_ptr<TileManager> tm,
+		std::shared_ptr<CharacterManager> cm,
+		std::shared_ptr<MapManager> tm,
 		std::shared_ptr<UIManager> ui,
 		std::shared_ptr<Selection> s
 	);
@@ -22,7 +24,8 @@ public:
 private:
 	std::vector<std::shared_ptr<CameraGameObject>> children = {};
 	std::vector<std::shared_ptr<Util::GameObject>> UIchildren = {};
-	std::shared_ptr<TileManager> tileManager = nullptr;
+	std::shared_ptr<CharacterManager> characterManager = nullptr;
+	std::shared_ptr<MapManager> mapManager = nullptr;
 	std::shared_ptr<Selection> selection = nullptr;
 	std::shared_ptr<UIManager> uiManager = nullptr;
 	Util::Renderer renderer;

@@ -1,0 +1,12 @@
+﻿Class,default,Plain,Forest,Desert,Pillar,Fort,Gate,Mountain,St.Wall,River,Sea,Peak,Wall
+Lord,1,1,2,2,2,2,2,4,4,5,0,0,0
+Cavalier,1,1,3,4,3,2,2,0,0,0,0,0,0
+Paladin,1,1,3,3,3,2,2,6,6,0,0,0,0
+PegasusKnight,1,1,1,1,1,1,1,1,1,1,1,1,0
+Mercenary,1,1,2,2,2,2,2,4,4,0,0,0,0
+Archer,1,1,3,3,3,2,2,0,0,0,0,0,0
+Hunter,1,1,2,2,2,2,2,3,3,0,0,0,0
+Knight,1,1,2,2,2,2,2,0,0,0,0,0,0
+Fighter,1,1,2,2,2,2,3,3,3,0,0,0,0
+Pirate,1,1,2,2,2,2,2,4,4,2,2,0,0
+Curate,1,1,2,2,2,2,2,0,4,0,0,0,0

@@ -19,14 +19,16 @@ class Tile : public CameraGameObject{
 
 public:
     Tile(std::vector<std::string> t_list);
+    //for UI
     Tile(std::string id, std::string img_path);
+    //for map
     Tile(const Tile& other, glm::vec2 a_pos);
-    bool Access(Accessable accessable);
+    bool Access() { return access; }
 
     void setRelativePos(glm::vec2 r_pos) { m_Transform.translation = r_pos; }
     void setStop(){ std::dynamic_pointer_cast<Util::Animation>(m_Drawable)->Pause(); }
     void setStart(){ std::dynamic_pointer_cast<Util::Animation>(m_Drawable)->Play(); }
-    bool mask(Accessable n_access);
+    void mask(){ access = false; m_Visible = false; }
 
     glm::vec2 getRelativePos() const { return m_Transform.translation; }
     std::string getName() { return name; }
@@ -36,13 +38,13 @@ private:
     std::string name = "";
     int avoid = 0;
     int cost = 0;
-    Accessable access = Accessable::Walkable;
+    bool access = true;
 };
 
 
-class TileManager{
+class MapManager{
 public:
-    TileManager(int level);
+    MapManager(int level);
     void buildTileTable();
     void loadMap(int level);
     
@@ -59,7 +61,7 @@ public:
     std::vector<std::shared_ptr<CameraGameObject>> getChildren();
 
 private:
-    void maskTile(glm::vec2 pos, Accessable access);
+    void maskTile(glm::vec2 pos);
 
     int level = 0;
     glm::vec2 tileNum = {0, 0};

@@ -26,7 +26,7 @@ void App::Update() {
     // selection move
     if (((Util::Input::IsKeyPressed(Util::Keycode::UP) && delayCounter <= delayCheck) ||
         (Util::Input::IsKeyDown(Util::Keycode::UP))) &&
-        selection->getAbsolutePos().y < tileManager->getMapSize().y - TILE_SIZE) {
+        selection->getAbsolutePos().y < mapManager->getMapSize().y - TILE_SIZE) {
 
         selection->moveDirectly({ 0, TILE_SIZE });
         delayCounter = delayLimit;
@@ -56,7 +56,7 @@ void App::Update() {
 
     if (((Util::Input::IsKeyPressed(Util::Keycode::RIGHT) && delayCounter <= delayCheck) ||
         (Util::Input::IsKeyDown(Util::Keycode::RIGHT))) && 
-        selection->getAbsolutePos().x < tileManager->getMapSize().x - TILE_SIZE){
+        selection->getAbsolutePos().x < mapManager->getMapSize().x - TILE_SIZE){
         
         selection->moveDirectly({ TILE_SIZE, 0 });
         delayCounter = delayLimit;

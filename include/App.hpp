@@ -33,12 +33,13 @@ private:
     int delayCounter = delayLimit;
     
     std::shared_ptr<Selection> selection = std::make_shared<Selection>();
-    std::shared_ptr<TileManager> tileManager = std::make_shared<TileManager>(1);
+    std::shared_ptr<MapManager> mapManager = std::make_shared<MapManager>(1);
+    std::shared_ptr<CharacterManager> characterManager = std::make_shared<CharacterManager>(1);
     std::shared_ptr<UIManager> uiManager = std::make_shared<UIManager>(
-        selection, tileManager
+        selection, mapManager
     );
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(
-        tileManager, uiManager, selection
+        characterManager, mapManager, uiManager, selection
     );
 
 };

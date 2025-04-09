@@ -40,7 +40,7 @@ class UIManager {
 public:
 	UIManager(
 		std::shared_ptr<Selection> s,
-		std::shared_ptr<TileManager> tm
+		std::shared_ptr<MapManager> tm
 		//characterManager
 	);
 	void update();
@@ -48,12 +48,12 @@ public:
 	std::vector<std::shared_ptr<Util::GameObject>> getChildren();
 
 private:
-	std::shared_ptr<TileManager> tileManager;
+	std::shared_ptr<MapManager> mapManager;
 	std::shared_ptr<Selection> selection;
 		//characterManager,
 	std::vector<std::shared_ptr<Tile>> tiles = {};
 	std::shared_ptr<TileInfoUI> tileInfo = nullptr;
-
+	
 };
 
 #endif

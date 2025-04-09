@@ -9,9 +9,13 @@
 
 #define ASSETS "assets/"
 #define TILES_FOLDER "tiles/tiles_map/"
+#define TILES_PLAYER_FOLDER "tiles/tiles_players/"
 #define UI_FOLDER "tiles/tiles_UI/"
-#define MAP_FOLDER "data/level/"
 #define SELECTION_FOLDER "tiles/tiles_selection/"
+
+#define CHARACTER_FOLDER "data/characters/"
+#define MAP_FOLDER "data/level/"
+
 #define FONTPATH "ref/font/Cubic_11_1.010_R.ttf"
 
 #include "pch.hpp"
@@ -19,14 +23,36 @@
 #include "Util/GameObject.hpp"
 #include "Util/Animation.hpp"
 
-enum class Accessable {
-	Walkable,
-	Swimmable,
-	Flyable,
-	Inaccessible
+
+enum class CharacterClass{
+	Lord,
+	Cavalier,
+	Paladin,
+	PegasusKnight,
+	Mercenary,
+	Archer,
+	Hunter,
+	Knight,
+	Fighter,
+	Pirate,
+	Thief,
+	Curate
 };
 
-enum class E_AtkWeapon {
+enum class CharacterStatus{
+	Normal,
+	Moving,
+	Waiting
+};
+
+enum class Forword{
+	Up,
+	Down,
+	Left,
+	Right
+};
+
+enum class WeaponType {
 	Sword,
 	Lance,
 	Bow,

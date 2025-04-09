@@ -25,12 +25,7 @@ namespace Tool{
                 line.erase(0, pos + delimiter.length()); 
             }
             words.push_back(line);
-    
-            //for (const auto& w : words) {
-            //    std::cout << w << ".";
-            //}
             wordSpace.push_back(words);
-            //std::cout<<std::endl;
         }
         return std::make_shared<std::vector<std::vector<std::string>>>(wordSpace);
     }
@@ -38,7 +33,7 @@ namespace Tool{
 
 
 Tile::Tile(std::vector<std::string> t_list) : 
-avoid(std::stoi(t_list[2])), access(static_cast<Accessable>(std::stoi(t_list[3]))){
+avoid(std::stoi(t_list[2])){
 
     if(t_list.size()<6) LOG_ERROR("The tile list is uncomplete!");
     
@@ -63,6 +58,8 @@ avoid(std::stoi(t_list[2])), access(static_cast<Accessable>(std::stoi(t_list[3])
 
     char reg = t_list[1].back();
     if(reg == '_' || (reg>='0'&&reg<='9')) t_list[1].pop_back();
+    
+    t_list[1][0] = std::toupper(t_list[1][0]);
     name = t_list[1];
     
     LOG_INFO("tile: " + t_list[0] +". " + name + " Tile building success.");
@@ -78,7 +75,7 @@ Tile::Tile(const Tile& other, glm::vec2 a_pos){
     name = other.name;
     avoid = other.avoid;
     cost = other.cost;
-    access = other.access;
+    access = true;
     m_Pivot = other.m_Pivot;
     m_ZIndex = other.m_ZIndex;
     m_Drawable = std::make_shared<Util::Animation>(
@@ -88,33 +85,17 @@ Tile::Tile(const Tile& other, glm::vec2 a_pos){
     absolutePos = a_pos;
 }
 
-bool Tile::Access(Accessable c_accessable) {
-    if (static_cast<int>(c_accessable) > static_cast<int>(access)) return true;
-    return false;
-}
-
-bool Tile::mask(Accessable n_access) {
-    if (access <= n_access) {
-        access = n_access;
-        m_Drawable = nullptr;
-        return true;
-    }
-    return false;
-}
-
-void TileManager::maskTile(glm::vec2 pos, Accessable access) {
-    if(map[pos.y][pos.x]->mask(access))
+void MapManager::maskTile(glm::vec2 pos) {
+    map[pos.y][pos.x]->mask();
         LOG_INFO("Tile {"+ std::to_string(pos.x) + ", " + std::to_string(pos.y) + "} mask success.");
-    else
-        LOG_ERROR("Tile {" + std::to_string(pos.x) + ", " + std::to_string(pos.y) + "} mask not success!");
 }
 
-TileManager::TileManager(int level) : level(level){
+MapManager::MapManager(int level) : level(level){
     buildTileTable();
     loadMap(level);
 }
 
-void TileManager::buildTileTable(){
+void MapManager::buildTileTable(){
     std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile(ASSETS TILES_FOLDER "tiles.csv");
     if (!data) LOG_ERROR("Tile table building failed!");
 
@@ -123,7 +104,7 @@ void TileManager::buildTileTable(){
     LOG_INFO("Tile table building success.");
 }
 
-void TileManager::loadMap(int level){
+void MapManager::loadMap(int level){
     level = this->level;
     std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile(ASSETS MAP_FOLDER "FE1_map_ch" + std::to_string(level) + ".csv");
     if(!data) LOG_ERROR("Map loading failed!");
@@ -145,13 +126,13 @@ void TileManager::loadMap(int level){
     //mask
     int maskNum = stoi((*data)[tileNum.y + 2][0]);
     for (int i = tileNum.y + 3; i < tileNum.y + 3 + maskNum; i++) {
-        maskTile({ stoi((*data)[i][0]), stoi((*data)[i][1]) }, static_cast<Accessable>(stoi((*data)[i][2])));
+        maskTile({ stoi((*data)[i][0]), stoi((*data)[i][1]) });
     }
 
     LOG_INFO("Map loading success.");
 }
 
-void TileManager::startAnimations(){
+void MapManager::startAnimations(){
     for(auto &row: map){
         for(auto &tile: row){
             tile->setStart();
@@ -159,7 +140,7 @@ void TileManager::startAnimations(){
     }
 }
 
-void TileManager::stopAnimations(){
+void MapManager::stopAnimations(){
     for(auto &row: map){
         for(auto &tile: row){
             tile->setStop();
@@ -167,11 +148,11 @@ void TileManager::stopAnimations(){
     }
 }
 
-glm::vec2 TileManager::getTileAbsolutePos(glm::vec2 pos) {
+glm::vec2 MapManager::getTileAbsolutePos(glm::vec2 pos) {
     return {pos.x * TILE_SIZE, (tileNum.y - 1 - pos.y) * TILE_SIZE };
 }
 
-std::shared_ptr<Tile> TileManager::getPosTile(glm::vec2 a_pos) {
+std::shared_ptr<Tile> MapManager::getPosTile(glm::vec2 a_pos) {
     for (auto& row : map) {
         for (auto& e : row) {
             if (a_pos == e->getAbsolutePos())
@@ -181,11 +162,11 @@ std::shared_ptr<Tile> TileManager::getPosTile(glm::vec2 a_pos) {
     return nullptr;
 }
 
-std::shared_ptr<Tile> TileManager::getTile(std::string id) {
+std::shared_ptr<Tile> MapManager::getTile(std::string id) {
     return tileTable[id];
 }
 
-std::vector<std::shared_ptr<CameraGameObject>> TileManager::getChildren(){
+std::vector<std::shared_ptr<CameraGameObject>> MapManager::getChildren(){
     std::vector<std::shared_ptr<CameraGameObject>> children;
     for(auto &row: map){
         for(auto &tile: row){

@@ -99,9 +99,9 @@ void TileInfoUI::update(Tile tile) {
 
 UIManager::UIManager(
 	std::shared_ptr<Selection> s,
-	std::shared_ptr<TileManager> tm
+	std::shared_ptr<MapManager> tm
 	//characterManager,
-	) : tileManager(tm), selection(s) {
+	) : mapManager(tm), selection(s) {
 
 	for (int i = 0; i < 9; i++) {
 		tiles.push_back(std::make_shared<Tile>(
@@ -113,7 +113,7 @@ UIManager::UIManager(
 }
 
 void UIManager::update() {
-	auto reg = tileManager->getPosTile(selection->getAbsolutePos());
+	auto reg = mapManager->getPosTile(selection->getAbsolutePos());
 	if(reg) tileInfo->update(*reg);
 }
 

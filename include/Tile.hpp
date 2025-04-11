@@ -14,7 +14,6 @@ namespace Tool {
     std::shared_ptr<std::vector<std::vector<std::string>>> inputFile(std::string file);
 }
 
-
 class Tile : public CameraGameObject{
 
 public:
@@ -26,8 +25,10 @@ public:
     bool Access() { return access; }
 
     void setRelativePos(glm::vec2 r_pos) { m_Transform.translation = r_pos; }
+    void setAnimation(std::shared_ptr<Util::Animation> a_animation) { m_Drawable = a_animation; }
     void setStop(){ std::dynamic_pointer_cast<Util::Animation>(m_Drawable)->Pause(); }
     void setStart(){ std::dynamic_pointer_cast<Util::Animation>(m_Drawable)->Play(); }
+    void setVisible(bool visible) { m_Visible = visible; }
     void mask(){ access = false; m_Visible = false; }
 
     glm::vec2 getRelativePos() const { return m_Transform.translation; }
@@ -54,6 +55,7 @@ public:
     
     glm::vec2 getTileAbsolutePos(glm::vec2 pos);
     glm::vec2 getMapSize() const { return glm::vec2(map[0].size() * TILE_SIZE, map.size() * TILE_SIZE); }
+    glm::vec2 getMapTileSize() const { return glm::vec2(map[0].size(), map.size()); }
     glm::vec2 getAbsolutePos() const { return absolutePos; }
     int getLevel() const { return level; }
     std::shared_ptr<Tile> getPosTile(glm::vec2 a_pos);

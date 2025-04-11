@@ -3,7 +3,7 @@
 
 #define TILE_SCALE 4
 #define TILE_PIXEL 16
-#define TILE_SIZE TILE_SCALE*TILE_PIXEL
+#define TILE_SIZE (TILE_SCALE*TILE_PIXEL)
 #define TILE_INTERVAL 250
 #define FONT_SIZE 32
 
@@ -23,20 +23,24 @@
 #include "Util/GameObject.hpp"
 #include "Util/Animation.hpp"
 
+namespace std {
+    template <>
+    struct hash<glm::vec2> {
+        std::size_t operator()(const glm::vec2& v) const noexcept {
+            std::size_t h1 = std::hash<float>{}(v.x);
+            std::size_t h2 = std::hash<float>{}(v.y);
+            return h1 ^ (h2 << 1);
+        }
+    };
+}
 
-enum class CharacterClass{
-	Lord,
-	Cavalier,
-	Paladin,
-	PegasusKnight,
-	Mercenary,
-	Archer,
-	Hunter,
-	Knight,
-	Fighter,
-	Pirate,
-	Thief,
-	Curate
+inline bool operator==(const glm::vec2& a, const glm::vec2& b) {
+    return a.x == b.x && a.y == b.y;
+}
+
+enum class SelectionStatus{
+	Normal,
+	Moving
 };
 
 enum class CharacterStatus{

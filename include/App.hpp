@@ -32,9 +32,9 @@ private:
     const int delayCheck = 4;
     int delayCounter = delayLimit;
     
-    std::shared_ptr<Selection> selection = std::make_shared<Selection>();
     std::shared_ptr<MapManager> mapManager = std::make_shared<MapManager>(1);
-    std::shared_ptr<CharacterManager> characterManager = std::make_shared<CharacterManager>(1);
+    std::shared_ptr<CharacterManager> characterManager = std::make_shared<CharacterManager>(mapManager);
+    std::shared_ptr<Selection> selection = std::make_shared<Selection>();
     std::shared_ptr<UIManager> uiManager = std::make_shared<UIManager>(
         selection, mapManager
     );

@@ -64,11 +64,20 @@ void App::Update() {
         uiManager->update();
     }
 
+    if (Util::Input::IsKeyDown(Util::Keycode::RETURN)) {
+        LOG_INFO("Enter pressed");
+        selection->changeStatus();
+        selection->setMoveLimit(characterManager->selectCharacter(selection->getAbsolutePos()));
+    }
+
     //info UI
     if (Util::Input::IsKeyDown(Util::Keycode::F1)) {
         uiManager->changeVisibleTileInfo();
     }
-
+    //tip 
+    if (Util::Input::IsKeyDown(Util::Keycode::F2)) {
+        characterManager->changeTipsVisible();
+    }
     //update
     camera->update();
     if (!--delayCounter) delayCounter = delayLimit;

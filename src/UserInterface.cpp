@@ -2,7 +2,7 @@
 
 UserInterface::UserInterface(const std::vector<std::shared_ptr<Tile>> &tiles){
 	m_Visible = false;
-	m_ZIndex = 6;
+	m_ZIndex = 7;
 	for (auto& e : tiles) tileTable.push_back(e);
 }
 
@@ -106,7 +106,7 @@ UIManager::UIManager(
 	for (int i = 0; i < 9; i++) {
 		tiles.push_back(std::make_shared<Tile>(
 			"F" + std::to_string(i+1), ASSETS UI_FOLDER "text" + std::to_string(i) + ".png"));
-		tiles[i]->SetZIndex(5);
+		tiles[i]->SetZIndex(6);
 	}
 
 	tileInfo = std::make_shared<TileInfoUI>(tiles);

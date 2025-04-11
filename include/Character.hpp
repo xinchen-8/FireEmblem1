@@ -2,21 +2,27 @@
 #define CHARACTER_HPP
 #include "Integration.hpp"
 #include "Tile.hpp"
+#include "Selection.hpp"
 
 class Character : public CameraGameObject {
 public:
 	Character(
+		std::shared_ptr<MapManager> mm,
 		std::vector<std::string> n_list,
 		std::vector<std::string> g_list,
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
 		bool isPlayer
 	);
-	void update();
-	void setStatus(CharacterStatus status){ this->status = status; }
+
+	void setAnimation();
+	void refreshMoveRange();
+	void setStatus(CharacterStatus status);
 	void setVisible(bool visible){ m_Visible = visible; }
 	void setHeadshotAnimation(std::shared_ptr<Util::Animation> a_headshotAnimation){ headshotAnimation = a_headshotAnimation; }
 	void setTileAnimation();
+	
 	std::string getName() { return name; }
+	std::string getClassName() { return className; }
 	int getLevel() { return Lv; }
 	int getExp() { return Ex; }
 	int getHP() { return HP; }
@@ -36,10 +42,14 @@ public:
 	int getLckGR() { return LckGR; }
 	int getDefGR() { return DefGR; }
 	int getResGR() { return ResGR; }
+	std::unordered_map<glm::vec2, int> getMoveRange() { return moveRange; }
+
 	//items
 protected:
 	int gapOfAnimation = 3;
 private:
+	void findMoveRange(int mov, glm::vec2 a_pos);
+
 	std::string name = "";
 	std::string className = "";
 	bool isPlayer = true;
@@ -52,7 +62,7 @@ private:
 	int HP = 0; int Str = 0;
 	int Skl = 0; int Wlv = 0;
 	int Spd = 0; int Lck = 0;
-	int Def = 0; int Res = 0;
+	int Def = 0	; int Res = 0;
 	int Mov = 0;
 	
 	int HPGR = 0; int StrGR = 0;
@@ -60,19 +70,22 @@ private:
 	int SpdGR = 0; int LckGR = 0;
 	int DefGR = 0; int ResGR = 0;
 
+	std::shared_ptr<MapManager> mapManager = nullptr;
+
 	std::shared_ptr<Util::Animation> headshotAnimation = nullptr;
 	std::shared_ptr<Util::Animation> standAnimation = nullptr;
 	std::unordered_map<Forword, std::shared_ptr<Util::Animation>> walkAnimation = {};
 	std::shared_ptr<Util::Animation> waitAnimation = nullptr;
 
 	std::shared_ptr<std::unordered_map<std::string, int>> walkCost = nullptr;
-
+	std::unordered_map<glm::vec2, int> moveRange = {};
 };
 
 //class of characters
 class Lord final : public Character {
 public:
 	Lord(
+		std::shared_ptr<MapManager> mm,
 		std::vector<std::string> n_list,
 		std::vector<std::string> g_list, 
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
@@ -89,6 +102,7 @@ private:
 class PegasusKnight final : public Character {
 public:
 	PegasusKnight(
+		std::shared_ptr<MapManager> mm,
 		std::vector<std::string> n_list,
 		std::vector<std::string> g_list, 
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
@@ -106,6 +120,7 @@ private:
 class Paladin final : public Character {
 public:
 	Paladin(
+		std::shared_ptr<MapManager> mm,
 		std::vector<std::string> n_list,
 		std::vector<std::string> g_list, 
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
@@ -123,6 +138,7 @@ private:
 class Cavalier final : public Character {
 public:
 	Cavalier(
+		std::shared_ptr<MapManager> mm,
 		std::vector<std::string> n_list,
 		std::vector<std::string> g_list, 
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
@@ -140,6 +156,7 @@ private:
 class Knight final : public Character {
 public:
 	Knight(
+		std::shared_ptr<MapManager> mm,
 		std::vector<std::string> n_list,
 		std::vector<std::string> g_list, 
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
@@ -157,6 +174,7 @@ private:
 class Archer final : public Character {
 public:
 	Archer(
+		std::shared_ptr<MapManager> mm,
 		std::vector<std::string> n_list,
 		std::vector<std::string> g_list, 
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
@@ -173,6 +191,7 @@ private:
 class Curate final : public Character {
 public:
 	Curate(
+		std::shared_ptr<MapManager> mm,
 		std::vector<std::string> n_list,
 		std::vector<std::string> g_list, 
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
@@ -189,6 +208,7 @@ private:
 class Mercenary final : public Character {
 public:
 	Mercenary(
+		std::shared_ptr<MapManager> mm,
 		std::vector<std::string> n_list,
 		std::vector<std::string> g_list, 
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
@@ -205,6 +225,7 @@ private:
 class Fighter final : public Character {
 public:
 	Fighter(
+		std::shared_ptr<MapManager> mm,
 		std::vector<std::string> n_list,
 		std::vector<std::string> g_list, 
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
@@ -221,7 +242,8 @@ private:
 class Hunter final : public Character {
 public:
 	Hunter(
-		std::vector<std::string> n_list,
+		std::shared_ptr<MapManager> mm,
+                std::vector<std::string> n_list,
 		std::vector<std::string> g_list, 
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
 		bool isPlayer
@@ -237,7 +259,8 @@ private:
 class Pirate final : public Character {
 public:
 	Pirate(
-		std::vector<std::string> n_list,
+		std::shared_ptr<MapManager> mm,
+                std::vector<std::string> n_list,
 		std::vector<std::string> g_list, 
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
 		bool isPlayer
@@ -249,18 +272,29 @@ private:
 	}; 
 };
 
-
 class CharacterManager{
 public:
-	CharacterManager(int level);
+	CharacterManager(std::shared_ptr<MapManager> mm);
 	void loadCharacter();
 	void setInitialLevel(int level);
-	//std::shared_ptr<Character> getCharacter(std::string id);
+	void changeTipsVisible();
+	std::unordered_map<glm::vec2, int> selectCharacter(glm::vec2 a_pos);
+
+	std::shared_ptr<Character> getCharacter(std::string id);
 	//std::shared_ptr<Character> getPosCharacter(glm::vec2 a_pos);
+	std::shared_ptr<Tile> getTipTile(glm::vec2 a_pos);
 	std::vector<std::shared_ptr<CameraGameObject>> getChildren();
 private:
+	bool tipsVisible = false;
+
 	std::unordered_map<std::string, std::shared_ptr<std::unordered_map<std::string, int>>> costTable = {};
 	std::vector<std::shared_ptr<Character>> characters = {};
+
+	std::shared_ptr<MapManager> mapManager = nullptr;
+	std::shared_ptr<Util::Animation> moveAnimation = nullptr;
+	std::shared_ptr<Util::Animation> attackAnimation = nullptr;
+	std::vector<std::vector<std::shared_ptr<Tile>>> tips = {};
+
 };
 
 #endif

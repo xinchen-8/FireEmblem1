@@ -37,6 +37,8 @@ void Character::walkDirectly(){
 	else if(p.y > absolutePos.y) forword = Forword::Up;
 	setAnimation();
 	absolutePos = p;
+
+	if(!walkPath.size()) setStatus(CharacterStatus::Normal);
 }
 
 
@@ -105,13 +107,18 @@ void Character::moveDirectly(glm::ivec2 a_pos){
 void Character::refreshMoveRange(){
 	// std::cout<<name<<" refresh move range."<<std::endl;
 	moveRange.clear();
-	findMoveRange(Mov+1, getAbsolutePos());
+	
+    std::shared_ptr<Tile> tile = mapManager->getPosTile(absolutePos);
+    int cost = (*walkCost)[tile->getName()];
+	if(cost==0) cost = (*walkCost)["Default"];
+	findMoveRange(Mov+cost, getAbsolutePos());
 }
 
 void Character::setAnimation(){
 	switch(status){
 		case CharacterStatus::Normal:
 			m_Drawable = standAnimation;
+			m_Transform.scale.x = TILE_SCALE;
 			break;
 		case CharacterStatus::Moving:
 			switch(forword){

@@ -13,15 +13,14 @@ Selection::Selection(){
 	moveAnimation = std::make_shared<Util::Animation>(paths, true, TILE_INTERVAL, true, 0);
 }
 
-void Selection::changeStatus(){
-	status = (status == SelectionStatus::Normal) ? 
-		SelectionStatus::Moving : SelectionStatus::Normal;
+void Selection::setStatus(SelectionStatus status){
+	this->status = status;
 	setAnimation();
 }
 
-void Selection::moveDirectly(glm::vec2 move){
+void Selection::moveDirectly(glm::ivec2 move){
 	if(status == SelectionStatus::Moving){
-		glm::vec2 newPos = absolutePos + move;
+		glm::ivec2 newPos = absolutePos + move;
 		if(limitRange.find(newPos) != limitRange.end()) absolutePos = newPos;
 	}
 	else absolutePos += move;

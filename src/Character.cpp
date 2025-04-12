@@ -25,6 +25,89 @@ Character::Character(
 	DefGR = std::stoi(g_list[7]); ResGR = std::stoi(g_list[8]);
 }
 
+void Character::walkDirectly(){
+	if(status != CharacterStatus::Moving) return;
+	if(walkPath.size() == 0) return;
+
+	glm::ivec2 p = walkPath.front();
+	walkPath.pop();
+	if(p.x > absolutePos.x) forword = Forword::Right;
+	else if(p.x < absolutePos.x) forword = Forword::Left;
+	else if(p.y < absolutePos.y) forword = Forword::Down;
+	else if(p.y > absolutePos.y) forword = Forword::Up;
+	setAnimation();
+	absolutePos = p;
+}
+
+
+void Character::moveDirectly(glm::ivec2 a_pos){
+	if (moveRange.find(a_pos) == moveRange.end()){
+		LOG_ERROR("Invalid move range: " + std::to_string(a_pos.x) + ", " + std::to_string(a_pos.y));
+		return;
+	}
+
+//Dijkstra's algorithm
+	//initialize
+	std::shared_ptr<Tile> start = mapManager->getPosTile(getAbsolutePos());
+	std::shared_ptr<Tile> end = mapManager->getPosTile(a_pos);
+	std::vector<glm::ivec2> directions = {
+        {TILE_SIZE, 0}, {0, TILE_SIZE}, {-TILE_SIZE, 0}, {0, -TILE_SIZE}
+    };
+	
+	for(auto &p: moveRange) p.second = INT_MAX;
+    std::priority_queue<DijkstraNode, std::vector<DijkstraNode>, std::greater<DijkstraNode>> pq;
+	moveRange[start->getAbsolutePos()] = 0;
+	std::queue<glm::ivec2> p;
+	p.push(start->getAbsolutePos());
+	pq.push({0, start->getAbsolutePos(), p}); //first node
+	
+	//main
+    while (!pq.empty()) {
+        DijkstraNode cur = pq.top(); pq.pop();
+
+        if (cur.pos == end->getAbsolutePos()) {
+			std::cout<<"find path: " << cur.cost << std::endl;
+			std::cout<<"path: ";
+
+			std::queue<glm::ivec2> curPath = cur.path;
+			while(!curPath.empty()){
+				glm::ivec2 p = curPath.front(); curPath.pop();
+				std::cout<<"("<<p.x<<", "<<p.y<<") ";
+			}
+			std::cout<<std::endl;
+
+			walkPath = cur.path;
+        }
+
+        for (auto& d : directions) {
+            glm::ivec2 next = cur.pos + d;
+			
+			//judge border of range
+            if (moveRange.find(next) == moveRange.end()) continue;
+			std::cout<<"next: "<<next.x<<", "<<next.y<<std::endl;
+            auto nextTile = mapManager->getPosTile(next);
+            if (!nextTile) continue;
+
+            int tileCost = (*walkCost)[nextTile->getName()];
+            if (tileCost == 0) tileCost = (*walkCost)["Default"];
+            int newCost = cur.cost + tileCost;
+
+            if (newCost < moveRange[next]) {
+                moveRange[next] = newCost;
+                auto newPath = cur.path;
+                newPath.push(next);
+                pq.push({newCost, next, newPath});
+            }
+        }
+    }
+}
+
+void Character::refreshMoveRange(){
+	// std::cout<<name<<" refresh move range."<<std::endl;
+	moveRange.clear();
+	findMoveRange(Mov+1, getAbsolutePos());
+}
+
 void Character::setAnimation(){
 	switch(status){
 		case CharacterStatus::Normal:
@@ -34,9 +117,11 @@ void Character::setAnimation(){
 			switch(forword){
 				case Forword::Up:
 					m_Drawable = walkAnimation[Forword::Up];
+					m_Transform.scale.x = TILE_SCALE;
 					break;
 				case Forword::Down:
 					m_Drawable = walkAnimation[Forword::Down];
+					m_Transform.scale.x = TILE_SCALE;
 					break;
 				case Forword::Left:
 					m_Drawable = walkAnimation[Forword::Right];
@@ -44,6 +129,7 @@ void Character::setAnimation(){
 					break;
 				case Forword::Right:
 					m_Drawable = walkAnimation[Forword::Right];
+					m_Transform.scale.x = TILE_SCALE;
 					break;
 			}
 			break;
@@ -53,12 +139,6 @@ void Character::setAnimation(){
 		default:
 			break;
 	}
-}
-
-void Character::refreshMoveRange(){
-	// std::cout<<name<<" refresh move range."<<std::endl;
-	moveRange.clear();
-	findMoveRange(Mov+1, getAbsolutePos());
 }
 
 void Character::setStatus(CharacterStatus status){
@@ -103,7 +183,7 @@ void Character::setTileAnimation(){
 	setAnimation();
 }
 
-void Character::findMoveRange(int mov, glm::vec2 a_pos){
+void Character::findMoveRange(int mov, glm::ivec2 a_pos){
 	if (mov < 0) return;
 
 	auto it = moveRange.find(a_pos);
@@ -121,11 +201,12 @@ void Character::findMoveRange(int mov, glm::vec2 a_pos){
 	moveRange[a_pos] = mov;
     // std::cout << new_mov << ": add " << a_pos.x << ", " << a_pos.y << std::endl;
     
-    findMoveRange(new_mov, a_pos + glm::vec2(TILE_SIZE, 0));
-    findMoveRange(new_mov, a_pos + glm::vec2(-TILE_SIZE, 0));
-    findMoveRange(new_mov, a_pos + glm::vec2(0, TILE_SIZE));
-    findMoveRange(new_mov, a_pos + glm::vec2(0, -TILE_SIZE));
+    findMoveRange(new_mov, a_pos + glm::ivec2(TILE_SIZE, 0));
+    findMoveRange(new_mov, a_pos + glm::ivec2(-TILE_SIZE, 0));
+    findMoveRange(new_mov, a_pos + glm::ivec2(0, TILE_SIZE));
+    findMoveRange(new_mov, a_pos + glm::ivec2(0, -TILE_SIZE));
 }
+
 
 Lord::Lord(
 	std::shared_ptr<MapManager> mm,
@@ -272,6 +353,12 @@ CharacterManager::CharacterManager(std::shared_ptr<MapManager> mm) : mapManager(
 	}
 }
 
+void CharacterManager::update(){
+	for(auto &c: characters){
+		c -> walkDirectly();
+	}
+}
+
 void CharacterManager::loadCharacter(){
 	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile(ASSETS CHARACTER_FOLDER "players/player_base_data.csv");
 	std::shared_ptr<std::vector<std::vector<std::string>>> g_data = Tool::inputFile(ASSETS CHARACTER_FOLDER "players/player_growth_rate.csv");
@@ -332,35 +419,42 @@ void CharacterManager::setInitialLevel(int level){
 	}
 }
 
-void CharacterManager::changeTipsVisible(){
+void CharacterManager::changeTipsVisible(std::shared_ptr<Character> character){
 	tipsVisible = !tipsVisible;
+
+	if(character){
+		// clearTips();
+		selectCharacter(character);
+	}
 }
 
-std::unordered_map<glm::vec2, int> CharacterManager::selectCharacter(glm::vec2 a_pos){
-	for(auto &c: characters){
-		if(c->getAbsolutePos() == a_pos){
-			c->refreshMoveRange();
-
-			for(auto [pos, mov]: c->getMoveRange()){
-				// std::cout<<"meow " << e.x << ", " << e.y << std::endl;
-				std::shared_ptr<Tile> tip = getTipTile(pos);
-				
-				tip->setStart();
-				std::vector<std::string> r = {ASSETS SELECTION_FOLDER "tip0.png"};
-				tip->setAnimation( std::make_shared<Util::Animation>(
-					r, true, TILE_INTERVAL, true, 0)
-				);
-				tip->SetVisible(tipsVisible);
-				// std::cout<<"meowwwwww"<<std::endl;
-
-			}
-
-
-			c->setStatus(CharacterStatus::Moving);
-			return c->getMoveRange();
+void CharacterManager::clearTips() {
+	for(auto &r: tips){
+		for(auto &t: r){
+			t->setVisible(false);
 		}
 	}
-	return {};
+}
+
+std::unordered_map<glm::ivec2, int> CharacterManager::selectCharacter(std::shared_ptr<Character> character = nullptr){
+	if(!character) return {};
+	character->refreshMoveRange();
+
+	for(auto [pos, mov]: character->getMoveRange()){
+		// std::cout<<"meow " << pos.x << ", " << pos.y << std::endl;
+		std::shared_ptr<Tile> tip = getTipTile(pos);
+		
+		tip->setStart();
+		std::vector<std::string> r = {ASSETS SELECTION_FOLDER "tip0.png"};
+		tip->setAnimation( std::make_shared<Util::Animation>(
+			r, true, TILE_INTERVAL, true, 0)
+		);
+		tip->SetVisible(tipsVisible);
+		// std::cout<<"meowwwwww"<<std::endl;
+
+	}
+	character->setStatus(CharacterStatus::Moving);
+	return character->getMoveRange();
 }
 
 std::shared_ptr<Character> CharacterManager::getCharacter(std::string id){
@@ -370,7 +464,14 @@ std::shared_ptr<Character> CharacterManager::getCharacter(std::string id){
 	return nullptr;
 }
 
-std::shared_ptr<Tile> CharacterManager::getTipTile(glm::vec2 a_pos){
+std::shared_ptr<Character> CharacterManager::getPosCharacter(glm::ivec2 a_pos){
+	for(auto &c: characters){
+		if(c->getAbsolutePos() == a_pos) return c;
+	}
+	return nullptr;
+}
+
+std::shared_ptr<Tile> CharacterManager::getTipTile(glm::ivec2 a_pos){
 	float i = a_pos.x/TILE_SIZE;
 	float j = mapManager->getMapSize().y/TILE_SIZE-a_pos.y/TILE_SIZE-1;
 

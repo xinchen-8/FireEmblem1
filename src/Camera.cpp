@@ -23,11 +23,11 @@ Camera::Camera(
 		renderer.AddChild(element);
 	}
 	
-	glm::vec2 BorderDistance = {
+	glm::ivec2 BorderDistance = {
 		round(PTSD_Config::WINDOW_WIDTH / (TILE_SIZE * 2)) * TILE_SIZE,
 		round(PTSD_Config::WINDOW_HEIGHT / (TILE_SIZE * 2)) * TILE_SIZE
 	};
-	glm::vec2 mapSize = mapManager->getMapSize();
+	glm::ivec2 mapSize = mapManager->getMapSize();
 
 	absolutePos = selection->getAbsolutePos();
 	if (absolutePos.x < BorderDistance.x)
@@ -49,12 +49,12 @@ void Camera::setChildrenRelativePos() {
 
 
 void Camera::update() {
-	glm::vec2 BorderDistance = {
+	glm::ivec2 BorderDistance = {
 		round(PTSD_Config::WINDOW_WIDTH / (TILE_SIZE * 2)) * TILE_SIZE,
 		round(PTSD_Config::WINDOW_HEIGHT / (TILE_SIZE * 2)) * TILE_SIZE
 	};
-	glm::vec2 mapSize = mapManager->getMapSize();
-	glm::vec2 selectionPos = selection->getAbsolutePos();
+	glm::ivec2 mapSize = mapManager->getMapSize();
+	glm::ivec2 selectionPos = selection->getAbsolutePos();
 
 	if (selectionPos.x >= BorderDistance.x && selectionPos.x <= mapSize.x - BorderDistance.x - TILE_SIZE)
 		absolutePos.x = selectionPos.x;

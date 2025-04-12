@@ -12,17 +12,17 @@ public:
 
 	void virtual update() = 0;
 	void setVisible(bool visible);
-	void setRelativePos(glm::vec2 r_pos);
-	void setUISize(glm::vec2 windowNums);
+	void setRelativePos(glm::ivec2 r_pos);
+	void setUISize(glm::ivec2 windowNums);
 	void setString(std::string content);
 
-	glm::vec2 getTileRelativePos(glm::vec2 pos);
-	glm::vec2 getUISize() { return { UItileNum.x * TILE_SIZE, UItileNum.y * TILE_SIZE }; }
+	glm::ivec2 getTileRelativePos(glm::ivec2 pos);
+	glm::ivec2 getUISize() { return { UItileNum.x * TILE_SIZE, UItileNum.y * TILE_SIZE }; }
 	bool getVisible() const { return m_Visible; }
 	virtual std::vector<std::shared_ptr<GameObject>> getChildren();
 
 private:
-	glm::vec2 UItileNum = { 0, 0 };
+	glm::ivec2 UItileNum = { 0, 0 };
 	std::vector<std::vector<std::shared_ptr<Tile>>> form = {};
 	std::vector<std::shared_ptr<Tile>> tileTable = {};
 };

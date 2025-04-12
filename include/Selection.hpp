@@ -7,23 +7,29 @@
 #include "Tile.hpp"
 #include "Character.hpp"
 
+class Character;
+
 class Selection : public CameraGameObject {
 
 public:
 	Selection();
-	void changeStatus();
-	void setMoveLimit(std::unordered_map<glm::vec2, int> limit) { limitRange = limit; } //limit with status
+	void setStatus(SelectionStatus status);
+	void setMoveLimit(std::unordered_map<glm::ivec2, int> limit) { limitRange = limit; } //limit with status
 	
-
-	void setAnimation() { m_Drawable = (status==SelectionStatus::Moving) ? moveAnimation : chooseAnimation; }
-	void hideAnimation() { m_Visible = false; }
-	void displayAnimation() { m_Visible = true; }
+	void setSelectCharacter(std::shared_ptr<Character> character) { selectCharacter = character; }
+	void setAnimation() { m_Drawable = (status==SelectionStatus::Normal) ? chooseAnimation : moveAnimation; }
 	
-	void moveDirectly(glm::vec2 move);
+	void moveDirectly(glm::ivec2 move);
 	bool isMoving() { return status == SelectionStatus::Moving; }
+
+	std::shared_ptr<Character> getSelectCharacter() { return selectCharacter; }
+	SelectionStatus getStatus() { return status; }
+
 private:
 	SelectionStatus status = SelectionStatus::Normal;
-	std::unordered_map<glm::vec2, int> limitRange = {};
+	std::shared_ptr<Character> selectCharacter = nullptr;
+	std::unordered_map<glm::ivec2, int> limitRange = {};
+	
 	std::shared_ptr<Util::Animation> chooseAnimation;
 	std::shared_ptr<Util::Animation> moveAnimation;
 };

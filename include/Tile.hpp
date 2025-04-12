@@ -21,17 +21,17 @@ public:
     //for UI
     Tile(std::string id, std::string img_path);
     //for map
-    Tile(const Tile& other, glm::vec2 a_pos);
+    Tile(const Tile& other, glm::ivec2 a_pos);
     bool Access() { return access; }
 
-    void setRelativePos(glm::vec2 r_pos) { m_Transform.translation = r_pos; }
+    void setRelativePos(glm::ivec2 r_pos) { m_Transform.translation = r_pos; }
     void setAnimation(std::shared_ptr<Util::Animation> a_animation) { m_Drawable = a_animation; }
     void setStop(){ std::dynamic_pointer_cast<Util::Animation>(m_Drawable)->Pause(); }
     void setStart(){ std::dynamic_pointer_cast<Util::Animation>(m_Drawable)->Play(); }
     void setVisible(bool visible) { m_Visible = visible; }
     void mask(){ access = false; m_Visible = false; }
 
-    glm::vec2 getRelativePos() const { return m_Transform.translation; }
+    glm::ivec2 getRelativePos() const { return m_Transform.translation; }
     std::string getName() { return name; }
     int getAvoid() { return avoid; }
 
@@ -51,23 +51,23 @@ public:
     
     void startAnimations();
     void stopAnimations();
-    void setAbsolutePos(glm::vec2 a_pos) { absolutePos = a_pos; }
+    void setAbsolutePos(glm::ivec2 a_pos) { absolutePos = a_pos; }
     
-    glm::vec2 getTileAbsolutePos(glm::vec2 pos);
-    glm::vec2 getMapSize() const { return glm::vec2(map[0].size() * TILE_SIZE, map.size() * TILE_SIZE); }
-    glm::vec2 getMapTileSize() const { return glm::vec2(map[0].size(), map.size()); }
-    glm::vec2 getAbsolutePos() const { return absolutePos; }
+    glm::ivec2 getTileAbsolutePos(glm::ivec2 pos);
+    glm::ivec2 getMapSize() const { return glm::ivec2(map[0].size() * TILE_SIZE, map.size() * TILE_SIZE); }
+    glm::ivec2 getMapTileSize() const { return glm::ivec2(map[0].size(), map.size()); }
+    glm::ivec2 getAbsolutePos() const { return absolutePos; }
     int getLevel() const { return level; }
-    std::shared_ptr<Tile> getPosTile(glm::vec2 a_pos);
+    std::shared_ptr<Tile> getPosTile(glm::ivec2 a_pos);
     std::shared_ptr<Tile> getTile(std::string id);
     std::vector<std::shared_ptr<CameraGameObject>> getChildren();
 
 private:
-    void maskTile(glm::vec2 pos);
+    void maskTile(glm::ivec2 pos);
 
     int level = 0;
-    glm::vec2 tileNum = {0, 0};
-    glm::vec2 absolutePos = {0, 0}; //main point of camera is down left corner of map
+    glm::ivec2 tileNum = {0, 0};
+    glm::ivec2 absolutePos = {0, 0}; //main point of camera is down left corner of map
     std::unordered_map<std::string, std::shared_ptr<Tile>> tileTable;
     std::vector<std::vector<std::shared_ptr<Tile>>> map = {};
 };

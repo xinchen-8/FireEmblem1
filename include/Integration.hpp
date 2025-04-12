@@ -25,8 +25,8 @@
 
 namespace std {
     template <>
-    struct hash<glm::vec2> {
-        std::size_t operator()(const glm::vec2& v) const noexcept {
+    struct hash<glm::ivec2> {
+        std::size_t operator()(const glm::ivec2& v) const noexcept {
             std::size_t h1 = std::hash<float>{}(v.x);
             std::size_t h2 = std::hash<float>{}(v.y);
             return h1 ^ (h2 << 1);
@@ -34,13 +34,14 @@ namespace std {
     };
 }
 
-inline bool operator==(const glm::vec2& a, const glm::vec2& b) {
+inline bool operator==(const glm::ivec2& a, const glm::ivec2& b) {
     return a.x == b.x && a.y == b.y;
 }
 
 enum class SelectionStatus{
 	Normal,
-	Moving
+	Moving,
+	Waiting
 };
 
 enum class CharacterStatus{
@@ -66,10 +67,10 @@ enum class WeaponType {
 
 class CameraGameObject : public Util::GameObject {
 public:
-	glm::vec2 getAbsolutePos() const { return absolutePos; }
-	virtual void setAbsolutePos(glm::vec2 a_pos) { absolutePos = a_pos; }
+	glm::ivec2 getAbsolutePos() const { return absolutePos; }
+	virtual void setAbsolutePos(glm::ivec2 a_pos) { absolutePos = a_pos; }
 protected:
-	glm::vec2 absolutePos = { 0, 0 };
+	glm::ivec2 absolutePos = { 0, 0 };
 };
 
 #endif

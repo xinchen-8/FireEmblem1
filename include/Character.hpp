@@ -1,8 +1,19 @@
 #ifndef CHARACTER_HPP
 #define CHARACTER_HPP
+#include <queue>
 #include "Integration.hpp"
 #include "Tile.hpp"
 #include "Selection.hpp"
+
+struct DijkstraNode {
+    int cost;
+    glm::ivec2 pos;
+    std::queue<glm::ivec2> path;
+
+    bool operator>(const DijkstraNode& other) const {
+        return cost > other.cost;
+    }
+};
 
 class Character : public CameraGameObject {
 public:
@@ -13,9 +24,12 @@ public:
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
 		bool isPlayer
 	);
+	
+	void walkDirectly();
+	void moveDirectly(glm::ivec2 a_pos); //must in moveRange
+	void refreshMoveRange();
 
 	void setAnimation();
-	void refreshMoveRange();
 	void setStatus(CharacterStatus status);
 	void setVisible(bool visible){ m_Visible = visible; }
 	void setHeadshotAnimation(std::shared_ptr<Util::Animation> a_headshotAnimation){ headshotAnimation = a_headshotAnimation; }
@@ -42,20 +56,20 @@ public:
 	int getLckGR() { return LckGR; }
 	int getDefGR() { return DefGR; }
 	int getResGR() { return ResGR; }
-	std::unordered_map<glm::vec2, int> getMoveRange() { return moveRange; }
+	std::unordered_map<glm::ivec2, int> getMoveRange() { return moveRange; }
 
 	//items
 protected:
 	int gapOfAnimation = 3;
+	void findMoveRange(int mov, glm::ivec2 a_pos);
 private:
-	void findMoveRange(int mov, glm::vec2 a_pos);
-
 	std::string name = "";
 	std::string className = "";
 	bool isPlayer = true;
 
-	Forword forword = Forword::Left;
+	Forword forword = Forword::Down;
 	CharacterStatus status = CharacterStatus::Normal;
+	std::queue<glm::ivec2> walkPath = {};
 	std::vector<WeaponType> usableWeapon = {}; 
 
 	int Lv = 0; int Ex = 0;
@@ -78,7 +92,7 @@ private:
 	std::shared_ptr<Util::Animation> waitAnimation = nullptr;
 
 	std::shared_ptr<std::unordered_map<std::string, int>> walkCost = nullptr;
-	std::unordered_map<glm::vec2, int> moveRange = {};
+	std::unordered_map<glm::ivec2, int> moveRange = {};
 };
 
 //class of characters
@@ -275,14 +289,16 @@ private:
 class CharacterManager{
 public:
 	CharacterManager(std::shared_ptr<MapManager> mm);
+	void update();
 	void loadCharacter();
 	void setInitialLevel(int level);
-	void changeTipsVisible();
-	std::unordered_map<glm::vec2, int> selectCharacter(glm::vec2 a_pos);
+	void changeTipsVisible(std::shared_ptr<Character> character = nullptr);
+	void clearTips();
+	std::unordered_map<glm::ivec2, int> selectCharacter(std::shared_ptr<Character> character);
 
 	std::shared_ptr<Character> getCharacter(std::string id);
-	//std::shared_ptr<Character> getPosCharacter(glm::vec2 a_pos);
-	std::shared_ptr<Tile> getTipTile(glm::vec2 a_pos);
+	std::shared_ptr<Character> getPosCharacter(glm::ivec2 a_pos);
+	std::shared_ptr<Tile> getTipTile(glm::ivec2 a_pos);
 	std::vector<std::shared_ptr<CameraGameObject>> getChildren();
 private:
 	bool tipsVisible = false;

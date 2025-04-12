@@ -24,50 +24,67 @@ void App::Update() {
     }
 
     // selection move
-    if (((Util::Input::IsKeyPressed(Util::Keycode::UP) && delayCounter <= delayCheck) ||
+    if (((Util::Input::IsKeyPressed(Util::Keycode::UP) && delayKeyCounter <= delayKeyCheck) ||
         (Util::Input::IsKeyDown(Util::Keycode::UP))) &&
         selection->getAbsolutePos().y < mapManager->getMapSize().y - TILE_SIZE) {
 
         selection->moveDirectly({ 0, TILE_SIZE });
-        delayCounter = delayLimit;
+        delayKeyCounter = delayKeyLimit;
 
         uiManager->update();
     }
     
-    if (((Util::Input::IsKeyPressed(Util::Keycode::DOWN) && delayCounter <= delayCheck) ||
+    if (((Util::Input::IsKeyPressed(Util::Keycode::DOWN) && delayKeyCounter <= delayKeyCheck) ||
         (Util::Input::IsKeyDown(Util::Keycode::DOWN))) &&
         selection->getAbsolutePos().y > 0){
 
         selection->moveDirectly({ 0, -TILE_SIZE });
-        delayCounter = delayLimit;
+        delayKeyCounter = delayKeyLimit;
 
         uiManager->update();
     }
 
-    if (((Util::Input::IsKeyPressed(Util::Keycode::LEFT) && delayCounter <= delayCheck) ||
+    if (((Util::Input::IsKeyPressed(Util::Keycode::LEFT) && delayKeyCounter <= delayKeyCheck) ||
         (Util::Input::IsKeyDown(Util::Keycode::LEFT))) &&
         selection->getAbsolutePos().x > 0){
 
         selection->moveDirectly({ -TILE_SIZE, 0 });
-        delayCounter = delayLimit;
+        delayKeyCounter = delayKeyLimit;
 
         uiManager->update();
     }
 
-    if (((Util::Input::IsKeyPressed(Util::Keycode::RIGHT) && delayCounter <= delayCheck) ||
+    if (((Util::Input::IsKeyPressed(Util::Keycode::RIGHT) && delayKeyCounter <= delayKeyCheck) ||
         (Util::Input::IsKeyDown(Util::Keycode::RIGHT))) && 
         selection->getAbsolutePos().x < mapManager->getMapSize().x - TILE_SIZE){
         
         selection->moveDirectly({ TILE_SIZE, 0 });
-        delayCounter = delayLimit;
+        delayKeyCounter = delayKeyLimit;
 
         uiManager->update();
     }
 
     if (Util::Input::IsKeyDown(Util::Keycode::RETURN)) {
         LOG_INFO("Enter pressed");
-        selection->changeStatus();
-        selection->setMoveLimit(characterManager->selectCharacter(selection->getAbsolutePos()));
+        std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
+        std::shared_ptr<Character> selectCharacter = characterManager->getPosCharacter(selection->getAbsolutePos());
+        
+        if(selection->getStatus() == SelectionStatus::Moving && (!selectCharacter || selectCharacter == selectedCharacter)){
+            selection->setStatus(SelectionStatus::Waiting);
+            characterManager->clearTips();
+            selectedCharacter->moveDirectly(selection->getAbsolutePos());
+            delayCharacterWalkCounter = delayCharacterWalkLimit; //for walking
+            // selectCharacter->setStatus(CharacterStatus::Waiting); //not yet (fot test)
+            
+            //after UI (another function
+            selection->setSelectCharacter(nullptr);
+            selection->setStatus(SelectionStatus::Normal);
+        }
+        else if(selection->getStatus() == SelectionStatus::Normal && selectCharacter){
+            selection->setSelectCharacter(selectCharacter);
+            selection->setStatus(SelectionStatus::Moving);
+            selection->setMoveLimit(characterManager->selectCharacter(selectCharacter));
+        }
     }
 
     //info UI
@@ -76,11 +93,15 @@ void App::Update() {
     }
     //tip 
     if (Util::Input::IsKeyDown(Util::Keycode::F2)) {
-        characterManager->changeTipsVisible();
+        characterManager->changeTipsVisible(selection->getSelectCharacter());
     }
     //update
     camera->update();
-    if (!--delayCounter) delayCounter = delayLimit;
+    if (!--delayKeyCounter) delayKeyCounter = delayKeyLimit;
+    if (!--delayCharacterWalkCounter){
+        delayCharacterWalkCounter = delayCharacterWalkLimit;
+        characterManager->update();
+    }
 }
 
 void App::End() { // NOLINT(this method will mutate members in the future)

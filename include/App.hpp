@@ -28,10 +28,14 @@ private:
 private:
 
     State m_CurrentState = State::START;
-    const int delayLimit = 10;
-    const int delayCheck = 4;
-    int delayCounter = delayLimit;
+
+    const int delayKeyLimit = 10;
+    const int delayKeyCheck = 4;
+    int delayKeyCounter = delayKeyLimit;
     
+    const int delayCharacterWalkLimit = 3;
+    int delayCharacterWalkCounter = delayCharacterWalkLimit;
+
     std::shared_ptr<MapManager> mapManager = std::make_shared<MapManager>(1);
     std::shared_ptr<CharacterManager> characterManager = std::make_shared<CharacterManager>(mapManager);
     std::shared_ptr<Selection> selection = std::make_shared<Selection>();

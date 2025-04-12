@@ -30,7 +30,7 @@ private:
 	std::shared_ptr<UIManager> uiManager = nullptr;
 	Util::Renderer renderer;
 
-	glm::vec2 absolutePos = { 0, 0 };
+	glm::ivec2 absolutePos = { 0, 0 };
 };
 
 #endif

@@ -51,10 +51,10 @@ avoid(std::stoi(t_list[2])){
     }
 
     m_ZIndex = (t_list[4]!="0" || t_list[5] != "0") ? 1 : 0;
-    SetPivot(glm::vec2(TILE_PIXEL * std::stof(t_list[4]), TILE_PIXEL * std::stof(t_list[5])));
+    SetPivot(glm::ivec2(TILE_PIXEL * std::stof(t_list[4]), TILE_PIXEL * std::stof(t_list[5])));
 
     m_Drawable = std::make_shared<Util::Animation>(textures, true, TILE_INTERVAL, true, 0);
-    m_Transform.scale = glm::vec2(TILE_SCALE, TILE_SCALE);
+    m_Transform.scale = glm::ivec2(TILE_SCALE, TILE_SCALE);
 
     char reg = t_list[1].back();
     if(reg == '_' || (reg>='0'&&reg<='9')) t_list[1].pop_back();
@@ -67,11 +67,11 @@ avoid(std::stoi(t_list[2])){
 
 Tile::Tile(std::string id, std::string img_path) {
     m_Drawable = std::make_shared <Util::Animation>(std::vector{img_path}, false, 0, false, 0);
-    m_Transform.scale = glm::vec2(TILE_SCALE, TILE_SCALE);
+    m_Transform.scale = glm::ivec2(TILE_SCALE, TILE_SCALE);
     LOG_INFO("tile: "+ id + ". " + img_path + " Tile building success.");
 }
 
-Tile::Tile(const Tile& other, glm::vec2 a_pos){
+Tile::Tile(const Tile& other, glm::ivec2 a_pos){
     name = other.name;
     avoid = other.avoid;
     cost = other.cost;
@@ -85,7 +85,7 @@ Tile::Tile(const Tile& other, glm::vec2 a_pos){
     absolutePos = a_pos;
 }
 
-void MapManager::maskTile(glm::vec2 pos) {
+void MapManager::maskTile(glm::ivec2 pos) {
     map[pos.y][pos.x]->mask();
         LOG_INFO("Tile {"+ std::to_string(pos.x) + ", " + std::to_string(pos.y) + "} mask success.");
 }
@@ -148,11 +148,11 @@ void MapManager::stopAnimations(){
     }
 }
 
-glm::vec2 MapManager::getTileAbsolutePos(glm::vec2 pos) {
+glm::ivec2 MapManager::getTileAbsolutePos(glm::ivec2 pos) {
     return {pos.x * TILE_SIZE, (tileNum.y - 1 - pos.y) * TILE_SIZE };
 }
 
-std::shared_ptr<Tile> MapManager::getPosTile(glm::vec2 a_pos) {
+std::shared_ptr<Tile> MapManager::getPosTile(glm::ivec2 a_pos) {
     for (auto& row : map) {
         for (auto& e : row) {
             if (a_pos == e->getAbsolutePos())

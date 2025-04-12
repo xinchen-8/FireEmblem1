@@ -15,8 +15,8 @@ void UserInterface::setVisible(bool visible) {
 	}
 }
 
-void UserInterface::setRelativePos(glm::vec2 r_pos) {
-	m_Transform.translation = r_pos + glm::vec2{
+void UserInterface::setRelativePos(glm::ivec2 r_pos) {
+	m_Transform.translation = r_pos + glm::ivec2{
 		floor(UItileNum.x * TILE_SIZE / 2.7),
 		floor(UItileNum.y * TILE_SIZE / 3.5),
 	};
@@ -28,7 +28,7 @@ void UserInterface::setRelativePos(glm::vec2 r_pos) {
 	}
 }
 
-void UserInterface::setUISize(glm::vec2 windowNums) {
+void UserInterface::setUISize(glm::ivec2 windowNums) {
 	UItileNum = windowNums;
 
 	form = {};
@@ -36,7 +36,7 @@ void UserInterface::setUISize(glm::vec2 windowNums) {
 		std::vector<std::shared_ptr<Tile>> reg = {};
 
 		for (int i = 0; i < windowNums.x; i++) {
-			glm::vec2 currentPos = m_Transform.translation + getTileRelativePos({ i, j });
+			glm::ivec2 currentPos = glm::ivec2(m_Transform.translation) + getTileRelativePos({ i, j });
 
 			if (i == 0 && j == 0)
 				reg.push_back(std::make_shared<Tile>(*tileTable[0], currentPos));
@@ -69,8 +69,8 @@ void UserInterface::setString(std::string content) {
 	);
 }
 
-glm::vec2 UserInterface::getTileRelativePos(glm::vec2 pos) {
-	return glm::vec2{ pos.x * TILE_SIZE, (UItileNum.y - 1 - pos.y) * TILE_SIZE };
+glm::ivec2 UserInterface::getTileRelativePos(glm::ivec2 pos) {
+	return glm::ivec2{ pos.x * TILE_SIZE, (UItileNum.y - 1 - pos.y) * TILE_SIZE };
 }
 
 std::vector<std::shared_ptr<Util::GameObject>> UserInterface::getChildren() {

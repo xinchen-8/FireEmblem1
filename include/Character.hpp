@@ -3,7 +3,6 @@
 #include <queue>
 #include "Integration.hpp"
 #include "Tile.hpp"
-#include "Selection.hpp"
 
 struct DijkstraNode {
     int cost;
@@ -23,14 +22,18 @@ public:
 		std::vector<std::string> g_list,
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
 		bool isPlayer
-	);
-	
+	);	
+	virtual std::shared_ptr<Character> clone() = 0;
+
 	void walkDirectly();
-	void moveDirectly(glm::ivec2 a_pos); //must in moveRange
+	void buildWalkPath(glm::ivec2 a_pos); //must in moveRange
 	void refreshMoveRange();
+	void clearWalkPath() { while(walkPath.size()) walkPath.pop();}
 
 	void setAnimation();
 	void setStatus(CharacterStatus status);
+	void setForword(Forword forword){ this->forword = forword; }
+
 	void setVisible(bool visible){ m_Visible = visible; }
 	void setHeadshotAnimation(std::shared_ptr<Util::Animation> a_headshotAnimation){ headshotAnimation = a_headshotAnimation; }
 	void setTileAnimation();
@@ -98,219 +101,256 @@ private:
 //class of characters
 class Lord final : public Character {
 public:
-	Lord(
-		std::shared_ptr<MapManager> mm,
-		std::vector<std::string> n_list,
-		std::vector<std::string> g_list, 
-		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
-	);
+	Lord(std::shared_ptr<MapManager> mm,
+			std::vector<std::string> n_list,
+			std::vector<std::string> g_list, 
+			std::shared_ptr<std::unordered_map<std::string, int>> wc,
+			bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+		auto c = std::make_shared<Lord>(*this);
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		return c;
+	}
+
 private:
 	std::string className = "Lord";
-	std::vector<WeaponType> usableWeapon = {
-		WeaponType::Sword
-	}; 
+	std::vector<WeaponType> usableWeapon = { WeaponType::Sword }; 
 };
-
 
 class PegasusKnight final : public Character {
 public:
-	PegasusKnight(
-		std::shared_ptr<MapManager> mm,
-		std::vector<std::string> n_list,
-		std::vector<std::string> g_list, 
-		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
-	);
+	PegasusKnight(std::shared_ptr<MapManager> mm,
+					std::vector<std::string> n_list,
+					std::vector<std::string> g_list, 
+					std::shared_ptr<std::unordered_map<std::string, int>> wc,
+					bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+		auto c = std::make_shared<PegasusKnight>(*this);
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		return c;
+	}
 private:
 	std::string className = "PegasusKnight";
-	std::vector<WeaponType> usableWeapon = {
-		WeaponType::Sword,
-		WeaponType::Lance
-	}; 
+	std::vector<WeaponType> usableWeapon = { WeaponType::Sword, WeaponType::Lance }; 
 };
-
 
 class Paladin final : public Character {
 public:
-	Paladin(
-		std::shared_ptr<MapManager> mm,
-		std::vector<std::string> n_list,
-		std::vector<std::string> g_list, 
-		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
-	);
+	Paladin(std::shared_ptr<MapManager> mm,
+			std::vector<std::string> n_list,
+			std::vector<std::string> g_list, 
+			std::shared_ptr<std::unordered_map<std::string, int>> wc,
+			bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+		auto c = std::make_shared<Paladin>(*this);
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		return c;
+	}
+
 private:
 	std::string className = "Paladin";
-	std::vector<WeaponType> usableWeapon = {
-		WeaponType::Sword,
-		WeaponType::Lance
-	}; 
+	std::vector<WeaponType> usableWeapon = { WeaponType::Sword, WeaponType::Lance }; 
 };
-	
 
 class Cavalier final : public Character {
 public:
-	Cavalier(
-		std::shared_ptr<MapManager> mm,
-		std::vector<std::string> n_list,
-		std::vector<std::string> g_list, 
-		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
-	);
+	Cavalier(std::shared_ptr<MapManager> mm,
+				std::vector<std::string> n_list,
+				std::vector<std::string> g_list, 
+				std::shared_ptr<std::unordered_map<std::string, int>> wc,
+				bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+		auto c = std::make_shared<Cavalier>(*this);
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		return c;
+	}
+
 private:
 	std::string className = "Cavalier";
-	std::vector<WeaponType> usableWeapon = {
-		WeaponType::Sword,
-		WeaponType::Lance
-	}; 
+	std::vector<WeaponType> usableWeapon = { WeaponType::Sword, WeaponType::Lance }; 
 };
-
 
 class Knight final : public Character {
 public:
-	Knight(
-		std::shared_ptr<MapManager> mm,
-		std::vector<std::string> n_list,
-		std::vector<std::string> g_list, 
-		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
-	);
+	Knight(std::shared_ptr<MapManager> mm,
+			std::vector<std::string> n_list,
+			std::vector<std::string> g_list, 
+			std::shared_ptr<std::unordered_map<std::string, int>> wc,
+			bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+		auto c = std::make_shared<Knight>(*this);
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		return c;
+	}
+
 private:
 	std::string className = "Knight";
-	std::vector<WeaponType> usableWeapon = {
-		WeaponType::Sword,
-		WeaponType::Lance
-	}; 
+	std::vector<WeaponType> usableWeapon = { WeaponType::Sword, WeaponType::Lance }; 
 };
 
-	
+class Thief final : public Character {
+public:
+	Thief(std::shared_ptr<MapManager> mm,
+			std::vector<std::string> n_list,
+			std::vector<std::string> g_list, 
+			std::shared_ptr<std::unordered_map<std::string, int>> wc,
+			bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+		auto c = std::make_shared<Thief>(*this);
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		return c;
+	}
+
+private:
+	std::string className = "Thief";
+	std::vector<WeaponType> usableWeapon = { WeaponType::Sword }; 
+};
+
 class Archer final : public Character {
 public:
-	Archer(
-		std::shared_ptr<MapManager> mm,
-		std::vector<std::string> n_list,
-		std::vector<std::string> g_list, 
-		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
-	);
+	Archer(std::shared_ptr<MapManager> mm,
+			std::vector<std::string> n_list,
+			std::vector<std::string> g_list, 
+			std::shared_ptr<std::unordered_map<std::string, int>> wc,
+			bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+		auto c = std::make_shared<Archer>(*this);
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		return c;
+	}
+
 private:
 	std::string className = "Archer";
-	std::vector<WeaponType> usableWeapon = {
-		WeaponType::Bow
-	}; 
+	std::vector<WeaponType> usableWeapon = { WeaponType::Bow }; 
 };
-
 
 class Curate final : public Character {
 public:
-	Curate(
-		std::shared_ptr<MapManager> mm,
-		std::vector<std::string> n_list,
-		std::vector<std::string> g_list, 
-		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
-	);
+	Curate(std::shared_ptr<MapManager> mm,
+			std::vector<std::string> n_list,
+			std::vector<std::string> g_list, 
+			std::shared_ptr<std::unordered_map<std::string, int>> wc,
+			bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+		auto c = std::make_shared<Curate>(*this);
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		return c;
+	}
+
 private:
 	std::string className = "Curate";
-	std::vector<WeaponType> usableWeapon = {
-		WeaponType::Staff
-	}; 
+	std::vector<WeaponType> usableWeapon = { WeaponType::Staff }; 
 };
-
 
 class Mercenary final : public Character {
 public:
-	Mercenary(
-		std::shared_ptr<MapManager> mm,
-		std::vector<std::string> n_list,
-		std::vector<std::string> g_list, 
-		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
-	);
+	Mercenary(std::shared_ptr<MapManager> mm,
+				std::vector<std::string> n_list,
+				std::vector<std::string> g_list, 
+				std::shared_ptr<std::unordered_map<std::string, int>> wc,
+				bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+		auto c = std::make_shared<Mercenary>(*this);
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		return c;
+	}
+
 private:
 	std::string className = "Mercenary";
-	std::vector<WeaponType> usableWeapon = {
-		WeaponType::Sword
-	}; 
+	std::vector<WeaponType> usableWeapon = { WeaponType::Sword }; 
 };
-
 
 class Fighter final : public Character {
 public:
-	Fighter(
-		std::shared_ptr<MapManager> mm,
-		std::vector<std::string> n_list,
-		std::vector<std::string> g_list, 
-		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
-	);
+	Fighter(std::shared_ptr<MapManager> mm,
+			std::vector<std::string> n_list,
+			std::vector<std::string> g_list, 
+			std::shared_ptr<std::unordered_map<std::string, int>> wc,
+			bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+		auto c = std::make_shared<Fighter>(*this);
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		return c;
+	}
+
 private:
 	std::string className = "Fighter";
-	std::vector<WeaponType> usableWeapon = {
-		WeaponType::Axe
-	}; 
+	std::vector<WeaponType> usableWeapon = { WeaponType::Axe }; 
 };
-
 
 class Hunter final : public Character {
 public:
-	Hunter(
-		std::shared_ptr<MapManager> mm,
-                std::vector<std::string> n_list,
-		std::vector<std::string> g_list, 
-		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
-	);
+	Hunter(std::shared_ptr<MapManager> mm,
+			std::vector<std::string> n_list,
+			std::vector<std::string> g_list, 
+			std::shared_ptr<std::unordered_map<std::string, int>> wc,
+			bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+		auto c = std::make_shared<Hunter>(*this);
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		return c;
+	}
+
 private:
 	std::string className = "Hunter";
-	std::vector<WeaponType> usableWeapon = {
-		WeaponType::Bow
-	}; 
+	std::vector<WeaponType> usableWeapon = { WeaponType::Bow }; 
 };
-
 
 class Pirate final : public Character {
 public:
-	Pirate(
-		std::shared_ptr<MapManager> mm,
-                std::vector<std::string> n_list,
-		std::vector<std::string> g_list, 
-		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
-	);
+	Pirate(std::shared_ptr<MapManager> mm,
+			std::vector<std::string> n_list,
+			std::vector<std::string> g_list, 
+			std::shared_ptr<std::unordered_map<std::string, int>> wc,
+			bool isPlayer);
+
+	std::shared_ptr<Character> clone() override {
+
+		std::shared_ptr<Character> c = std::make_shared<Pirate>(*this);
+		std::cout<<"meow"<<std::endl;
+		if (m_Drawable) {
+			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		}
+		std::cout<<"meow"<<std::endl;
+		return c;
+	}
+
 private:
 	std::string className = "Pirate";
-	std::vector<WeaponType> usableWeapon = {
-		WeaponType::Axe
-	}; 
-};
-
-class CharacterManager{
-public:
-	CharacterManager(std::shared_ptr<MapManager> mm);
-	void update();
-	void loadCharacter();
-	void setInitialLevel(int level);
-	void changeTipsVisible(std::shared_ptr<Character> character = nullptr);
-	void clearTips();
-	std::unordered_map<glm::ivec2, int> selectCharacter(std::shared_ptr<Character> character);
-
-	std::shared_ptr<Character> getCharacter(std::string id);
-	std::shared_ptr<Character> getPosCharacter(glm::ivec2 a_pos);
-	std::shared_ptr<Tile> getTipTile(glm::ivec2 a_pos);
-	std::vector<std::shared_ptr<CameraGameObject>> getChildren();
-private:
-	bool tipsVisible = false;
-
-	std::unordered_map<std::string, std::shared_ptr<std::unordered_map<std::string, int>>> costTable = {};
-	std::vector<std::shared_ptr<Character>> characters = {};
-
-	std::shared_ptr<MapManager> mapManager = nullptr;
-	std::shared_ptr<Util::Animation> moveAnimation = nullptr;
-	std::shared_ptr<Util::Animation> attackAnimation = nullptr;
-	std::vector<std::vector<std::shared_ptr<Tile>>> tips = {};
-
+	std::vector<WeaponType> usableWeapon = { WeaponType::Axe }; 
 };
 
 #endif

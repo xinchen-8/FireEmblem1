@@ -33,17 +33,16 @@ private:
     const int delayKeyCheck = 4;
     int delayKeyCounter = delayKeyLimit;
     
-    const int delayCharacterWalkLimit = 3;
-    int delayCharacterWalkCounter = delayCharacterWalkLimit;
-
     std::shared_ptr<MapManager> mapManager = std::make_shared<MapManager>(1);
-    std::shared_ptr<CharacterManager> characterManager = std::make_shared<CharacterManager>(mapManager);
+    std::shared_ptr<PlayerManager> playerManager = std::make_shared<PlayerManager>(mapManager);
+    std::shared_ptr<EnemyManager> enemyManager = std::make_shared<EnemyManager>(mapManager);
+
     std::shared_ptr<Selection> selection = std::make_shared<Selection>();
     std::shared_ptr<UIManager> uiManager = std::make_shared<UIManager>(
         selection, mapManager
     );
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(
-        characterManager, mapManager, uiManager, selection
+        playerManager, enemyManager, mapManager, uiManager, selection
     );
 
 };

@@ -33,6 +33,7 @@ public:
 
     glm::ivec2 getRelativePos() const { return m_Transform.translation; }
     std::string getName() { return name; }
+    bool getMask() { return access; }
     int getAvoid() { return avoid; }
 
 private:

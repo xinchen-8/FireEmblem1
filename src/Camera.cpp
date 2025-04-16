@@ -1,17 +1,21 @@
 #include "Camera.hpp"
 
 Camera::Camera(
-	std::shared_ptr<CharacterManager> cm,
+	std::shared_ptr<PlayerManager> pm,
+	std::shared_ptr<EnemyManager> em,
 	std::shared_ptr<MapManager> tm,
 	std::shared_ptr<UIManager> ui,
 	std::shared_ptr<Selection> s) : 
-	
-	characterManager(cm), mapManager(tm), uiManager(ui), selection(s) {
+	playerManager(pm), enemyManager(em), mapManager(tm), uiManager(ui), selection(s) {
+
+	//add children
 	std::vector<std::shared_ptr<CameraGameObject>> tiles =  mapManager->getChildren();
 	children.insert(children.end(), tiles.begin(), tiles.end());
-	tiles = characterManager->getChildren();// Player character
+	tiles = playerManager->getChildren();
 	children.insert(children.end(), tiles.begin(), tiles.end());
-	children.push_back(selection);	
+	tiles = enemyManager->getChildren();
+	children.insert(children.end(), tiles.begin(), tiles.end());
+	children.push_back(selection);
 
 	std::vector<std::shared_ptr<Util::GameObject>> ui_tiles = uiManager->getChildren();
 	UIchildren.insert(UIchildren.end(), ui_tiles.begin(), ui_tiles.end());

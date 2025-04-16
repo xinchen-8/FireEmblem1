@@ -7,16 +7,19 @@
 #define TILE_INTERVAL 250
 #define FONT_SIZE 32
 
-#define ASSETS "assets/"
-#define TILES_FOLDER "tiles/tiles_map/"
-#define TILES_PLAYER_FOLDER "tiles/tiles_players/"
-#define UI_FOLDER "tiles/tiles_UI/"
-#define SELECTION_FOLDER "tiles/tiles_selection/"
+#define ASSETS 			"assets/"
 
-#define CHARACTER_FOLDER "data/characters/"
-#define MAP_FOLDER "data/level/"
+#define TILE_ENEMY 		ASSETS "tiles/enemy/"
+#define TILE_MAP	 	ASSETS "tiles/map/"
+#define TILE_PLAYER 	ASSETS "tiles/player/"
+#define TILE_SELECTION  ASSETS "tiles/selection/"
+#define TILE_UI 		ASSETS "tiles/user_interface/"
 
-#define FONTPATH "ref/font/Cubic_11_1.010_R.ttf"
+#define DATA_CHARACTER 	ASSETS "data/characters/"
+#define DATA_ITEM 	    ASSETS "data/items/"
+#define DATA_MAP 		ASSETS "data/level/"
+
+#define FONTPATH  		ASSETS "ref/font/Cubic_11_1.010_R.ttf"
 
 #include "pch.hpp"
 #include "Util/Logger.hpp"
@@ -41,7 +44,8 @@ inline bool operator==(const glm::ivec2& a, const glm::ivec2& b) {
 enum class SelectionStatus{
 	Normal,
 	Moving,
-	Waiting
+	Waiting, //for choose UI
+	Locked
 };
 
 enum class CharacterStatus{

@@ -38,7 +38,7 @@ avoid(std::stoi(t_list[2])){
     if(t_list.size()<6) LOG_ERROR("The tile list is uncomplete!");
     
     std::vector<std::string> textures;
-    std::filesystem::path tilePath(ASSETS TILES_FOLDER);
+    std::filesystem::path tilePath(TILE_MAP);
     for (const auto& entry : fs::directory_iterator(tilePath)) {
         if (entry.is_regular_file()) {
             std::string fileName = entry.path().filename().string();
@@ -96,7 +96,7 @@ MapManager::MapManager(int level) : level(level){
 }
 
 void MapManager::buildTileTable(){
-    std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile(ASSETS TILES_FOLDER "tiles.csv");
+    std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile( TILE_MAP "tiles.csv");
     if (!data) LOG_ERROR("Tile table building failed!");
 
     data->erase(data->begin());
@@ -106,23 +106,21 @@ void MapManager::buildTileTable(){
 
 void MapManager::loadMap(int level){
     level = this->level;
-    std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile(ASSETS MAP_FOLDER "FE1_map_ch" + std::to_string(level) + ".csv");
+    std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile(DATA_MAP "FE1_map_ch" + std::to_string(level) + ".csv");
     if(!data) LOG_ERROR("Map loading failed!");
 
     map = {};
     tileNum = {std::stoi((*data)[0][0]), std::stoi((*data)[1][0])};
 
-    for(size_t j=2; j < tileNum.y+2; j++){
+    for(int j=2; j < tileNum.y+2; j++){
         std::vector<std::string> e = (*data)[j];
         std::vector<std::shared_ptr<Tile>> row;
-
-        for(size_t i=0; i<tileNum.x; i++){
+        for(int i=0; i<tileNum.x; i++){
             std::string t = e[i];
             row.push_back(std::make_shared<Tile>(*tileTable[t], getTileAbsolutePos({ i, j-2 })));
         }
         map.push_back(row);
     }
-
     //mask
     int maskNum = stoi((*data)[tileNum.y + 2][0]);
     for (int i = tileNum.y + 3; i < tileNum.y + 3 + maskNum; i++) {

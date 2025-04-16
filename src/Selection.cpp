@@ -2,20 +2,34 @@
 
 Selection::Selection(){
 	std::vector<std::string> paths;
-	paths.push_back(ASSETS SELECTION_FOLDER "selection0.png");
-	paths.push_back(ASSETS SELECTION_FOLDER "transparent.png");
+	paths.push_back(TILE_SELECTION "selection0.png");
+	paths.push_back(TILE_SELECTION "transparent.png");
 	chooseAnimation = std::make_shared<Util::Animation>(paths, true, TILE_INTERVAL, true, 0);
 	m_Drawable = chooseAnimation;
 	m_Transform.scale = { TILE_SCALE, TILE_SCALE };
 	m_ZIndex = 5;
 
-	paths[0] = ASSETS SELECTION_FOLDER "selection1.png";
+	paths[0] = TILE_SELECTION "selection1.png";
 	moveAnimation = std::make_shared<Util::Animation>(paths, true, TILE_INTERVAL, true, 0);
 }
 
-void Selection::setStatus(SelectionStatus status){
-	this->status = status;
-	setAnimation();
+bool Selection::moveJudge(Forword forword, glm::ivec2 map_size){
+	if(status == SelectionStatus::Waiting) return false;
+	switch(forword){
+		case Forword::Up:
+			if(absolutePos.y < map_size.y - TILE_SIZE) return true;
+			break;
+		case Forword::Down:
+			if(absolutePos.y > 0) return true;
+			break;
+		case Forword::Left:
+			if(absolutePos.x > 0) return true;
+			break;
+		case Forword::Right:
+			if(absolutePos.x < map_size.x - TILE_SIZE) return true;
+			break;
+	}
+	return false;
 }
 
 void Selection::moveDirectly(glm::ivec2 move){
@@ -25,3 +39,14 @@ void Selection::moveDirectly(glm::ivec2 move){
 	}
 	else absolutePos += move;
 }
+
+void Selection::setStatus(SelectionStatus status){
+	this->status = status;
+	setAnimation();
+}
+
+void Selection::setSelectCharacter(std::shared_ptr<Character> character) {
+	selectCharacter = character; 
+	originalSelectionPos = absolutePos;
+}
+

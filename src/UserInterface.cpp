@@ -65,7 +65,7 @@ void UserInterface::setUISize(glm::ivec2 windowNums) {
 
 void UserInterface::setString(std::string content) {
 	m_Drawable = std::make_shared<Util::Text>(
-		ASSETS FONTPATH, FONT_SIZE, content, Util::Color(255, 255, 255), false
+		FONTPATH, FONT_SIZE, content, Util::Color(255, 255, 255), false
 	);
 }
 
@@ -105,7 +105,7 @@ UIManager::UIManager(
 
 	for (int i = 0; i < 9; i++) {
 		tiles.push_back(std::make_shared<Tile>(
-			"F" + std::to_string(i+1), ASSETS UI_FOLDER "text" + std::to_string(i) + ".png"));
+			"F" + std::to_string(i+1),TILE_UI "text" + std::to_string(i) + ".png"));
 		tiles[i]->SetZIndex(6);
 	}
 

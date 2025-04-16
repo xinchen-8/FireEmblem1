@@ -29,20 +29,36 @@ void Character::walkDirectly(){
 	if(status != CharacterStatus::Moving) return;
 	if(walkPath.size() == 0) return;
 
+	std::cout<<"walkDirectly: " << absolutePos.x << ", " << absolutePos.y << std::endl;
+	
 	glm::ivec2 p = walkPath.front();
-	walkPath.pop();
+	if(p==absolutePos){
+		walkPath.pop();
+		if(!walkPath.size()){
+			setStatus(CharacterStatus::Normal);
+			return;
+		}
+		else p = walkPath.front();
+	}
 	if(p.x > absolutePos.x) forword = Forword::Right;
 	else if(p.x < absolutePos.x) forword = Forword::Left;
 	else if(p.y < absolutePos.y) forword = Forword::Down;
 	else if(p.y > absolutePos.y) forword = Forword::Up;
 	setAnimation();
-	absolutePos = p;
 
-	if(!walkPath.size()) setStatus(CharacterStatus::Normal);
+	glm::ivec2 delta = p - absolutePos;
+	glm::ivec2 step{0,0};
+	if (delta.x != 0) step.x = (delta.x > 0 ? 8 : -8); //64 must be divisible by 8
+	if (delta.y != 0) step.y = (delta.y > 0 ? 8 : -8); //64 must be divisible by 8
+	absolutePos += step;
+	
+	if(!walkPath.size()){
+		setStatus(CharacterStatus::Normal);
+	}
 }
 
 
-void Character::moveDirectly(glm::ivec2 a_pos){
+void Character::buildWalkPath(glm::ivec2 a_pos){
 	if (moveRange.find(a_pos) == moveRange.end()){
 		LOG_ERROR("Invalid move range: " + std::to_string(a_pos.x) + ", " + std::to_string(a_pos.y));
 		return;
@@ -111,12 +127,13 @@ void Character::refreshMoveRange(){
     std::shared_ptr<Tile> tile = mapManager->getPosTile(absolutePos);
     int cost = (*walkCost)[tile->getName()];
 	if(cost==0) cost = (*walkCost)["Default"];
-	findMoveRange(Mov+cost, getAbsolutePos());
+	findMoveRange(Mov+cost, absolutePos);
 }
 
 void Character::setAnimation(){
 	switch(status){
 		case CharacterStatus::Normal:
+			forword = Forword::Down;
 			m_Drawable = standAnimation;
 			m_Transform.scale.x = TILE_SCALE;
 			break;
@@ -150,6 +167,8 @@ void Character::setAnimation(){
 
 void Character::setStatus(CharacterStatus status){
 	this->status = status;
+	std::cout<<"set status "<< std::endl;
+
 	setAnimation();
 }
 
@@ -158,10 +177,17 @@ void Character::setTileAnimation(){
 	std::string id = className;
 	id[0] = std::tolower(id[0]);
 
+
 	std::vector<std::string> reg = {};
 	for (int i = 0; i <= 4 * gapOfAnimation - 1; i++) {
-		reg.push_back(ASSETS TILES_PLAYER_FOLDER + id + "_" + std::to_string(i) + ".png");
-		LOG_INFO("add " ASSETS TILES_PLAYER_FOLDER + id + "_" + std::to_string(i) + ".png");
+		if(isPlayer){
+			reg.push_back(TILE_PLAYER + id + "_" + std::to_string(i) + ".png");
+			LOG_INFO("add " TILE_PLAYER + id + "_" + std::to_string(i) + ".png");
+		}
+		else{
+			reg.push_back(TILE_ENEMY + id + "_" + std::to_string(i) + ".png");
+			LOG_INFO("add " TILE_ENEMY + id + "_" + std::to_string(i) + ".png");
+		}
 
 		if (i == gapOfAnimation - 1) {
 			standAnimation = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0);
@@ -270,13 +296,12 @@ Archer::Archer(
 	gapOfAnimation = 2;
 }
 
-// Thief::Thief(
-// 	std::vector<std::string> n_list,
-// 	std::vector<std::string> g_list, 
-// 	std::shared_ptr<std::unordered_map<std::string, int>> wc,
-// 	bool isPlayer = true
-// ) : Character(mm, n_list, g_list, wc, isPlayer){
-// }
+Thief::Thief(std::shared_ptr<MapManager> mm,
+	std::vector<std::string> n_list,
+	std::vector<std::string> g_list, 
+	std::shared_ptr<std::unordered_map<std::string, int>> wc,
+	bool isPlayer) : Character(mm, n_list, g_list, wc, isPlayer){
+}
 
 Curate::Curate(
 	std::shared_ptr<MapManager> mm,
@@ -323,175 +348,4 @@ Pirate::Pirate(
 	bool isPlayer = true
 ) : Character(mm, n_list, g_list, wc, isPlayer){
 	gapOfAnimation = 2;
-}
-
-CharacterManager::CharacterManager(std::shared_ptr<MapManager> mm) : mapManager(mm) {
-
-	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile(ASSETS CHARACTER_FOLDER "class_cost.csv");
-	if(!data) LOG_ERROR("Character class cost loading failed!");
-
-	std::vector<std::string> reg = (*data)[0];
-	data->erase(data->begin());
-	for(auto &e: *data){
-		std::string name = e[0];
-		std::unordered_map<std::string, int> reg_cost = {};
-
-		for(std::size_t i=1; i<e.size(); i++) reg_cost[reg[i]] = std::stoi(e[i]);
-		costTable[name] = std::make_shared<std::unordered_map<std::string, int>>(reg_cost);
-	}
-
-	loadCharacter();
-	setInitialLevel(mm->getLevel());
-
-	//tips
-	std::shared_ptr<Tile> tip = std::make_shared<Tile>("movable", ASSETS SELECTION_FOLDER "tip0.png");
-	tip->SetZIndex(2);
-	int y = mapManager->getMapTileSize().y;
-	int x = mapManager->getMapTileSize().x;
-
-	for(int i = 0; i < y; i++){
-		std::vector<std::shared_ptr<Tile>> r = {};
-		for(int j = 0; j < x; j++){
-			std::shared_ptr<Tile> t = std::make_shared<Tile>(*tip, mapManager->getTileAbsolutePos({j, i}));
-			t->setVisible(false);
-			r.push_back(t);
-		}
-		tips.push_back(r);
-	}
-}
-
-void CharacterManager::update(){
-	for(auto &c: characters){
-		c -> walkDirectly();
-	}
-}
-
-void CharacterManager::loadCharacter(){
-	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile(ASSETS CHARACTER_FOLDER "players/player_base_data.csv");
-	std::shared_ptr<std::vector<std::vector<std::string>>> g_data = Tool::inputFile(ASSETS CHARACTER_FOLDER "players/player_growth_rate.csv");
-	if(!data) LOG_ERROR("Character loading failed!");
-	
-	data->erase(data->begin());
-	g_data->erase(g_data->begin());
-	for(std::size_t i = 0; i<data->size(); i++){
-		std::vector<std::string> e = (*data)[i];
-		std::vector<std::string> g = (*g_data)[i];
-
-		std::unordered_map<std::string, std::function<void()>> characterFactory = {
-			{"Lord", [&]() { characters.push_back(std::make_shared<Lord>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Cavalier", [&]() { characters.push_back(std::make_shared<Cavalier>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Paladin", [&]() { characters.push_back(std::make_shared<Paladin>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"PegasusKnight", [&]() { characters.push_back(std::make_shared<PegasusKnight>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Archer", [&]() { characters.push_back(std::make_shared<Archer>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Knight", [&]() { characters.push_back(std::make_shared<Knight>(mapManager, e, g, costTable[e[1]], true)); }},
-			//{"Thief", [&]() { characters.push_back(std::make_shared<Thief>(e, g, costTable[e[1]], true)); }},
-			{"Curate", [&]() { characters.push_back(std::make_shared<Curate>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Mercenary", [&]() { characters.push_back(std::make_shared<Mercenary>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Fighter", [&]() { characters.push_back(std::make_shared<Fighter>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Hunter", [&]() { characters.push_back(std::make_shared<Hunter>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Pirate", [&]() { characters.push_back(std::make_shared<Pirate>(mapManager, e, g, costTable[e[1]], true)); }}
-		};
-	
-		
-		if (characterFactory.find(e[1]) != characterFactory.end()) {
-			characterFactory[e[1]]();
-			characters.back()->setTileAnimation();
-			characters.back()->refreshMoveRange();
-		} else {
-			std::cerr << "Unknown character type: " << e[1] << std::endl;
-		}
-		
-	}
-	LOG_INFO("Character loading success.");
-}
-
-void CharacterManager::setInitialLevel(int level){
-	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile(ASSETS CHARACTER_FOLDER "players/player_starting_position.csv");
-	
-	data->erase(data->begin());
-	for(auto &e: *data){
-		for(auto &c: characters){
-			
-			if(c->getName() == e[0]){
-				if (e[level] != "X"){
-					c->setAbsolutePos({std::stoi(e[level]) * TILE_SIZE, std::stoi(e[level+1]) * TILE_SIZE});
-					LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x)+ ", " + std::to_string(c->getAbsolutePos().y));
-				}
-				else{
-					c->setAbsolutePos({-1, -1});
-					c->setVisible(false);
-				}
-			}
-		}
-	}
-}
-
-void CharacterManager::changeTipsVisible(std::shared_ptr<Character> character){
-	tipsVisible = !tipsVisible;
-
-	if(character){
-		// clearTips();
-		selectCharacter(character);
-	}
-}
-
-void CharacterManager::clearTips() {
-	for(auto &r: tips){
-		for(auto &t: r){
-			t->setVisible(false);
-		}
-	}
-}
-
-std::unordered_map<glm::ivec2, int> CharacterManager::selectCharacter(std::shared_ptr<Character> character = nullptr){
-	if(!character) return {};
-	character->refreshMoveRange();
-
-	for(auto [pos, mov]: character->getMoveRange()){
-		// std::cout<<"meow " << pos.x << ", " << pos.y << std::endl;
-		std::shared_ptr<Tile> tip = getTipTile(pos);
-		
-		tip->setStart();
-		std::vector<std::string> r = {ASSETS SELECTION_FOLDER "tip0.png"};
-		tip->setAnimation( std::make_shared<Util::Animation>(
-			r, true, TILE_INTERVAL, true, 0)
-		);
-		tip->SetVisible(tipsVisible);
-		// std::cout<<"meowwwwww"<<std::endl;
-
-	}
-	character->setStatus(CharacterStatus::Moving);
-	return character->getMoveRange();
-}
-
-std::shared_ptr<Character> CharacterManager::getCharacter(std::string id){
-	for(auto &c: characters){
-		if(c->getName() == id) return c;
-	}
-	return nullptr;
-}
-
-std::shared_ptr<Character> CharacterManager::getPosCharacter(glm::ivec2 a_pos){
-	for(auto &c: characters){
-		if(c->getAbsolutePos() == a_pos) return c;
-	}
-	return nullptr;
-}
-
-std::shared_ptr<Tile> CharacterManager::getTipTile(glm::ivec2 a_pos){
-	float i = a_pos.x/TILE_SIZE;
-	float j = mapManager->getMapSize().y/TILE_SIZE-a_pos.y/TILE_SIZE-1;
-
-	if(i>=0 && i<mapManager->getMapSize().x/TILE_SIZE && j>=0 && j<mapManager->getMapSize().y/TILE_SIZE){
-		// std::cout<<"tip: " << i << ", " << j << std::endl;
-		return tips[j][i];
-	}
-	return nullptr;
-}
-
-std::vector<std::shared_ptr<CameraGameObject>> CharacterManager::getChildren(){
-	std::vector<std::shared_ptr<CameraGameObject>> children = {};
-	for(auto &c: characters) children.push_back(c);
-	for(auto &r: tips) for(auto &t: r) children.push_back(t);
-	return children;
 }

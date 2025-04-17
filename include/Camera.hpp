@@ -19,6 +19,7 @@ public:
 		std::shared_ptr<UIManager> ui,
 		std::shared_ptr<Selection> s
 	);
+	void resetCameraAbsolutePos();
 	void setChildrenRelativePos();
 	void update();
 

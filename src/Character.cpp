@@ -54,6 +54,7 @@ void Character::walkDirectly(){
 	
 	if(!walkPath.size()){
 		setStatus(CharacterStatus::Normal);
+		m_ZIndex = 3;
 	}
 }
 
@@ -118,16 +119,16 @@ void Character::buildWalkPath(glm::ivec2 a_pos){
             }
         }
     }
+	m_ZIndex = 4;
 }
 
-void Character::refreshMoveRange(){
-	// std::cout<<name<<" refresh move range."<<std::endl;
+void Character::refreshMoveRange(std::unordered_set<glm::ivec2> mask){
 	moveRange.clear();
 	
     std::shared_ptr<Tile> tile = mapManager->getPosTile(absolutePos);
     int cost = (*walkCost)[tile->getName()];
 	if(cost==0) cost = (*walkCost)["Default"];
-	findMoveRange(Mov+cost, absolutePos);
+	findMoveRange(Mov+cost, absolutePos, mask);
 }
 
 void Character::setAnimation(){
@@ -165,10 +166,13 @@ void Character::setAnimation(){
 	}
 }
 
+void Character::clearWalkPath() {
+	while(walkPath.size()) walkPath.pop();
+	m_ZIndex = 3;
+}
+
 void Character::setStatus(CharacterStatus status){
 	this->status = status;
-	std::cout<<"set status "<< std::endl;
-
 	setAnimation();
 }
 
@@ -216,11 +220,16 @@ void Character::setTileAnimation(){
 	setAnimation();
 }
 
-void Character::findMoveRange(int mov, glm::ivec2 a_pos){
+void Character::findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask){
 	if (mov < 0) return;
 
-	auto it = moveRange.find(a_pos);
-	if (it != moveRange.end() && it->second >= mov) return;
+	//the best way
+	auto p = moveRange.find(a_pos);
+	if (p != moveRange.end() && p->second >= mov) return;
+	
+	//enemy pos and locked tiles of map
+	auto m = mask.find(a_pos);
+	if (m != mask.end()) return;
 
     std::shared_ptr<Tile> tile = mapManager->getPosTile(a_pos);
     if (!tile) return;
@@ -232,12 +241,12 @@ void Character::findMoveRange(int mov, glm::ivec2 a_pos){
     if(new_mov <= 0) return;
 
 	moveRange[a_pos] = mov;
-    // std::cout << new_mov << ": add " << a_pos.x << ", " << a_pos.y << std::endl;
+    std::cout << new_mov << ": add " << a_pos.x << ", " << a_pos.y << std::endl;
     
-    findMoveRange(new_mov, a_pos + glm::ivec2(TILE_SIZE, 0));
-    findMoveRange(new_mov, a_pos + glm::ivec2(-TILE_SIZE, 0));
-    findMoveRange(new_mov, a_pos + glm::ivec2(0, TILE_SIZE));
-    findMoveRange(new_mov, a_pos + glm::ivec2(0, -TILE_SIZE));
+    findMoveRange(new_mov, a_pos + glm::ivec2(TILE_SIZE, 0), mask);
+    findMoveRange(new_mov, a_pos + glm::ivec2(-TILE_SIZE, 0), mask);
+    findMoveRange(new_mov, a_pos + glm::ivec2(0, TILE_SIZE), mask);
+    findMoveRange(new_mov, a_pos + glm::ivec2(0, -TILE_SIZE), mask);
 }
 
 

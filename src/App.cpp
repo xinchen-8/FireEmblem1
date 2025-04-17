@@ -7,7 +7,15 @@
 #include <iostream>
 
 App::App(){
-    
+    playerManager->setCharaterManager(enemyManager);
+    enemyManager->setCharaterManager(playerManager);
+    selection->setAbsolutePos(playerManager->getCharacter("Marth")->getAbsolutePos());
+    camera->resetCameraAbsolutePos();
+
+    // playerManager->refreshAllCharacterMoveRange();
+    // LOG_INFO("Player Move Manager Refresh Success.");
+    // enemyManager->refreshAllCharacterMoveRange();
+    // LOG_INFO("Enemy Move Manager Refresh Success.");
 }
 
 void App::Start() {
@@ -70,6 +78,7 @@ void App::Update() {
 
         //selectable => next is walk
         if(status == SelectionStatus::Normal && selectCharacter){
+            
             selection->setSelectCharacter(selectCharacter);
             selection->setStatus(SelectionStatus::Moving);
             selection->setMoveLimit(playerManager->selectCharacter(selectCharacter));
@@ -102,6 +111,7 @@ void App::Update() {
             playerManager->buildCharacterTips(selectedCharacter);
             selection->setStatus(SelectionStatus::Moving);
             selection->setAbsolutePos(selection->getOriginalSelectionPos());
+            camera->resetCameraAbsolutePos();
         }
         //select character => back to none
         else if(status == SelectionStatus::Moving){
@@ -113,6 +123,7 @@ void App::Update() {
             selection->setAbsolutePos(selection->getOriginalSelectionPos());
             selection->setSelectCharacter(nullptr);
             playerManager->clearTips();
+            camera->resetCameraAbsolutePos();
         }
     }
 
@@ -129,11 +140,11 @@ void App::Update() {
         playerManager->changeTipsVisible(selection->getSelectCharacter());
     }
     //all tip 
-    if (Util::Input::IsKeyDown(Util::Keycode::F3)) {
-        LOG_INFO("F3 pressed");
+    // if (Util::Input::IsKeyDown(Util::Keycode::F3)) {
+    //     LOG_INFO("F3 pressed");
 
-        playerManager->buildCharacterTips();
-    }
+    //     playerManager->buildCharacterTips();
+    // }
     //update
     camera->update();
     playerManager->update();

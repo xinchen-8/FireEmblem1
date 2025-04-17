@@ -85,11 +85,6 @@ Tile::Tile(const Tile& other, glm::ivec2 a_pos){
     absolutePos = a_pos;
 }
 
-void MapManager::maskTile(glm::ivec2 pos) {
-    map[pos.y][pos.x]->mask();
-        LOG_INFO("Tile {"+ std::to_string(pos.x) + ", " + std::to_string(pos.y) + "} mask success.");
-}
-
 MapManager::MapManager(int level) : level(level){
     buildTileTable();
     loadMap(level);
@@ -122,11 +117,10 @@ void MapManager::loadMap(int level){
         map.push_back(row);
     }
     //mask
-    int maskNum = stoi((*data)[tileNum.y + 2][0]);
-    for (int i = tileNum.y + 3; i < tileNum.y + 3 + maskNum; i++) {
-        maskTile({ stoi((*data)[i][0]), stoi((*data)[i][1]) });
+    for (auto pos = TILE_MASK[level-1].begin(); pos!=TILE_MASK[level-1].end(); pos++) {
+        map[pos->y][pos->x]->mask();
+        LOG_INFO("Tile {"+ std::to_string(pos->x) + ", " + std::to_string(pos->y) + "} mask success.");
     }
-
     LOG_INFO("Map loading success.");
 }
 

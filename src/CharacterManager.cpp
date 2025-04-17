@@ -1,28 +1,46 @@
 #include "CharacterManager.hpp"
 
-CharacterManager::CharacterManager(std::shared_ptr<MapManager> mm):
-	mapManager(mm){
+CharacterManager::CharacterManager(std::shared_ptr<MapManager> mm):mapManager(mm){
 
 }
 
-void CharacterManager::buildCharacterTips(){
-	clearTips();
+// cost time too long => crash
+// void CharacterManager::refreshAllCharacterMoveRange(){
+// 	std::cout<<"meow1"<<std::endl;
 
-	for(auto c: characters){
-		glm::ivec2 c_pos = c->getAbsolutePos();
-		if(c_pos.x==-1 && c_pos.y==-1) continue;
+// 	std::unordered_set<glm::ivec2> mask;
+// 	if (auto cm = characterManager.lock()) {
+// 		for(auto ac: cm->getChildren()) 
+// 			mask.insert(ac->getAbsolutePos());
+// 	}
+// 	std::cout<<"meow2"<<std::endl;
 
-		for(auto [pos, mov]: c->getMoveRange()){
-			std::shared_ptr<Tile> tip = getTipTile(pos);
-			tip->setStart();
-			std::vector<std::string> r = {TILE_SELECTION "tip0.png"};
-			tip->setAnimation( std::make_shared<Util::Animation>(
-				r, true, TILE_INTERVAL, true, 0)
-			);
-			tip->SetVisible(true);
-		}
-	}
-}
+// 	for(auto c: characters){
+// 		c->refreshMoveRange(mask);
+// 		std::cout<<"meow2meow"<<std::endl;
+// 	}
+// 	std::cout<<"meow3"<<std::endl;
+
+// }
+
+// void CharacterManager::buildCharacterTips(){
+// 	clearTips();
+
+// 	for(auto c: characters){
+// 		glm::ivec2 c_pos = c->getAbsolutePos();
+// 		if(c_pos.x==-1 && c_pos.y==-1) continue;
+
+// 		for(auto [pos, mov]: c->getMoveRange()){
+// 			std::shared_ptr<Tile> tip = getTipTile(pos);
+// 			tip->setStart();
+// 			std::vector<std::string> r = {TILE_SELECTION "tip0.png"};
+// 			tip->setAnimation( std::make_shared<Util::Animation>(
+// 				r, true, TILE_INTERVAL, true, 0)
+// 			);
+// 			tip->SetVisible(true);
+// 		}
+// 	}
+// }
 
 void CharacterManager::clearTips() {
 	for(auto &r: tips){
@@ -43,6 +61,14 @@ std::shared_ptr<Character> CharacterManager::getPosCharacter(glm::ivec2 a_pos){
 		if(c->getAbsolutePos() == a_pos) return c;
 	}
 	return nullptr;
+}
+
+std::unordered_set<glm::ivec2>  CharacterManager::getCharacterPos(){
+	std::unordered_set<glm::ivec2> pos = {};
+	for(auto &c: characters){
+		pos.insert(c->getAbsolutePos());
+	}
+	return pos;
 }
 
 std::shared_ptr<Tile> CharacterManager::getTipTile(glm::ivec2 a_pos){
@@ -147,7 +173,16 @@ void PlayerManager::setInitialLevel(int level){
 			if(c->getName() == e[0]){
 				if (e[level] != "X"){
 					c->setAbsolutePos({std::stoi(e[level*2-1]) * TILE_SIZE, std::stoi(e[level*2]) * TILE_SIZE});
-					c->refreshMoveRange();
+					if (auto cm = characterManager.lock()){
+						std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
+						
+						for(auto pos = CHARACTER_UNMOVE[mapManager->getLevel()-1].begin();
+							pos != CHARACTER_UNMOVE[mapManager->getLevel()-1].end();
+							pos++
+						) mask.insert(*pos);
+						c->refreshMoveRange(mask);
+
+					}
 					LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x)+ ", " + std::to_string(c->getAbsolutePos().y));
 				}
 				else{
@@ -167,10 +202,25 @@ void PlayerManager::changeTipsVisible(std::shared_ptr<Character> character){
 	}
 }
 
-std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(std::shared_ptr<Character> character = nullptr){
+std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(
+	std::shared_ptr<Character> character = nullptr){
 	if(!character) return {};
-	character->refreshMoveRange();
 
+	if (auto cm = characterManager.lock()){
+		std::cout<<"meow"<<std::endl;
+		for (const auto& pos : cm->getCharacterPos()) {
+			std::cout << "(" << pos.x << ", " << pos.y << ")\n";
+		}
+		
+		std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
+						
+		for(auto pos = CHARACTER_UNMOVE[mapManager->getLevel()-1].begin();
+			pos != CHARACTER_UNMOVE[mapManager->getLevel()-1].end();
+			pos++
+		) mask.insert(*pos);
+		character->refreshMoveRange(mask);
+
+	}
 	buildCharacterTips(character);
 	character->setStatus(CharacterStatus::Moving);
 	return character->getMoveRange();
@@ -274,7 +324,6 @@ void EnemyManager::setInitialLevel(int level){
 	
 	data->erase(data->begin());
 	for(auto &e: *data){
-		std::cout<<e[0]<<" and "<<e[1]<<std::endl;
 		for(auto &c: characters){
 			if(c->getName() == e[0] && c->getClassName() == e[1]){
 				if(c->getAbsolutePos()!=glm::ivec2(0,0)){
@@ -282,7 +331,6 @@ void EnemyManager::setInitialLevel(int level){
 
 					if (e[level*2] != "X"){
 						characters.back()->setAbsolutePos({std::stoi(e[level*2]) * TILE_SIZE, std::stoi(e[level*2+1]) * TILE_SIZE});
-						characters.back()->refreshMoveRange();
 						LOG_INFO("Set Copy of " + characters.back()->getName() + " Position: " + std::to_string(characters.back()->getAbsolutePos().x)+ ", " + std::to_string(characters.back()->getAbsolutePos().y));
 					}
 					else{
@@ -294,7 +342,6 @@ void EnemyManager::setInitialLevel(int level){
 				//not copy case => set directly
 				else if (e[level*2] != "X"){
 					c->setAbsolutePos({std::stoi(e[level*2]) * TILE_SIZE, std::stoi(e[level*2+1]) * TILE_SIZE});
-					c->refreshMoveRange();
 					LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x)+ ", " + std::to_string(c->getAbsolutePos().y));
 				}
 				else{

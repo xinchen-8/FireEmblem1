@@ -26,14 +26,17 @@ Camera::Camera(
 	for (auto& element : UIchildren) {
 		renderer.AddChild(element);
 	}
+}
+
+void Camera::resetCameraAbsolutePos(){
+	glm::ivec2 mapSize = mapManager->getMapSize();
+	absolutePos = selection->getAbsolutePos();
 	
 	glm::ivec2 BorderDistance = {
 		round(PTSD_Config::WINDOW_WIDTH / (TILE_SIZE * 2)) * TILE_SIZE,
 		round(PTSD_Config::WINDOW_HEIGHT / (TILE_SIZE * 2)) * TILE_SIZE
 	};
-	glm::ivec2 mapSize = mapManager->getMapSize();
 
-	absolutePos = selection->getAbsolutePos();
 	if (absolutePos.x < BorderDistance.x)
 		absolutePos.x = BorderDistance.x;
 	else if(absolutePos.x >= mapSize.x - BorderDistance.x - TILE_SIZE)
@@ -43,7 +46,6 @@ Camera::Camera(
 	else if(absolutePos.y >= mapSize.y - BorderDistance.y - TILE_SIZE)
 		absolutePos.y = mapSize.y - BorderDistance.y - TILE_SIZE;
 }
-
 
 void Camera::setChildrenRelativePos() {
 	for (auto& element : children) {

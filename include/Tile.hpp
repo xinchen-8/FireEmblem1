@@ -8,7 +8,7 @@
 #include <string>
 #include <unordered_map>
 #include <glm/glm.hpp>
-#include "Integration.hpp"
+#include "Data.hpp"
 
 namespace Tool {
     std::shared_ptr<std::vector<std::vector<std::string>>> inputFile(std::string file);
@@ -64,8 +64,6 @@ public:
     std::vector<std::shared_ptr<CameraGameObject>> getChildren();
 
 private:
-    void maskTile(glm::ivec2 pos);
-
     int level = 0;
     glm::ivec2 tileNum = {0, 0};
     glm::ivec2 absolutePos = {0, 0}; //main point of camera is down left corner of map

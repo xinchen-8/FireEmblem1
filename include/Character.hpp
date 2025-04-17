@@ -27,8 +27,8 @@ public:
 
 	void walkDirectly();
 	void buildWalkPath(glm::ivec2 a_pos); //must in moveRange
-	void refreshMoveRange();
-	void clearWalkPath() { while(walkPath.size()) walkPath.pop();}
+	void refreshMoveRange(std::unordered_set<glm::ivec2> mask);
+	void clearWalkPath();
 
 	void setAnimation();
 	void setStatus(CharacterStatus status);
@@ -64,7 +64,8 @@ public:
 	//items
 protected:
 	int gapOfAnimation = 3;
-	void findMoveRange(int mov, glm::ivec2 a_pos);
+	//mask: enemy pos and locked tiles of map
+	void findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask);
 private:
 	std::string name = "";
 	std::string className = "";
@@ -340,11 +341,9 @@ public:
 	std::shared_ptr<Character> clone() override {
 
 		std::shared_ptr<Character> c = std::make_shared<Pirate>(*this);
-		std::cout<<"meow"<<std::endl;
 		if (m_Drawable) {
 			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
 		}
-		std::cout<<"meow"<<std::endl;
 		return c;
 	}
 

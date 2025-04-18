@@ -133,9 +133,14 @@ void App::Update() {
 
         uiManager->changeVisibleTileInfo();
     }
-    //player tip 
+    //character info UI
     if (Util::Input::IsKeyDown(Util::Keycode::F2)) {
         LOG_INFO("F2 pressed");
+        uiManager->changeVisibleCharacterInfo();
+    }
+    //player tip 
+    if (Util::Input::IsKeyDown(Util::Keycode::F3)) {
+        LOG_INFO("F3 pressed");
 
         playerManager->changeTipsVisible(selection->getSelectCharacter());
     }

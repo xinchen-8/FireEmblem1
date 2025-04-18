@@ -17,8 +17,10 @@ void UserInterface::setVisible(bool visible) {
 
 void UserInterface::setRelativePos(glm::ivec2 r_pos) {
 	m_Transform.translation = r_pos + glm::ivec2{
-		floor(UItileNum.x * TILE_SIZE / 2.7),
-		floor(UItileNum.y * TILE_SIZE / 3.5),
+		// floor(UItileNum.x * TILE_SIZE / 2.7),
+		// floor(UItileNum.y * TILE_SIZE / 3.5),
+		floor(UItileNum.x * TILE_SIZE * 0.25),
+		floor(UItileNum.y * TILE_SIZE / 2.9),
 	};
 
 	for (int j = 0; j < UItileNum.y; j++) {
@@ -85,23 +87,41 @@ std::vector<std::shared_ptr<Util::GameObject>> UserInterface::getChildren() {
 
 TileInfoUI::TileInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
 	UserInterface(tiles){
-	setUISize({ 3,2 });
+	setUISize({ 3, 2 });
+	SetPivot({-1,0});//???
 	setRelativePos({
 		 - floor(PTSD_Config::WINDOW_WIDTH / 2) + 1 * TILE_SIZE, 
 		 - floor(PTSD_Config::WINDOW_HEIGHT / 2) + 1 * TILE_SIZE
 	});
 }
 
-void TileInfoUI::update(Tile tile) {
+void TileInfoUI::update(const Tile &tile) {
 	setString(tile.getName()+"\navoid +"+std::to_string(tile.getAvoid()));
 	// setAbsolutePos({ TILE_SIZE, TILE_SIZE });
 }
 
+CharacterInfoUI::CharacterInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
+	UserInterface(tiles) {
+	setUISize({ 5, 3 });
+	setRelativePos({
+		+ floor(PTSD_Config::WINDOW_WIDTH / 2) - 5 * TILE_SIZE,
+		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 1 * TILE_SIZE
+	});
+}
+
+void CharacterInfoUI::update(const Character &character) {
+    std::string content=
+		character.getName() + "\n" +
+		character.getClassName() + "\n" +
+		"HP " + std::to_string(character.getCurHP()) + "/" + std::to_string(character.getHpLimit()) + "\n"; //first getHP() will be replaced by getCurHP()
+    setString(content);
+}
+
 UIManager::UIManager(
 	std::shared_ptr<Selection> s,
-	std::shared_ptr<MapManager> tm
-	//characterManager,
-	) : mapManager(tm), selection(s) {
+	std::shared_ptr<MapManager> tm,
+	std::shared_ptr<PlayerManager> pm
+	) : mapManager(tm), selection(s), playerManager(pm) {	
 
 	for (int i = 0; i < 9; i++) {
 		tiles.push_back(std::make_shared<Tile>(
@@ -110,21 +130,34 @@ UIManager::UIManager(
 	}
 
 	tileInfo = std::make_shared<TileInfoUI>(tiles);
+	characterInfo = std::make_shared<CharacterInfoUI>(tiles);
 }
 
 void UIManager::update() {
 	auto reg = mapManager->getPosTile(selection->getAbsolutePos());
 	if(reg) tileInfo->update(*reg);
+	auto c = playerManager->getPosCharacter(selection->getAbsolutePos());
+	if(c) characterInfo->update(*c); 
+	else characterInfo->update();
 }
 
 void UIManager::changeVisibleTileInfo() {
 	tileInfo->setVisible(!tileInfo->getVisible());
 }
 
+void UIManager::changeVisibleCharacterInfo() {
+	characterInfo->setVisible(!characterInfo->getVisible());
+	std::cout << characterInfo->getVisible() << std::endl;
+}
+
 std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
 	std::vector<std::shared_ptr<Util::GameObject>> children = {};
 	std::vector<std::shared_ptr<Util::GameObject>> reg = tileInfo->getChildren();
+	std::vector<std::shared_ptr<Util::GameObject>> c = characterInfo->getChildren();
+
 	for (auto &e : reg) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(tileInfo);
+	for (auto &e : c) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
+	children.push_back(characterInfo);
 	return children;
-}
+	}

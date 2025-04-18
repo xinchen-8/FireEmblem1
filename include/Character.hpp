@@ -38,27 +38,28 @@ public:
 	void setHeadshotAnimation(std::shared_ptr<Util::Animation> a_headshotAnimation){ headshotAnimation = a_headshotAnimation; }
 	void setTileAnimation();
 	
-	std::string getName() { return name; }
-	std::string getClassName() { return className; }
-	int getLevel() { return Lv; }
-	int getExp() { return Ex; }
-	int getHP() { return HP; }
-	int getStr() { return Str; }
-	int getSkl() { return Skl; }
-	int getWlv() { return Wlv; }
-	int getSpd() { return Spd; }
-	int getLck() { return Lck; }
-	int getDef() { return Def; }
-	int getRes() { return Res; }
-	int getMov() { return Mov; }
-	int getHPGR() { return HPGR; }
-	int getStrGR() { return StrGR; }
-	int getSklGR() { return SklGR; }
-	int getWlvGR() { return WlvGR; }
-	int getSpdGR() { return SpdGR; }
-	int getLckGR() { return LckGR; }
-	int getDefGR() { return DefGR; }
-	int getResGR() { return ResGR; }
+	std::string getName() const { return name; }
+	std::string getClassName() const { return className; }
+	int getLevel() const { return Lv; }
+	int getExp() const { return Ex; }
+	int getHpLimit() const { return Hp_Limit; }
+	int getCurHP() const { return Hp_Current; }
+	int getStr() const { return Str; }
+	int getSkl() const { return Skl; }
+	int getWlv() const { return Wlv; }
+	int getSpd() const { return Spd; }
+	int getLck() const { return Lck; }
+	int getDef() const { return Def; }
+	int getRes() const { return Res; }
+	int getMov() const { return Mov; }
+	int getHPGR() const { return HPGR; }
+	int getStrGR() const { return StrGR; }
+	int getSklGR() const { return SklGR; }
+	int getWlvGR() const { return WlvGR; }
+	int getSpdGR() const { return SpdGR; }
+	int getLckGR() const { return LckGR; }
+	int getDefGR() const { return DefGR; }
+	int getResGR() const { return ResGR; }
 	std::unordered_map<glm::ivec2, int> getMoveRange() { return moveRange; }
 
 	//items
@@ -77,11 +78,11 @@ private:
 	std::vector<WeaponType> usableWeapon = {}; 
 
 	int Lv = 0; int Ex = 0;
-	int HP = 0; int Str = 0;
-	int Skl = 0; int Wlv = 0;
-	int Spd = 0; int Lck = 0;
-	int Def = 0	; int Res = 0;
-	int Mov = 0;
+	int Hp_Limit = 0; int Hp_Current = 0;
+	int Str = 0; int Skl = 0;
+	int Wlv = 0; int Spd = 0;
+	int Lck = 0; int Def = 0;
+	int Res = 0; int Mov = 0;
 	
 	int HPGR = 0; int StrGR = 0;
 	int SklGR = 0; int WlvGR = 0;

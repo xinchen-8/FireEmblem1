@@ -13,11 +13,11 @@ Character::Character(
 	className = n_list[1];
 
 	Lv = std::stoi(n_list[2]); Ex = std::stoi(n_list[3]);
-	HP = std::stoi(n_list[4]); Str = std::stoi(n_list[5]);
-	Skl = std::stoi(n_list[6]); Wlv = std::stoi(n_list[7]);
-	Spd = std::stoi(n_list[8]); Lck = std::stoi(n_list[9]);
-	Def = std::stoi(n_list[10]); Res = std::stoi(n_list[11]);
-	Mov = std::stoi(n_list[12]);
+	Hp_Limit = std::stoi(n_list[4]); Hp_Current = Hp_Limit;
+	Str = std::stoi(n_list[5]);	Skl = std::stoi(n_list[6]);
+	Wlv = std::stoi(n_list[7]); Spd = std::stoi(n_list[8]);
+	Lck = std::stoi(n_list[9]); Def = std::stoi(n_list[10]);
+	Res = std::stoi(n_list[11]); Mov = std::stoi(n_list[12]);
 
 	HPGR = std::stoi(g_list[1]); StrGR = std::stoi(g_list[2]);
 	SklGR = std::stoi(g_list[3]); WlvGR = std::stoi(g_list[4]);

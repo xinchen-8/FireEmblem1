@@ -39,9 +39,9 @@ private:
 
     std::shared_ptr<Selection> selection = std::make_shared<Selection>();
     std::shared_ptr<UIManager> uiManager = std::make_shared<UIManager>(
-        selection, mapManager
+        selection, mapManager, playerManager
     );
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>(
+    std::shared_ptr<Camera> camera = std::make_shared<Camera>(  
         playerManager, enemyManager, mapManager, uiManager, selection
     );
 

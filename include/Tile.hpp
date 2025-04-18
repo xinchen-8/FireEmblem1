@@ -22,7 +22,6 @@ public:
     Tile(std::string id, std::string img_path);
     //for map
     Tile(const Tile& other, glm::ivec2 a_pos);
-    bool Access() { return access; }
 
     void setRelativePos(glm::ivec2 r_pos) { m_Transform.translation = r_pos; }
     void setAnimation(std::shared_ptr<Util::Animation> a_animation) { m_Drawable = a_animation; }
@@ -32,9 +31,9 @@ public:
     void mask(){ access = false; m_Visible = false; }
 
     glm::ivec2 getRelativePos() const { return m_Transform.translation; }
-    std::string getName() { return name; }
-    bool getMask() { return access; }
-    int getAvoid() { return avoid; }
+    std::string getName() const { return name; }
+    bool getMask() const { return access; }
+    int getAvoid() const { return avoid; }
 
 private:
     std::string name = "";

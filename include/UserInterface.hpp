@@ -14,6 +14,7 @@ public:
 	virtual void update() { setString(" "); }
 	void setVisible(bool visible);
 	void setRelativePos(glm::ivec2 r_pos);
+	void setRelativePos();
 	void setUISize(glm::ivec2 windowNums);
 	void setString(std::string content);
 

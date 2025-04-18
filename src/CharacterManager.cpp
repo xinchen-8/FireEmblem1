@@ -207,7 +207,6 @@ std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(
 	if(!character) return {};
 
 	if (auto cm = characterManager.lock()){
-		std::cout<<"meow"<<std::endl;
 		for (const auto& pos : cm->getCharacterPos()) {
 			std::cout << "(" << pos.x << ", " << pos.y << ")\n";
 		}

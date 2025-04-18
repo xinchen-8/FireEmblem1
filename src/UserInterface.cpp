@@ -3,7 +3,9 @@
 UserInterface::UserInterface(const std::vector<std::shared_ptr<Tile>> &tiles){
 	m_Visible = false;
 	m_ZIndex = 7;
+
 	for (auto& e : tiles) tileTable.push_back(e);
+	setString(" ");
 }
 
 void UserInterface::setVisible(bool visible) {
@@ -16,18 +18,18 @@ void UserInterface::setVisible(bool visible) {
 }
 
 void UserInterface::setRelativePos(glm::ivec2 r_pos) {
-	m_Transform.translation = r_pos + glm::ivec2{
-		// floor(UItileNum.x * TILE_SIZE / 2.7),
-		// floor(UItileNum.y * TILE_SIZE / 3.5),
-		floor(UItileNum.x * TILE_SIZE * 0.25),
-		floor(UItileNum.y * TILE_SIZE / 2.9),
-	};
+	SetPivot({-floor(m_Drawable->GetSize().x/2), -floor(m_Drawable->GetSize().y/2)});
+	m_Transform.translation = r_pos;
 
 	for (int j = 0; j < UItileNum.y; j++) {
 		for (int i = 0; i < UItileNum.x; i++) {
 			form[j][i]->setRelativePos(r_pos + getTileRelativePos({ i, j }));
 		}
 	}
+}
+
+void UserInterface::setRelativePos(){
+	SetPivot({-floor(m_Drawable->GetSize().x/2), -floor(m_Drawable->GetSize().y/2)});
 }
 
 void UserInterface::setUISize(glm::ivec2 windowNums) {
@@ -69,6 +71,7 @@ void UserInterface::setString(std::string content) {
 	m_Drawable = std::make_shared<Util::Text>(
 		FONTPATH, FONT_SIZE, content, Util::Color(255, 255, 255), false
 	);
+	setRelativePos();
 }
 
 glm::ivec2 UserInterface::getTileRelativePos(glm::ivec2 pos) {
@@ -88,10 +91,10 @@ std::vector<std::shared_ptr<Util::GameObject>> UserInterface::getChildren() {
 TileInfoUI::TileInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
 	UserInterface(tiles){
 	setUISize({ 3, 2 });
-	SetPivot({-1,0});//???
+
 	setRelativePos({
-		 - floor(PTSD_Config::WINDOW_WIDTH / 2) + 1 * TILE_SIZE, 
-		 - floor(PTSD_Config::WINDOW_HEIGHT / 2) + 1 * TILE_SIZE
+		- floor(PTSD_Config::WINDOW_WIDTH / 2) + 1 * TILE_SIZE,
+		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 1 * TILE_SIZE
 	});
 }
 
@@ -103,6 +106,7 @@ void TileInfoUI::update(const Tile &tile) {
 CharacterInfoUI::CharacterInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
 	UserInterface(tiles) {
 	setUISize({ 5, 3 });
+
 	setRelativePos({
 		+ floor(PTSD_Config::WINDOW_WIDTH / 2) - 5 * TILE_SIZE,
 		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 1 * TILE_SIZE
@@ -147,7 +151,6 @@ void UIManager::changeVisibleTileInfo() {
 
 void UIManager::changeVisibleCharacterInfo() {
 	characterInfo->setVisible(!characterInfo->getVisible());
-	std::cout << characterInfo->getVisible() << std::endl;
 }
 
 std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {

@@ -1,8 +1,13 @@
 #ifndef CHARACTER_HPP
 #define CHARACTER_HPP
 #include <queue>
+#include <cstdlib>
 #include "Integration.hpp"
 #include "Tile.hpp"
+#include "Item.hpp"
+
+class Item;
+class HandHeldItem;
 
 struct DijkstraNode {
     int cost;
@@ -14,7 +19,7 @@ struct DijkstraNode {
     }
 };
 
-class Character : public CameraGameObject {
+class Character : public CameraGameObject, std::enable_shared_from_this<Character> {
 public:
 	Character(
 		std::shared_ptr<MapManager> mm,
@@ -37,7 +42,17 @@ public:
 	void setVisible(bool visible){ m_Visible = visible; }
 	void setHeadshotAnimation(std::shared_ptr<Util::Animation> a_headshotAnimation){ headshotAnimation = a_headshotAnimation; }
 	void setTileAnimation();
-	
+
+	void pushItem(std::shared_ptr<Item> item);
+	void freshItem(int delete_index = -1);
+	void deleteAllItems(){ items = {}; }
+
+	void setHP(int hp);
+	bool attacked(int power, int crt, int acc, bool isMagical=false); //return isAvoid;
+	void attack(std::shared_ptr<Character> target);
+
+	std::shared_ptr<HandHeldItem> getCurrentHandHeldItem();
+
 	std::string getName() const { return name; }
 	std::string getClassName() const { return className; }
 	int getLevel() const { return Lv; }
@@ -67,6 +82,10 @@ protected:
 	int gapOfAnimation = 3;
 	//mask: enemy pos and locked tiles of map
 	void findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask);
+
+	int handheld_index = 0;
+	std::vector<std::shared_ptr<Item>> items = {};
+	
 private:
 	std::string name = "";
 	std::string className = "";
@@ -75,7 +94,7 @@ private:
 	Forword forword = Forword::Down;
 	CharacterStatus status = CharacterStatus::Normal;
 	std::queue<glm::ivec2> walkPath = {};
-	std::vector<WeaponType> usableWeapon = {}; 
+	std::vector<HandHeldItemType> usableHandHeldItem = {}; 
 
 	int Lv = 0; int Ex = 0;
 	int Hp_Limit = 0; int Hp_Current = 0;
@@ -109,17 +128,11 @@ public:
 			std::shared_ptr<std::unordered_map<std::string, int>> wc,
 			bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-		auto c = std::make_shared<Lord>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
+	std::shared_ptr<Character> clone() override;
 
 private:
 	std::string className = "Lord";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Sword }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword }; 
 };
 
 class PegasusKnight final : public Character {
@@ -130,16 +143,10 @@ public:
 					std::shared_ptr<std::unordered_map<std::string, int>> wc,
 					bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-		auto c = std::make_shared<PegasusKnight>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
+	std::shared_ptr<Character> clone() override;
 private:
 	std::string className = "PegasusKnight";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Sword, WeaponType::Lance }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword, HandHeldItemType::Lance }; 
 };
 
 class Paladin final : public Character {
@@ -150,17 +157,11 @@ public:
 			std::shared_ptr<std::unordered_map<std::string, int>> wc,
 			bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-		auto c = std::make_shared<Paladin>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
+	std::shared_ptr<Character> clone() override;
 
 private:
 	std::string className = "Paladin";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Sword, WeaponType::Lance }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword, HandHeldItemType::Lance }; 
 };
 
 class Cavalier final : public Character {
@@ -171,17 +172,11 @@ public:
 				std::shared_ptr<std::unordered_map<std::string, int>> wc,
 				bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-		auto c = std::make_shared<Cavalier>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
+	std::shared_ptr<Character> clone() override;
 
 private:
 	std::string className = "Cavalier";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Sword, WeaponType::Lance }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword, HandHeldItemType::Lance }; 
 };
 
 class Knight final : public Character {
@@ -192,17 +187,10 @@ public:
 			std::shared_ptr<std::unordered_map<std::string, int>> wc,
 			bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-		auto c = std::make_shared<Knight>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
-
+	std::shared_ptr<Character> clone() override;
 private:
 	std::string className = "Knight";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Sword, WeaponType::Lance }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword, HandHeldItemType::Lance }; 
 };
 
 class Thief final : public Character {
@@ -213,17 +201,11 @@ public:
 			std::shared_ptr<std::unordered_map<std::string, int>> wc,
 			bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-		auto c = std::make_shared<Thief>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
+	std::shared_ptr<Character> clone() override;
 
 private:
 	std::string className = "Thief";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Sword }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword }; 
 };
 
 class Archer final : public Character {
@@ -234,17 +216,11 @@ public:
 			std::shared_ptr<std::unordered_map<std::string, int>> wc,
 			bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-		auto c = std::make_shared<Archer>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
+	std::shared_ptr<Character> clone() override;
 
 private:
 	std::string className = "Archer";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Bow }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Bow }; 
 };
 
 class Curate final : public Character {
@@ -255,17 +231,11 @@ public:
 			std::shared_ptr<std::unordered_map<std::string, int>> wc,
 			bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-		auto c = std::make_shared<Curate>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
+	std::shared_ptr<Character> clone() override;
 
 private:
 	std::string className = "Curate";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Staff }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Staff }; 
 };
 
 class Mercenary final : public Character {
@@ -276,17 +246,11 @@ public:
 				std::shared_ptr<std::unordered_map<std::string, int>> wc,
 				bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-		auto c = std::make_shared<Mercenary>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
+	std::shared_ptr<Character> clone() override;
 
 private:
 	std::string className = "Mercenary";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Sword }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword }; 
 };
 
 class Fighter final : public Character {
@@ -297,17 +261,11 @@ public:
 			std::shared_ptr<std::unordered_map<std::string, int>> wc,
 			bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-		auto c = std::make_shared<Fighter>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
+	std::shared_ptr<Character> clone() override;
 
 private:
 	std::string className = "Fighter";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Axe }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Axe }; 
 };
 
 class Hunter final : public Character {
@@ -318,17 +276,11 @@ public:
 			std::shared_ptr<std::unordered_map<std::string, int>> wc,
 			bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-		auto c = std::make_shared<Hunter>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
+	std::shared_ptr<Character> clone() override;
 
 private:
 	std::string className = "Hunter";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Bow }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Bow }; 
 };
 
 class Pirate final : public Character {
@@ -339,18 +291,10 @@ public:
 			std::shared_ptr<std::unordered_map<std::string, int>> wc,
 			bool isPlayer);
 
-	std::shared_ptr<Character> clone() override {
-
-		std::shared_ptr<Character> c = std::make_shared<Pirate>(*this);
-		if (m_Drawable) {
-			c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-		}
-		return c;
-	}
-
+	std::shared_ptr<Character> clone() override;
 private:
 	std::string className = "Pirate";
-	std::vector<WeaponType> usableWeapon = { WeaponType::Axe }; 
+	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Axe }; 
 };
 
 #endif

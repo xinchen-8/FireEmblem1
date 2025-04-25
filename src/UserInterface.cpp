@@ -90,7 +90,7 @@ std::vector<std::shared_ptr<Util::GameObject>> UserInterface::getChildren() {
 
 TileInfoUI::TileInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
 	UserInterface(tiles){
-	setUISize({ 3, 2 });
+	setUISize({ 4, 2 });
 
 	setRelativePos({
 		- floor(PTSD_Config::WINDOW_WIDTH / 2) + 1 * TILE_SIZE,

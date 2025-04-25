@@ -62,7 +62,7 @@ enum class Forword{
 	Right
 };
 
-enum class WeaponType {
+enum class HandHeldItemType {
 	Sword,
 	Lance,
 	Bow,

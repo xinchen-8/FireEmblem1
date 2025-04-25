@@ -1,111 +1,148 @@
-// #ifndef ITEM_HPP
-// #define ITEM_HPP
+#ifndef ITEM_HPP
+#define ITEM_HPP
 
-// #include "Integration.hpp"
+#include "Integration.hpp"
+#include "Character.hpp"
 
-// class Item {
-// public:
-// 	Item(int uses);
-// 	virtual use(std::shared_ptr<Character> target) = 0;
+class Character;
 
-// 	std::string getName() { return name; }
-// 	int getUses() { return uses; }
-// 	int getWorth() { return worth;}
-// 	std::string getNote() { return note; }
+class Item {
+public:
+	Item(std::string name, int uses, int worth, std::string note);
+	virtual void use(std::shared_ptr<Character> user, std::shared_ptr<Character> target) { uses--; }
 
-// private:
-// 	std::string name = "";
-// 	int uses = 0;
-// 	int worth = 0;
-// 	std::string notes = "";
+	std::string getName() { return name; }
+	int getUses() { return uses; }
+	int getWorth() { return worth; }
+	std::string getNote() { return note; }
 
-// };
+	virtual std::shared_ptr<Item> clone() const = 0;
 
-// class Weapon : public Item{
-// public:
-// 	Weapon(std::vector<std::string> w_list);
-// 	void use() override;
+protected:
+	std::string name = "";
+	int uses = 0;
+	int worth = 0;
+	std::string note = "";
+};
 
-// 	int getWt() { return wt; }
-// 	int getHit() { return hit; }
-// 	int getRng() { return rng; }
-// 	int getWlv() { return wlv; }
-// 	int getCrt() { return crt; }
+class Vulnerary : public Item {
+public:
+	Vulnerary(std::vector<std::string> i_list);
+	void use(std::shared_ptr<Character> user, std::shared_ptr<Character> target) override;
+	std::shared_ptr<Item> clone() const override { return std::make_shared<Vulnerary>(*this); }
+};
 
-// private:
-// 	int wt = 0;
-// 	int hit = 0;
-// 	int rng = 0;
-// 	int	wlv = 0;
-// 	int crt	= 0;
-// };
+class HandHeldItem : public Item {
+public:
+	HandHeldItem(std::vector<std::string> w_list);
+	void use(std::shared_ptr<Character> user, std::shared_ptr<Character> target) override;
 
-// class Rapier : public Weapon{
-// public:
-// 	Rapier(std::vector<std::string> w_list);
-// 	void use() override;
-// }
+	bool isAgainst(std::string className);
+	int getMt() { return mt; }
+	int getWt() { return wt; }
+	int getHit() { return hit; }
+	std::vector<int> getRng() { return rng; }
+	int getWlv() { return wlv; }
+	int getCrt() { return crt; }
 
-// class IronSword : public Weapon{
-// public:
-// 	IronSword(std::vector<std::string> w_list);
-// }
+protected:
+	std::vector<std::string> against = {};
 
-// class Lance : public Weapon{
-// public:
-// 	Lance(std::vector<std::string> w_list);
-// }
+private:
+	int mt = 0;
+	int wt = 0;
+	int hit = 0;
+	std::vector<int> rng = {};
+	int wlv = 0;
+	int crt = 0;
+};
 
-// class SilverLance : public Weapon{
-// public:
-// 	SilverLance(std::vector<std::string> w_list);
-// }
+class Rapier : public HandHeldItem {
+public:
+	Rapier(std::vector<std::string> w_list);
+	std::vector<std::string> against = {
+		"Cavalier", "Knight", "Paladins", "Generals"
+	};
+	std::shared_ptr<Item> clone() const override { return std::make_shared<Rapier>(*this); }
+};
 
-// class Javelin : public Weapon{
-// public:
-// 	Javelin(std::vector<std::string> w_list);
-// }
+class IronSword : public HandHeldItem {
+public:
+	IronSword(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<IronSword>(*this); }
+};
 
-// class Bow : public Weapon{
-// public:
-// 	Bow(std::vector<std::string> w_list);
-// }
+class SteelSword : public HandHeldItem {
+public:
+	SteelSword(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<SteelSword>(*this); }
+};
 
-// class SteelBow : public Weapon{
-// public:
-// 	SteelBow(std::vector<std::string> w_list);
-// }
+class IronLance : public HandHeldItem {
+public:
+	IronLance(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<IronLance>(*this); }
+};
 
-// class Bowgun : public Weapon{
-// public:
-// 	Bowgun(std::vector<std::string> w_list);
-// }
+class SilverLance : public HandHeldItem {
+public:
+	SilverLance(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<SilverLance>(*this); }
+};
 
-// class Heal : public Weapon{
-// public:
-// 	Heal(std::vector<std::string> w_list);
-// 	void use() override;
-// }
+class Javelin : public HandHeldItem {
+public:
+	Javelin(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<Javelin>(*this); }
+};
 
-// class Axe : public Weapon{
-// public:
-// 	Axe(std::vector<std::string> w_list);
-// }
+class IronBow : public HandHeldItem {
+public:
+	IronBow(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<IronBow>(*this); }
+};
 
-// class SteelAxe : public Weapon{
-// public:
-// 	SteelAxe(std::vector<std::string> w_list);
-// }
+class SteelBow : public HandHeldItem {
+public:
+	SteelBow(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<SteelBow>(*this); }
+};
 
-// class HandAxe : public Weapon{
-// public:
-// 	HandAxe(std::vector<std::string> w_list);
-// }
+class Bowgun : public HandHeldItem {
+public:
+	Bowgun(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<Bowgun>(*this); }
+};
 
-// class Hammer : public Weapon{
-// public:
-// 	Hammer(std::vector<std::string> w_list);
-// 	void use() override;
-// }
+class Heal : public HandHeldItem {
+public:
+	Heal(std::vector<std::string> w_list);
+	void use(std::shared_ptr<Character> user, std::shared_ptr<Character> target) override;
+	std::shared_ptr<Item> clone() const override { return std::make_shared<Heal>(*this); }
+};
 
-// #endif
+class IronAxe : public HandHeldItem {
+public:
+	IronAxe(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<IronAxe>(*this); }
+};
+
+class SteelAxe : public HandHeldItem {
+public:
+	SteelAxe(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<SteelAxe>(*this); }
+};
+
+class HandAxe : public HandHeldItem {
+public:
+	HandAxe(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<HandAxe>(*this); }
+};
+
+class Hammer : public HandHeldItem {
+public:
+	Hammer(std::vector<std::string> w_list);
+	std::shared_ptr<Item> clone() const override { return std::make_shared<Hammer>(*this); }
+};
+
+#endif

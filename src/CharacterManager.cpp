@@ -97,11 +97,12 @@ PlayerManager::PlayerManager(std::shared_ptr<MapManager> mm):
 
 	std::vector<std::string> reg = (*data)[0];
 	data->erase(data->begin());
+
 	for(auto &e: *data){
-		std::string name = e[0];
+		std::string name = e[COST_INDEX::CLASS];
 		std::unordered_map<std::string, int> reg_cost = {};
 
-		for(std::size_t i=1; i<e.size(); i++) reg_cost[reg[i]] = std::stoi(e[i]);
+		for(std::size_t i=COST_INDEX::DEFAULT; i<=COST_INDEX::WALL; i++) reg_cost[reg[i]] = std::stoi(e[i]);
 		costTable[name] = std::make_shared<std::unordered_map<std::string, int>>(reg_cost);
 	}
 
@@ -126,41 +127,124 @@ PlayerManager::PlayerManager(std::shared_ptr<MapManager> mm):
 }
 
 void PlayerManager::loadCharacter(){
+	//character sequence of all of data must be the same
+	//items
+	std::shared_ptr<std::vector<std::vector<std::string>>> weaponData = Tool::inputFile( DATA_ITEM "weapon_data.csv");
+	std::shared_ptr<std::vector<std::vector<std::string>>> itemData = Tool::inputFile( DATA_ITEM "items_data.csv");
+	
 	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile( DATA_CHARACTER "players/player_base_data.csv");
 	std::shared_ptr<std::vector<std::vector<std::string>>> g_data = Tool::inputFile( DATA_CHARACTER "players/player_growth_rate.csv");
-	if(!data) LOG_ERROR("Character loading failed!");
+	std::shared_ptr<std::vector<std::vector<std::string>>> w_data = Tool::inputFile( DATA_CHARACTER "players/player_starting_items.csv");
 	
 	data->erase(data->begin());
 	g_data->erase(g_data->begin());
+	w_data->erase(w_data->begin());
 	for(std::size_t i = 0; i<data->size(); i++){
 		std::vector<std::string> e = (*data)[i];
 		std::vector<std::string> g = (*g_data)[i];
+		std::vector<std::string> w = (*w_data)[i];
 
 		static std::unordered_map<std::string, std::function<void()>> characterFactory = {
-			{"Lord", [&]() { characters.push_back(std::make_shared<Lord>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Cavalier", [&]() { characters.push_back(std::make_shared<Cavalier>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Paladin", [&]() { characters.push_back(std::make_shared<Paladin>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"PegasusKnight", [&]() { characters.push_back(std::make_shared<PegasusKnight>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Archer", [&]() { characters.push_back(std::make_shared<Archer>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Knight", [&]() { characters.push_back(std::make_shared<Knight>(mapManager, e, g, costTable[e[1]], true)); }},
-			//{"Thief", [&]() { characters.push_back(std::make_shared<Thief>(e, g, costTable[e[1]], true)); }},
-			{"Curate", [&]() { characters.push_back(std::make_shared<Curate>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Mercenary", [&]() { characters.push_back(std::make_shared<Mercenary>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Fighter", [&]() { characters.push_back(std::make_shared<Fighter>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Hunter", [&]() { characters.push_back(std::make_shared<Hunter>(mapManager, e, g, costTable[e[1]], true)); }},
-			{"Pirate", [&]() { characters.push_back(std::make_shared<Pirate>(mapManager, e, g, costTable[e[1]], true)); }}
+			{"Lord", [&]() { characters.push_back(std::make_shared<Lord>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true )); 
+			}},
+			{"Cavalier", [&]() { characters.push_back(std::make_shared<Cavalier>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true ));
+			}},
+			{"Paladin", [&]() { characters.push_back(std::make_shared<Paladin>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true ));
+			}},
+			{"PegasusKnight", [&]() { characters.push_back(std::make_shared<PegasusKnight>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
+			}},
+			{"Archer", [&]() { characters.push_back(std::make_shared<Archer>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
+			}},
+			{"Knight", [&]() { characters.push_back(std::make_shared<Knight>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
+			}},
+			// {"Thief", [&]() { characters.push_back(std::make_shared<Thief>(
+			// 	mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
+			// }},
+			{"Curate", [&]() { characters.push_back(std::make_shared<Curate>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
+			}},
+			{"Mercenary", [&]() { characters.push_back(std::make_shared<Mercenary>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
+			}},
+			{"Fighter", [&]() { characters.push_back(std::make_shared<Fighter>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
+			}},
+			{"Hunter", [&]() { characters.push_back(std::make_shared<Hunter>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
+			}},
+			{"Pirate", [&]() { characters.push_back(std::make_shared<Pirate>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
+			}}
 		};
-	
+		static std::unordered_map<std::string, std::function<void()>> itemFactory = {
+			{"Vulnerary", [&]() { characters.back()->pushItem(std::make_shared<Vulnerary>(
+				(*itemData)[ITEM_ROWINDEX::VULNERARY])); 
+			}},
+			{"Rapier", [&]() { characters.back()->pushItem(std::make_shared<Rapier>(
+				(*weaponData)[HANDHELD_ROWINDEX::RAPIER])); 
+			}},
+			{"Iron Sword", [&]() { characters.back()->pushItem(std::make_shared<IronSword>(
+				(*weaponData)[HANDHELD_ROWINDEX::IRON_SWORD])); 
+			}},
+			{"Steel Sword", [&]() { characters.back()->pushItem(std::make_shared<SteelSword>(
+				(*weaponData)[HANDHELD_ROWINDEX::STEEL_SWORD])); 
+			}},
+			{"Iron Lance", [&]() { characters.back()->pushItem(std::make_shared<IronLance>(
+				(*weaponData)[HANDHELD_ROWINDEX::IRON_LANCE])); 
+			}},
+			{"Silver Lance", [&]() { characters.back()->pushItem(std::make_shared<SilverLance>(
+				(*weaponData)[HANDHELD_ROWINDEX::SILVER_LANCE])); 
+			}},
+			{"Javelin", [&]() { characters.back()->pushItem(std::make_shared<Javelin>(
+				(*weaponData)[HANDHELD_ROWINDEX::JAVELIN])); 
+			}},
+			{"Iron Bow", [&]() { characters.back()->pushItem(std::make_shared<IronBow>(
+				(*weaponData)[HANDHELD_ROWINDEX::IRON_BOW])); 
+			}},
+			{"Steel Bow", [&]() { characters.back()->pushItem(std::make_shared<SteelBow>(
+				(*weaponData)[HANDHELD_ROWINDEX::STEEL_BOW])); 
+			}},
+			{"Bowgun", [&]() { characters.back()->pushItem(std::make_shared<Bowgun>(
+				(*weaponData)[HANDHELD_ROWINDEX::BOWGUN])); 
+			}},
+			{"Heal", [&]() { characters.back()->pushItem(std::make_shared<Heal>(
+				(*weaponData)[HANDHELD_ROWINDEX::HEAL])); 
+			}},
+			{"Iron Axe", [&]() { characters.back()->pushItem(std::make_shared<IronAxe>(
+				(*weaponData)[HANDHELD_ROWINDEX::IRON_AXE])); 
+			}},
+			{"Steel Axe", [&]() { characters.back()->pushItem(std::make_shared<SteelAxe>(
+				(*weaponData)[HANDHELD_ROWINDEX::STEEL_AXE])); 
+			}},
+			{"Hand Axe", [&]() { characters.back()->pushItem(std::make_shared<HandAxe>(
+				(*weaponData)[HANDHELD_ROWINDEX::HAND_AXE])); 
+			}},
+			{"Hammer", [&]() { characters.back()->pushItem(std::make_shared<Hammer>(
+				(*weaponData)[HANDHELD_ROWINDEX::HAMMER])); 
+			}}
+		};
 		
-		if (characterFactory.find(e[1]) != characterFactory.end()) {
-			characterFactory[e[1]]();
+		if (characterFactory.find(e[CHARACTER_INDEX::CLASS]) != characterFactory.end()) {
+			characterFactory[e[CHARACTER_INDEX::CLASS]]();
 			characters.back()->setTileAnimation();
+			//build items
+			for(int j=1; j<5; j++){
+				if(w[j]=="0") break;
+				else itemFactory[w[j]]();
+			}
 		} else {
-			std::cerr << "Unknown character type: " << e[1] << std::endl;
+			std::cerr << "Unknown character type: " << e[CHARACTER_INDEX::CLASS] << std::endl;
 		}
 		
 	}
 	LOG_INFO("Character loading success.");
+
 }
 
 void PlayerManager::setInitialLevel(int level){
@@ -207,10 +291,6 @@ std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(
 	if(!character) return {};
 
 	if (auto cm = characterManager.lock()){
-		for (const auto& pos : cm->getCharacterPos()) {
-			std::cout << "(" << pos.x << ", " << pos.y << ")\n";
-		}
-		
 		std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
 						
 		for(auto pos = CHARACTER_UNMOVE[mapManager->getLevel()-1].begin();
@@ -256,10 +336,10 @@ EnemyManager::EnemyManager(std::shared_ptr<MapManager> mm):
 	std::vector<std::string> reg = (*data)[0];
 	data->erase(data->begin());
 	for(auto &e: *data){
-		std::string name = e[0];
+		std::string name = e[COST_INDEX::CLASS];
 		std::unordered_map<std::string, int> reg_cost = {};
 
-		for(std::size_t i=1; i<e.size(); i++) reg_cost[reg[i]] = std::stoi(e[i]);
+		for(std::size_t i=COST_INDEX::DEFAULT; i<=COST_INDEX::WALL; i++) reg_cost[reg[i]] = std::stoi(e[i]);
 		costTable[name] = std::make_shared<std::unordered_map<std::string, int>>(reg_cost);
 	}
 	loadCharacter();
@@ -283,33 +363,113 @@ EnemyManager::EnemyManager(std::shared_ptr<MapManager> mm):
 }
 
 void EnemyManager::loadCharacter(){
+	std::shared_ptr<std::vector<std::vector<std::string>>> weaponData = Tool::inputFile( DATA_ITEM "weapon_data.csv");
+	std::shared_ptr<std::vector<std::vector<std::string>>> itemData = Tool::inputFile( DATA_ITEM "items_data.csv");
+	std::shared_ptr<std::vector<std::vector<std::string>>> w_data = Tool::inputFile( DATA_CHARACTER "enemy/enemy_starting_items.csv");
+
 	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile( DATA_CHARACTER "enemy/enemy_data.csv");
-	if(!data) LOG_ERROR("Enemy loading failed!");
 	
 	data->erase(data->begin());
+	w_data->erase(w_data->begin());
 	for(std::size_t i = 0; i<data->size(); i++){
 		std::vector<std::string> e = (*data)[i];
 		std::vector<std::string> g(9, "0");
-
+		std::vector<std::string> w = (*w_data)[i];
+		
 		static std::unordered_map<std::string, std::function<void()>> characterFactory = {
-			{"Lord", [&]() { characters.push_back(std::make_shared<Lord>(mapManager, e, g, costTable[e[1]], false)); }},
-			{"Cavalier", [&]() { characters.push_back(std::make_shared<Cavalier>(mapManager, e, g, costTable[e[1]], false)); }},
-			{"Paladin", [&]() { characters.push_back(std::make_shared<Paladin>(mapManager, e, g, costTable[e[1]], false)); }},
-			{"PegasusKnight", [&]() { characters.push_back(std::make_shared<PegasusKnight>(mapManager, e, g, costTable[e[1]], false)); }},
-			{"Archer", [&]() { characters.push_back(std::make_shared<Archer>(mapManager, e, g, costTable[e[1]], false)); }},
-			{"Knight", [&]() { characters.push_back(std::make_shared<Knight>(mapManager, e, g, costTable[e[1]], false)); }},
-			{"Thief", [&]() { characters.push_back(std::make_shared<Thief>(mapManager, e, g, costTable[e[1]], false)); }},
-			{"Curate", [&]() { characters.push_back(std::make_shared<Curate>(mapManager, e, g, costTable[e[1]], false)); }},
-			{"Mercenary", [&]() { characters.push_back(std::make_shared<Mercenary>(mapManager, e, g, costTable[e[1]], false)); }},
-			{"Fighter", [&]() { characters.push_back(std::make_shared<Fighter>(mapManager, e, g, costTable[e[1]], false)); }},
-			{"Hunter", [&]() { characters.push_back(std::make_shared<Hunter>(mapManager, e, g, costTable[e[1]], false)); }},
-			{"Pirate", [&]() { characters.push_back(std::make_shared<Pirate>(mapManager, e, g, costTable[e[1]], false)); }}
+			{"Lord", [&]() { characters.push_back(std::make_shared<Lord>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false )); 
+			}},
+			{"Cavalier", [&]() { characters.push_back(std::make_shared<Cavalier>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
+			}},
+			{"Paladin", [&]() { characters.push_back(std::make_shared<Paladin>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
+			}},
+			{"PegasusKnight", [&]() { characters.push_back(std::make_shared<PegasusKnight>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
+			}},
+			{"Archer", [&]() { characters.push_back(std::make_shared<Archer>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
+			}},
+			{"Knight", [&]() { characters.push_back(std::make_shared<Knight>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
+			}},
+			{"Thief", [&]() { characters.push_back(std::make_shared<Thief>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
+			}},
+			{"Curate", [&]() { characters.push_back(std::make_shared<Curate>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
+			}},
+			{"Mercenary", [&]() { characters.push_back(std::make_shared<Mercenary>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
+			}},
+			{"Fighter", [&]() { characters.push_back(std::make_shared<Fighter>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
+			}},
+			{"Hunter", [&]() { characters.push_back(std::make_shared<Hunter>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
+			}},
+			{"Pirate", [&]() { characters.push_back(std::make_shared<Pirate>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
+			}}
 		};
-	
+		static std::unordered_map<std::string, std::function<void()>> itemFactory = {
+			{"Vulnerary", [&]() { characters.back()->pushItem(std::make_shared<Vulnerary>(
+				(*itemData)[ITEM_ROWINDEX::VULNERARY])); 
+			}},
+			{"Rapier", [&]() { characters.back()->pushItem(std::make_shared<Rapier>(
+				(*weaponData)[HANDHELD_ROWINDEX::RAPIER])); 
+			}},
+			{"Iron Sword", [&]() { characters.back()->pushItem(std::make_shared<IronSword>(
+				(*weaponData)[HANDHELD_ROWINDEX::IRON_SWORD])); 
+			}},
+			{"Steel Sword", [&]() { characters.back()->pushItem(std::make_shared<SteelSword>(
+				(*weaponData)[HANDHELD_ROWINDEX::STEEL_SWORD])); 
+			}},
+			{"Iron Lance", [&]() { characters.back()->pushItem(std::make_shared<IronLance>(
+				(*weaponData)[HANDHELD_ROWINDEX::IRON_LANCE])); 
+			}},
+			{"Silver Lance", [&]() { characters.back()->pushItem(std::make_shared<SilverLance>(
+				(*weaponData)[HANDHELD_ROWINDEX::SILVER_LANCE])); 
+			}},
+			{"Javelin", [&]() { characters.back()->pushItem(std::make_shared<Javelin>(
+				(*weaponData)[HANDHELD_ROWINDEX::JAVELIN])); 
+			}},
+			{"Iron Bow", [&]() { characters.back()->pushItem(std::make_shared<IronBow>(
+				(*weaponData)[HANDHELD_ROWINDEX::IRON_BOW])); 
+			}},
+			{"Steel Bow", [&]() { characters.back()->pushItem(std::make_shared<SteelBow>(
+				(*weaponData)[HANDHELD_ROWINDEX::STEEL_BOW])); 
+			}},
+			{"Bowgun", [&]() { characters.back()->pushItem(std::make_shared<Bowgun>(
+				(*weaponData)[HANDHELD_ROWINDEX::BOWGUN])); 
+			}},
+			{"Heal", [&]() { characters.back()->pushItem(std::make_shared<Heal>(
+				(*weaponData)[HANDHELD_ROWINDEX::HEAL])); 
+			}},
+			{"Iron Axe", [&]() { characters.back()->pushItem(std::make_shared<IronAxe>(
+				(*weaponData)[HANDHELD_ROWINDEX::IRON_AXE])); 
+			}},
+			{"Steel Axe", [&]() { characters.back()->pushItem(std::make_shared<SteelAxe>(
+				(*weaponData)[HANDHELD_ROWINDEX::STEEL_AXE])); 
+			}},
+			{"Hand Axe", [&]() { characters.back()->pushItem(std::make_shared<HandAxe>(
+				(*weaponData)[HANDHELD_ROWINDEX::HAND_AXE])); 
+			}},
+			{"Hammer", [&]() { characters.back()->pushItem(std::make_shared<Hammer>(
+				(*weaponData)[HANDHELD_ROWINDEX::HAMMER])); 
+			}}
+		};
 		
 		if (characterFactory.find(e[1]) != characterFactory.end()) {
 			characterFactory[e[1]]();
 			characters.back()->setTileAnimation();
+			//build items
+			for(int j=2; j<6; j++){
+				if(w[j]=="0") break;
+				else itemFactory[w[j]]();
+			}
 		} else {
 			std::cerr << "Unknown enemy type: " << e[1] << std::endl;
 		}
@@ -324,7 +484,10 @@ void EnemyManager::setInitialLevel(int level){
 	data->erase(data->begin());
 	for(auto &e: *data){
 		for(auto &c: characters){
-			if(c->getName() == e[0] && c->getClassName() == e[1]){
+			if(c->getName() == e[CHARACTER_INDEX::NAME] && c->getClassName() == e[CHARACTER_INDEX::CLASS]){
+				std::shared_ptr<Character> currentCharacter = nullptr;
+
+				//clone
 				if(c->getAbsolutePos()!=glm::ivec2(0,0)){
 					characters.push_back(c->clone());
 
@@ -343,13 +506,13 @@ void EnemyManager::setInitialLevel(int level){
 					c->setAbsolutePos({std::stoi(e[level*2]) * TILE_SIZE, std::stoi(e[level*2+1]) * TILE_SIZE});
 					LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x)+ ", " + std::to_string(c->getAbsolutePos().y));
 				}
+				//not for map1
 				else{
 					c->setAbsolutePos({-1, -1});
 					c->setVisible(false);
 				}
 				break;
 			}
-
 		}
 	}
 }

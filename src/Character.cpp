@@ -8,21 +8,21 @@ Character::Character(
 	bool isPlayer
 	): mapManager(mm), walkCost(wc), isPlayer(isPlayer) {
 
-	name = n_list[0];
+	name = n_list[CHARACTER_INDEX::NAME];
+	className = n_list[CHARACTER_INDEX::CLASS];
 	LOG_INFO("load data for character: " + name); 
-	className = n_list[1];
 
-	Lv = std::stoi(n_list[2]); Ex = std::stoi(n_list[3]);
-	Hp_Limit = std::stoi(n_list[4]); Hp_Current = Hp_Limit;
-	Str = std::stoi(n_list[5]);	Skl = std::stoi(n_list[6]);
-	Wlv = std::stoi(n_list[7]); Spd = std::stoi(n_list[8]);
-	Lck = std::stoi(n_list[9]); Def = std::stoi(n_list[10]);
-	Res = std::stoi(n_list[11]); Mov = std::stoi(n_list[12]);
+	Lv = std::stoi(n_list[CHARACTER_INDEX::LV]);              Ex = std::stoi(n_list[CHARACTER_INDEX::EX]);
+	Hp_Limit = std::stoi(n_list[CHARACTER_INDEX::HP]);        Hp_Current = Hp_Limit;
+	Str = std::stoi(n_list[CHARACTER_INDEX::STR]);            Skl = std::stoi(n_list[CHARACTER_INDEX::SKL]);
+	Wlv = std::stoi(n_list[CHARACTER_INDEX::WLV]);            Spd = std::stoi(n_list[CHARACTER_INDEX::SPD]);
+	Lck = std::stoi(n_list[CHARACTER_INDEX::LCK]);            Def = std::stoi(n_list[CHARACTER_INDEX::DEF]);
+	Res = std::stoi(n_list[CHARACTER_INDEX::RES]);            Mov = std::stoi(n_list[CHARACTER_INDEX::MOV]);
 
-	HPGR = std::stoi(g_list[1]); StrGR = std::stoi(g_list[2]);
-	SklGR = std::stoi(g_list[3]); WlvGR = std::stoi(g_list[4]);
-	SpdGR = std::stoi(g_list[5]); LckGR = std::stoi(g_list[6]);
-	DefGR = std::stoi(g_list[7]); ResGR = std::stoi(g_list[8]);
+	HPGR = std::stoi(g_list[CHARACTER_GROWTH_INDEX::HP]);     StrGR = std::stoi(g_list[CHARACTER_GROWTH_INDEX::STR]);
+	SklGR = std::stoi(g_list[CHARACTER_GROWTH_INDEX::SKL]);   WlvGR = std::stoi(g_list[CHARACTER_GROWTH_INDEX::WLV]);
+	SpdGR = std::stoi(g_list[CHARACTER_GROWTH_INDEX::SPD]);   LckGR = std::stoi(g_list[CHARACTER_GROWTH_INDEX::LCK]);
+	DefGR = std::stoi(g_list[CHARACTER_GROWTH_INDEX::DEF]);   ResGR = std::stoi(g_list[CHARACTER_GROWTH_INDEX::RES]);
 }
 
 void Character::walkDirectly(){
@@ -220,6 +220,72 @@ void Character::setTileAnimation(){
 	setAnimation();
 }
 
+void Character::pushItem(std::shared_ptr<Item> item){
+	items.push_back(item);
+}
+
+void Character::freshItem(int delete_index){
+	if(delete_index!=-1) items.erase(items.begin() + delete_index);
+	for(int i=0; i<items.size(); i++){
+		std::shared_ptr<HandHeldItem> handHeldItem = 
+			std::dynamic_pointer_cast<HandHeldItem>(items[i]);
+		
+		if(handHeldItem){
+			handheld_index = i;
+			return;
+		}
+	}
+}
+
+void Character::setHP(int hp){
+	if(hp > Hp_Limit) Hp_Current = Hp_Limit;
+	else if(hp > 0) Hp_Current = hp;
+}
+
+void Character::attack(std::shared_ptr<Character> target){
+	std::shared_ptr<Item> item = getCurrentHandHeldItem();
+	std::shared_ptr<HandHeldItem> handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(item);
+	if(!handHeldItem){
+		LOG_ERROR(name + " have no handheld weapon.");
+		return;
+	}
+	
+	handHeldItem->use(shared_from_this(), target);
+}
+
+std::shared_ptr<HandHeldItem> Character::getCurrentHandHeldItem(){
+	std::shared_ptr<HandHeldItem> handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
+	if(handHeldItem) return handHeldItem;
+	else{
+		freshItem();
+		return  std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
+	}
+	return nullptr;
+}
+
+bool Character::attacked(int power, int crt, int acc, bool isMagical){ // return isAvoid
+
+	if(isMagical){
+		// not yet (character1, 2 have no magical attack)
+		//if(rand() % 100) < lck)) return true;
+		//power -= Res;
+	}
+	else{
+		if((rand() % 100) < acc-(mapManager->getPosTile(absolutePos)->getAvoid()+Spd)){ // for accuracy
+			power -= Def;
+			power *= ((rand() % 100) < crt)? 3 : 1;
+			Hp_Current -= power;
+			LOG_INFO(name + "was attacked: HP-" + std::to_string(power));
+		}
+		else return true;
+
+		if(Hp_Current<=0) // died not yet
+			absolutePos = {-1, -1};
+
+		return false;
+	}
+}
+
 void Character::findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask){
 	if (mov < 0) return;
 
@@ -259,22 +325,14 @@ Lord::Lord(
 ) : Character(mm, n_list, g_list, wc, isPlayer){
 }
 
-Cavalier::Cavalier(
-	std::shared_ptr<MapManager> mm,
-	std::vector<std::string> n_list,
-	std::vector<std::string> g_list, 
-	std::shared_ptr<std::unordered_map<std::string, int>> wc,
-	bool isPlayer = true
-) : Character(mm, n_list, g_list, wc, isPlayer){
-}
-
-Paladin::Paladin(
-	std::shared_ptr<MapManager> mm,
-	std::vector<std::string> n_list,
-	std::vector<std::string> g_list, 
-	std::shared_ptr<std::unordered_map<std::string, int>> wc,
-	bool isPlayer = true
-) : Character(mm, n_list, g_list, wc, isPlayer){
+std::shared_ptr<Character> Lord::clone(){
+	auto c = std::make_shared<Lord>(*this);
+	if (m_Drawable)
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
 }
 
 PegasusKnight::PegasusKnight(
@@ -286,6 +344,51 @@ PegasusKnight::PegasusKnight(
 ) : Character(mm, n_list, g_list, wc, isPlayer){
 }
 
+std::shared_ptr<Character> PegasusKnight::clone(){
+	auto c = std::make_shared<PegasusKnight>(*this);
+	if (m_Drawable)
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
+}
+
+Paladin::Paladin(
+	std::shared_ptr<MapManager> mm,
+	std::vector<std::string> n_list,
+	std::vector<std::string> g_list, 
+	std::shared_ptr<std::unordered_map<std::string, int>> wc,
+	bool isPlayer = true
+) : Character(mm, n_list, g_list, wc, isPlayer){
+}
+
+std::shared_ptr<Character> Paladin::clone() {
+	auto c = std::make_shared<Paladin>(*this);
+	if (m_Drawable)
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
+}
+
+Cavalier::Cavalier(
+	std::shared_ptr<MapManager> mm,
+	std::vector<std::string> n_list,
+	std::vector<std::string> g_list, 
+	std::shared_ptr<std::unordered_map<std::string, int>> wc,
+	bool isPlayer = true
+) : Character(mm, n_list, g_list, wc, isPlayer){
+}
+
+std::shared_ptr<Character> Cavalier::clone() {
+	auto c = std::make_shared<Cavalier>(*this);
+	if (m_Drawable)
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
+}
+
 Knight::Knight(
 	std::shared_ptr<MapManager> mm,
 	std::vector<std::string> n_list,
@@ -293,6 +396,31 @@ Knight::Knight(
 	std::shared_ptr<std::unordered_map<std::string, int>> wc,
 	bool isPlayer = true
 ) : Character(mm, n_list, g_list, wc, isPlayer){
+}
+
+std::shared_ptr<Character> Knight::clone() {
+	auto c = std::make_shared<Knight>(*this);
+	if (m_Drawable) 
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
+}
+
+Thief::Thief(std::shared_ptr<MapManager> mm,
+	std::vector<std::string> n_list,
+	std::vector<std::string> g_list, 
+	std::shared_ptr<std::unordered_map<std::string, int>> wc,
+	bool isPlayer) : Character(mm, n_list, g_list, wc, isPlayer){
+}
+
+std::shared_ptr<Character> Thief::clone() {
+	auto c = std::make_shared<Thief>(*this);
+	if (m_Drawable)
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
 }
 
 Archer::Archer(
@@ -305,11 +433,13 @@ Archer::Archer(
 	gapOfAnimation = 2;
 }
 
-Thief::Thief(std::shared_ptr<MapManager> mm,
-	std::vector<std::string> n_list,
-	std::vector<std::string> g_list, 
-	std::shared_ptr<std::unordered_map<std::string, int>> wc,
-	bool isPlayer) : Character(mm, n_list, g_list, wc, isPlayer){
+std::shared_ptr<Character> Archer::clone() {
+	auto c = std::make_shared<Archer>(*this);
+	if (m_Drawable)
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
 }
 
 Curate::Curate(
@@ -321,6 +451,15 @@ Curate::Curate(
 ) : Character(mm, n_list, g_list, wc, isPlayer){
 }
 
+std::shared_ptr<Character> Curate::clone() {
+	auto c = std::make_shared<Curate>(*this);
+	if (m_Drawable)
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
+}
+
 Mercenary::Mercenary(
 	std::shared_ptr<MapManager> mm,
 	std::vector<std::string> n_list,
@@ -328,6 +467,15 @@ Mercenary::Mercenary(
 	std::shared_ptr<std::unordered_map<std::string, int>> wc,
 	bool isPlayer = true
 ) : Character(mm, n_list, g_list, wc, isPlayer){
+}
+
+std::shared_ptr<Character> Mercenary::clone() {
+	auto c = std::make_shared<Mercenary>(*this);
+	if (m_Drawable) 
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
 }
 
 Fighter::Fighter(
@@ -340,6 +488,15 @@ Fighter::Fighter(
 	gapOfAnimation = 2;
 }
 
+std::shared_ptr<Character> Fighter::clone() {
+	auto c = std::make_shared<Fighter>(*this);
+	if (m_Drawable)
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
+}
+
 Hunter::Hunter(
 	std::shared_ptr<MapManager> mm,
 	std::vector<std::string> n_list,
@@ -347,6 +504,15 @@ Hunter::Hunter(
 	std::shared_ptr<std::unordered_map<std::string, int>> wc,
 	bool isPlayer = true
 ) : Character(mm, n_list, g_list, wc, isPlayer){
+}
+
+std::shared_ptr<Character> Hunter::clone()  {
+	auto c = std::make_shared<Hunter>(*this);
+	if (m_Drawable) 
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
 }
 
 Pirate::Pirate(
@@ -357,4 +523,14 @@ Pirate::Pirate(
 	bool isPlayer = true
 ) : Character(mm, n_list, g_list, wc, isPlayer){
 	gapOfAnimation = 2;
+}
+
+std::shared_ptr<Character> Pirate::clone() {
+
+	std::shared_ptr<Character> c = std::make_shared<Pirate>(*this);
+	if (m_Drawable)
+		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+	c->deleteAllItems();
+	for(auto &i: items) c->pushItem(i->clone());
+	return c;
 }

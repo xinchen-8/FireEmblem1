@@ -298,7 +298,6 @@ std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(
 			pos++
 		) mask.insert(*pos);
 		character->refreshMoveRange(mask);
-
 	}
 	buildCharacterTips(character);
 	character->setStatus(CharacterStatus::Moving);
@@ -307,8 +306,8 @@ std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(
 
 void PlayerManager::buildCharacterTips(std::shared_ptr<Character> character){
 	clearTips();
+	//move range
 	for(auto [pos, mov]: character->getMoveRange()){
-		// std::cout<<"meow " << pos.x << ", " << pos.y << std::endl;
 		std::shared_ptr<Tile> tip = getTipTile(pos);
 		tip->setStart();
 		std::vector<std::string> r = {TILE_SELECTION "tip0.png"};
@@ -316,7 +315,16 @@ void PlayerManager::buildCharacterTips(std::shared_ptr<Character> character){
 			r, true, TILE_INTERVAL, true, 0)
 		);
 		tip->SetVisible(tipsVisible);
-		// std::cout<<"meowwwwww"<<std::endl;
+	}
+	//attack range
+	for(auto [pos, mov]: character->getAttackRange()){
+		std::shared_ptr<Tile> tip = getTipTile(pos);
+		tip->setStart();
+		std::vector<std::string> r = {TILE_SELECTION "tip1.png"};
+		tip->setAnimation( std::make_shared<Util::Animation>(
+			r, true, TILE_INTERVAL, true, 0)
+		);
+		tip->SetVisible(tipsVisible);
 	}
 }
 

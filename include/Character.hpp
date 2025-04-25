@@ -76,16 +76,18 @@ public:
 	int getDefGR() const { return DefGR; }
 	int getResGR() const { return ResGR; }
 	std::unordered_map<glm::ivec2, int> getMoveRange() { return moveRange; }
+	std::unordered_map<glm::ivec2, int> getAttackRange() { return attackRange; }
 
 	//items
 protected:
 	int gapOfAnimation = 3;
 	//mask: enemy pos and locked tiles of map
 	void findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask);
-
+	void findAttackRange(int atk_rng);
+	void exploreAttackFrom(glm::ivec2 pos, int atk_left);
 	int handheld_index = 0;
 	std::vector<std::shared_ptr<Item>> items = {};
-	
+
 private:
 	std::string name = "";
 	std::string className = "";
@@ -117,6 +119,7 @@ private:
 
 	std::shared_ptr<std::unordered_map<std::string, int>> walkCost = nullptr;
 	std::unordered_map<glm::ivec2, int> moveRange = {};
+	std::unordered_map<glm::ivec2, int> attackRange = {};
 };
 
 //class of characters

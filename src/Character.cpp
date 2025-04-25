@@ -125,10 +125,18 @@ void Character::buildWalkPath(glm::ivec2 a_pos){
 void Character::refreshMoveRange(std::unordered_set<glm::ivec2> mask){
 	moveRange.clear();
 	
+	int max_atk_rng = 0;
+	for(std::shared_ptr<Item> &i: items){
+		std::shared_ptr<HandHeldItem> hhi = std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
+		if(!hhi) continue;
+		for(int &j: hhi->getRng()) if(max_atk_rng < j) max_atk_rng = j;
+	}
+
     std::shared_ptr<Tile> tile = mapManager->getPosTile(absolutePos);
     int cost = (*walkCost)[tile->getName()];
 	if(cost==0) cost = (*walkCost)["Default"];
 	findMoveRange(Mov+cost, absolutePos, mask);
+	findAttackRange(max_atk_rng);
 }
 
 void Character::setAnimation(){
@@ -313,6 +321,63 @@ void Character::findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm:
     findMoveRange(new_mov, a_pos + glm::ivec2(-TILE_SIZE, 0), mask);
     findMoveRange(new_mov, a_pos + glm::ivec2(0, TILE_SIZE), mask);
     findMoveRange(new_mov, a_pos + glm::ivec2(0, -TILE_SIZE), mask);
+}
+
+void Character::findAttackRange(int atk_rng){
+
+	//BFS
+	if (atk_rng <= 0) return;
+
+	glm::ivec2 dirs[] = {
+		{TILE_SIZE, 0}, {-TILE_SIZE, 0},
+		{0, TILE_SIZE}, {0, -TILE_SIZE}
+	};
+
+	std::queue<std::pair<glm::ivec2, int>> q;
+	std::unordered_set<glm::ivec2> visited;
+
+	for (const auto& pos : moveRange) {
+		for (const auto& dir : dirs) {
+			glm::ivec2 next = pos.first + dir;
+			if(mapManager->getPosTile(next))
+				q.push({next, atk_rng - 1});
+		}
+	}
+
+	while (!q.empty()) {
+		auto [pos, atk_left] = q.front(); q.pop();
+
+		if (atk_left < 0) continue;
+		if (moveRange.find(pos) != moveRange.end()) continue;
+		if (visited.find(pos) != visited.end()) continue;
+
+		visited.insert(pos);
+		attackRange[pos] = atk_left;
+		std::cout << "RED(" << pos.x << ", " << pos.y << ")" << std::endl;
+
+		for (const auto& dir : dirs) {
+			q.push({pos + dir, atk_left - 1});
+		}
+	}
+}
+
+void Character::exploreAttackFrom(glm::ivec2 pos, int atk_left) {
+    if (atk_left < 0) return;
+
+    if (moveRange.find(pos) != moveRange.end()) return;
+    if (attackRange.find(pos) != attackRange.end()) return;
+
+    attackRange[pos] = atk_left;
+    std::cout << "RED(" << pos.x << ", " << pos.y << ")" << std::endl;
+
+    glm::ivec2 dirs[] = {
+        {TILE_SIZE, 0}, {-TILE_SIZE, 0},
+        {0, TILE_SIZE}, {0, -TILE_SIZE}
+    };
+
+    for (const auto& dir : dirs) {
+        exploreAttackFrom(pos + dir, atk_left - 1);
+    }
 }
 
 

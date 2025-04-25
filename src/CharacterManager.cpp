@@ -278,6 +278,13 @@ void PlayerManager::setInitialLevel(int level){
 	}
 }
 
+void PlayerManager::update(){
+	for(auto &c: characters){
+		if(c -> walkDirectly())
+			findCharacterAttackTarget(c);
+	}
+}
+
 void PlayerManager::changeTipsVisible(std::shared_ptr<Character> character){
 	tipsVisible = !tipsVisible;
 
@@ -302,6 +309,22 @@ std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(
 	buildCharacterTips(character);
 	character->setStatus(CharacterStatus::Moving);
 	return character->getMoveRange();
+}
+
+void PlayerManager::findCharacterAttackTarget(std::shared_ptr<Character> character){
+	if(!character) return;
+	character->resetRange();
+	character->findAttackRange();
+	std::unordered_map<glm::ivec2, int> ar = character->getAttackRange();
+
+	if (auto cm = characterManager.lock()){
+		for(auto &[pos, null]: ar){
+			if(!cm->getPosCharacter(pos))
+				ar.erase(pos);
+		}		
+	}
+	character->setAttackRange(ar);
+	buildCharacterTips(character);
 }
 
 void PlayerManager::buildCharacterTips(std::shared_ptr<Character> character){

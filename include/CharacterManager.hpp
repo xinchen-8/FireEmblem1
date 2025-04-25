@@ -15,7 +15,7 @@ public:
     // void buildCharacterTips(); //Overload
     void clearTips();
 
-    void update();
+    virtual void update();
 
     void setCharaterManager(std::weak_ptr<CharacterManager> cm){ characterManager = cm;}
 
@@ -42,11 +42,13 @@ public:
     void loadCharacter() override;
     void setInitialLevel(int level) override;
     
+    void update() override;
+
     void changeTipsVisible(std::shared_ptr<Character> character = nullptr);
     void buildCharacterTips(std::shared_ptr<Character> character);
     
     std::unordered_map<glm::ivec2, int> selectCharacter(std::shared_ptr<Character> character);
-
+    void findCharacterAttackTarget(std::shared_ptr<Character> character);
     std::shared_ptr<Character> getCharacter(std::string id);
 };
 

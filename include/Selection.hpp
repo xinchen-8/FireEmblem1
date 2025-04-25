@@ -25,6 +25,7 @@ public:
 	std::shared_ptr<Character> getSelectCharacter() { return selectCharacter; }
 	glm::ivec2 getOriginalSelectionPos() { return originalSelectionPos; }
 	SelectionStatus getStatus() { return status; }
+	std::unordered_map<glm::ivec2, int> getLimitRange() { return limitRange; }
 
 private:
 	SelectionStatus status = SelectionStatus::Normal;

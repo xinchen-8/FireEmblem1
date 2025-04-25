@@ -37,7 +37,24 @@ void Selection::moveDirectly(glm::ivec2 move){
 		glm::ivec2 newPos = absolutePos + move;
 		if(limitRange.find(newPos) != limitRange.end()) absolutePos = newPos;
 	}
-	else absolutePos += move;
+	else if(status == SelectionStatus::Targeting){
+		glm::ivec2 deltaPos = {INT_MAX, INT_MAX};
+		for(auto &[pos, null]: limitRange){
+			if(move.x==TILE_SIZE && (pos.x-absolutePos.x>0 && abs(pos.x-absolutePos.x)<abs(deltaPos.x)))
+				deltaPos = pos - absolutePos;
+			if(move.x==-TILE_SIZE && (pos.x-absolutePos.x<0 && abs(pos.x-absolutePos.x)<abs(deltaPos.x))) 
+				deltaPos = pos - absolutePos;					
+			if(move.y==TILE_SIZE &&(pos.y-absolutePos.y>0 && abs(pos.y-absolutePos.y)<abs(deltaPos.y)))
+				deltaPos = pos - absolutePos;
+			if(move.y==-TILE_SIZE &&(pos.y-absolutePos.y<0 && abs(pos.y-absolutePos.y)<abs(deltaPos.y))) 
+				deltaPos = pos - absolutePos;
+			}
+		if(deltaPos!=glm::ivec2(INT_MAX, INT_MAX)) 
+			absolutePos += deltaPos;	
+		//else LOG_ERROR("Doesn't have next attacked target ...");
+	}
+
+	else if(status != SelectionStatus::Locked) absolutePos += move;
 }
 
 void Selection::setStatus(SelectionStatus status){

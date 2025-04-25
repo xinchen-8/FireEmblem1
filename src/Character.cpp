@@ -25,9 +25,9 @@ Character::Character(
 	DefGR = std::stoi(g_list[CHARACTER_GROWTH_INDEX::DEF]);   ResGR = std::stoi(g_list[CHARACTER_GROWTH_INDEX::RES]);
 }
 
-void Character::walkDirectly(){
-	if(status != CharacterStatus::Moving) return;
-	if(walkPath.size() == 0) return;
+bool Character::walkDirectly(){
+	if(status != CharacterStatus::Moving) return false;
+	if(walkPath.size() == 0) return false;
 
 	std::cout<<"walkDirectly: " << absolutePos.x << ", " << absolutePos.y << std::endl;
 	
@@ -36,7 +36,7 @@ void Character::walkDirectly(){
 		walkPath.pop();
 		if(!walkPath.size()){
 			setStatus(CharacterStatus::Normal);
-			return;
+			return true;
 		}
 		else p = walkPath.front();
 	}
@@ -56,6 +56,7 @@ void Character::walkDirectly(){
 		setStatus(CharacterStatus::Normal);
 		m_ZIndex = 3;
 	}
+	return false;
 }
 
 
@@ -125,18 +126,11 @@ void Character::buildWalkPath(glm::ivec2 a_pos){
 void Character::refreshMoveRange(std::unordered_set<glm::ivec2> mask){
 	moveRange.clear();
 	
-	int max_atk_rng = 0;
-	for(std::shared_ptr<Item> &i: items){
-		std::shared_ptr<HandHeldItem> hhi = std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
-		if(!hhi) continue;
-		for(int &j: hhi->getRng()) if(max_atk_rng < j) max_atk_rng = j;
-	}
-
     std::shared_ptr<Tile> tile = mapManager->getPosTile(absolutePos);
     int cost = (*walkCost)[tile->getName()];
 	if(cost==0) cost = (*walkCost)["Default"];
 	findMoveRange(Mov+cost, absolutePos, mask);
-	findAttackRange(max_atk_rng);
+	findAttackRange();
 }
 
 void Character::setAnimation(){
@@ -177,6 +171,12 @@ void Character::setAnimation(){
 void Character::clearWalkPath() {
 	while(walkPath.size()) walkPath.pop();
 	m_ZIndex = 3;
+}
+
+void Character::resetRange(){
+	moveRange.clear();
+	attackRange.clear();
+	moveRange[absolutePos] = 0;
 }
 
 void Character::setStatus(CharacterStatus status){
@@ -315,7 +315,7 @@ void Character::findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm:
     if(new_mov <= 0) return;
 
 	moveRange[a_pos] = mov;
-    std::cout << new_mov << ": add " << a_pos.x << ", " << a_pos.y << std::endl;
+    // std::cout << new_mov << ": add " << a_pos.x << ", " << a_pos.y << std::endl;
     
     findMoveRange(new_mov, a_pos + glm::ivec2(TILE_SIZE, 0), mask);
     findMoveRange(new_mov, a_pos + glm::ivec2(-TILE_SIZE, 0), mask);
@@ -323,8 +323,13 @@ void Character::findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm:
     findMoveRange(new_mov, a_pos + glm::ivec2(0, -TILE_SIZE), mask);
 }
 
-void Character::findAttackRange(int atk_rng){
-
+void Character::findAttackRange(){
+	int atk_rng = 0;
+	for(std::shared_ptr<Item> &i: items){
+		std::shared_ptr<HandHeldItem> hhi = std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
+		if(!hhi) continue;
+		for(int &j: hhi->getRng()) if(atk_rng < j) atk_rng = j;
+	}
 	//BFS
 	if (atk_rng <= 0) return;
 
@@ -353,33 +358,13 @@ void Character::findAttackRange(int atk_rng){
 
 		visited.insert(pos);
 		attackRange[pos] = atk_left;
-		std::cout << "RED(" << pos.x << ", " << pos.y << ")" << std::endl;
+		//std::cout << "RED(" << pos.x << ", " << pos.y << ")" << std::endl;
 
 		for (const auto& dir : dirs) {
 			q.push({pos + dir, atk_left - 1});
 		}
 	}
 }
-
-void Character::exploreAttackFrom(glm::ivec2 pos, int atk_left) {
-    if (atk_left < 0) return;
-
-    if (moveRange.find(pos) != moveRange.end()) return;
-    if (attackRange.find(pos) != attackRange.end()) return;
-
-    attackRange[pos] = atk_left;
-    std::cout << "RED(" << pos.x << ", " << pos.y << ")" << std::endl;
-
-    glm::ivec2 dirs[] = {
-        {TILE_SIZE, 0}, {-TILE_SIZE, 0},
-        {0, TILE_SIZE}, {0, -TILE_SIZE}
-    };
-
-    for (const auto& dir : dirs) {
-        exploreAttackFrom(pos + dir, atk_left - 1);
-    }
-}
-
 
 Lord::Lord(
 	std::shared_ptr<MapManager> mm,
@@ -393,8 +378,7 @@ Lord::Lord(
 std::shared_ptr<Character> Lord::clone(){
 	auto c = std::make_shared<Lord>(*this);
 	if (m_Drawable)
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
-	
+		c->setTileAnimation();
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;
@@ -412,7 +396,7 @@ PegasusKnight::PegasusKnight(
 std::shared_ptr<Character> PegasusKnight::clone(){
 	auto c = std::make_shared<PegasusKnight>(*this);
 	if (m_Drawable)
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		 c->setTileAnimation();
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;
@@ -430,7 +414,8 @@ Paladin::Paladin(
 std::shared_ptr<Character> Paladin::clone() {
 	auto c = std::make_shared<Paladin>(*this);
 	if (m_Drawable)
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		 c->setTileAnimation();
+
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;
@@ -448,7 +433,7 @@ Cavalier::Cavalier(
 std::shared_ptr<Character> Cavalier::clone() {
 	auto c = std::make_shared<Cavalier>(*this);
 	if (m_Drawable)
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		 c->setTileAnimation();
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;
@@ -466,7 +451,7 @@ Knight::Knight(
 std::shared_ptr<Character> Knight::clone() {
 	auto c = std::make_shared<Knight>(*this);
 	if (m_Drawable) 
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		 c->setTileAnimation();
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;
@@ -482,7 +467,7 @@ Thief::Thief(std::shared_ptr<MapManager> mm,
 std::shared_ptr<Character> Thief::clone() {
 	auto c = std::make_shared<Thief>(*this);
 	if (m_Drawable)
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		 c->setTileAnimation();
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;
@@ -501,7 +486,7 @@ Archer::Archer(
 std::shared_ptr<Character> Archer::clone() {
 	auto c = std::make_shared<Archer>(*this);
 	if (m_Drawable)
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		 c->setTileAnimation();
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;
@@ -519,7 +504,7 @@ Curate::Curate(
 std::shared_ptr<Character> Curate::clone() {
 	auto c = std::make_shared<Curate>(*this);
 	if (m_Drawable)
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		 c->setTileAnimation();
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;
@@ -537,7 +522,7 @@ Mercenary::Mercenary(
 std::shared_ptr<Character> Mercenary::clone() {
 	auto c = std::make_shared<Mercenary>(*this);
 	if (m_Drawable) 
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		 c->setTileAnimation();
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;
@@ -556,7 +541,7 @@ Fighter::Fighter(
 std::shared_ptr<Character> Fighter::clone() {
 	auto c = std::make_shared<Fighter>(*this);
 	if (m_Drawable)
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		 c->setTileAnimation();
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;
@@ -574,7 +559,7 @@ Hunter::Hunter(
 std::shared_ptr<Character> Hunter::clone()  {
 	auto c = std::make_shared<Hunter>(*this);
 	if (m_Drawable) 
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		 c->setTileAnimation();
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;
@@ -594,7 +579,7 @@ std::shared_ptr<Character> Pirate::clone() {
 
 	std::shared_ptr<Character> c = std::make_shared<Pirate>(*this);
 	if (m_Drawable)
-		c->SetDrawable(std::make_shared<Util::Animation>(*std::dynamic_pointer_cast<Util::Animation>(m_Drawable)));
+		 c->setTileAnimation();
 	c->deleteAllItems();
 	for(auto &i: items) c->pushItem(i->clone());
 	return c;

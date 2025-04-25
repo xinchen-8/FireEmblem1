@@ -83,13 +83,23 @@ void App::Update() {
             selection->setStatus(SelectionStatus::Moving);
             selection->setMoveLimit(playerManager->selectCharacter(selectCharacter));
         }
-        //walkable => next is choose UI
+        //walkable => next is choose UI (test for attack)
         else if(status == SelectionStatus::Moving && 
             (!selectCharacter || selectCharacter == selectedCharacter)){
             
-            selection->setStatus(SelectionStatus::Waiting);
+            selection->setStatus(SelectionStatus::Locked);
             playerManager->clearTips();
-            selectedCharacter->buildWalkPath(selection->getAbsolutePos());
+            selectedCharacter->buildWalkPath(selection->getAbsolutePos());            
+        }
+        //UI mode is attack  => next is select attacked target
+        else if(status == SelectionStatus::Locked){
+            selection->setStatus(SelectionStatus::Targeting);
+            selection->setMoveLimit(selectedCharacter->getAttackRange());
+            selection->setAbsolutePos(selection->getLimitRange().begin()->first);
+        }
+        //attackable => attack
+        else if(status == SelectionStatus::Targeting){
+
         }
     }
 
@@ -100,15 +110,23 @@ void App::Update() {
         SelectionStatus status = selection->getStatus();
         std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
         
-        //select walk => back to select character
-        if(status == SelectionStatus::Waiting){
+        //select attacked target => back to UI
+        if(status == SelectionStatus::Targeting){
+            selection->setStatus(SelectionStatus::Locked);
+            selection->setAbsolutePos(selectedCharacter->getAbsolutePos());
+            selectedCharacter->resetRange();
+            playerManager->buildCharacterTips(selectedCharacter);
+        }
+        //select walk (UI) => back to select character
+        if(status == SelectionStatus::Locked){
             if(!selectedCharacter) LOG_DEBUG("No character selected");
             
             selectedCharacter->setAbsolutePos(selection->getOriginalSelectionPos());
             selectedCharacter->setForword(Forword::Down);
             selectedCharacter->setStatus(CharacterStatus::Moving);
             selectedCharacter->clearWalkPath();
-            playerManager->buildCharacterTips(selectedCharacter);
+            playerManager->selectCharacter(selectedCharacter);
+            
             selection->setStatus(SelectionStatus::Moving);
             selection->setAbsolutePos(selection->getOriginalSelectionPos());
             camera->resetCameraAbsolutePos();

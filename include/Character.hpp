@@ -30,10 +30,13 @@ public:
 	);	
 	virtual std::shared_ptr<Character> clone() = 0;
 
-	void walkDirectly();
+	bool walkDirectly();
 	void buildWalkPath(glm::ivec2 a_pos); //must in moveRange
 	void refreshMoveRange(std::unordered_set<glm::ivec2> mask);
 	void clearWalkPath();
+	void resetRange(); // for PlayerManager::findCharacterAttackTarget
+	void clearMoveRange() { moveRange.clear(); }
+	void clearAttackRange() { attackRange.clear(); }
 
 	void setAnimation();
 	void setStatus(CharacterStatus status);
@@ -78,13 +81,14 @@ public:
 	std::unordered_map<glm::ivec2, int> getMoveRange() { return moveRange; }
 	std::unordered_map<glm::ivec2, int> getAttackRange() { return attackRange; }
 
+	void findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask);
+	void findAttackRange();
+	void setAttackRange(std::unordered_map<glm::ivec2, int> ar) { attackRange = ar; }
+
 	//items
 protected:
 	int gapOfAnimation = 3;
 	//mask: enemy pos and locked tiles of map
-	void findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask);
-	void findAttackRange(int atk_rng);
-	void exploreAttackFrom(glm::ivec2 pos, int atk_left);
 	int handheld_index = 0;
 	std::vector<std::shared_ptr<Item>> items = {};
 

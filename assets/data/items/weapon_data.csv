@@ -1,5 +1,5 @@
 ﻿Name,Class,Mt,Wt,Hit,Uses,Rng,Wlv,Worth,Crt,Notes
-Rapier,Sword,5,1,100,28,1,0,900,10,Marth only, effective against Cavaliers, Knights, Paladins and Generals
+Rapier,Sword,5,1,100,28,1,0,900,10,Marth only, "effective against Cavaliers, Knights, Paladins and Generals"
 Iron Sword,Sword,5,2,100,42,1,2,320,0,–
 Steel Sword,Sword,8,4,80,38,1,2,500,0,–
 Iron Lance,Lance,8,6,80,38,1,1,450,0,–
@@ -8,9 +8,9 @@ Javelin,Lance,7,6,70,22,1~2,3,600,0,–
 Iron Bow,Bow,4,1,90,33,2,1,400,0,–
 Steel Bow,Bow,7,3,80,28,2,3,560,0,–
 Bowgun,Bow,5,2,100,37,2,2,950,20,–
-Heal,Staff,0,0,0,20,1,1,780,0,Restores 10 HP to ally
+Heal,Staff,0,0,0,20,1,1,780,0,"Restores 10 HP to ally"
 Iron Axe,Axe,7,7,80,43,1,1,360,0,–
 Steel Axe,Axe,9,9,70,31,1,2,550,0,–
 Hand Axe,Axe,5,9,60,13,1~2,3,450,0,–
-Hammer,Axe,6,6,70,40,1,2,300,0,Effective against Knights and Generals
+Hammer,Axe,6,6,70,40,1,2,300,0,"Effective against Knights and Generals"
 ,,,,,,,,,,

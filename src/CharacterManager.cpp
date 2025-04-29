@@ -51,13 +51,14 @@ void CharacterManager::clearTips() {
 }
 
 void CharacterManager::update(){
-	for(auto &c: characters){
+	for(auto &c: currentLevelCharacters){
 		c -> walkDirectly();
 	}
 }
 
 std::shared_ptr<Character> CharacterManager::getPosCharacter(glm::ivec2 a_pos){
-	for(auto &c: characters){
+	for(std::shared_ptr<Character> &c: currentLevelCharacters){
+
 		if(c->getAbsolutePos() == a_pos) return c;
 	}
 	return nullptr;
@@ -235,7 +236,7 @@ void PlayerManager::loadCharacter(){
 			characters.back()->setTileAnimation();
 			//build items
 			for(int j=1; j<5; j++){
-				if(w[j]=="0") break;
+				if(w[j]=="0") continue;
 				else itemFactory[w[j]]();
 			}
 		} else {
@@ -250,23 +251,27 @@ void PlayerManager::loadCharacter(){
 void PlayerManager::setInitialLevel(int level){
 	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile( DATA_CHARACTER "players/player_starting_position.csv");
 	
+	currentLevelCharacters.clear();
 	data->erase(data->begin());
+
 	for(auto &e: *data){
 		for(auto &c: characters){
 			
 			if(c->getName() == e[0]){
-				if (e[level] != "X"){
+				if (e[level*2-1] != "X"){
+					currentLevelCharacters.push_back(c);
 					c->setAbsolutePos({std::stoi(e[level*2-1]) * TILE_SIZE, std::stoi(e[level*2]) * TILE_SIZE});
-					if (auto cm = characterManager.lock()){
-						std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
-						
-						for(auto pos = CHARACTER_UNMOVE[mapManager->getLevel()-1].begin();
-							pos != CHARACTER_UNMOVE[mapManager->getLevel()-1].end();
-							pos++
-						) mask.insert(*pos);
-						c->refreshMoveRange(mask);
 
-					}
+					// if (auto cm = characterManager.lock()){
+					// 	std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
+						
+						// for(auto pos = CHARACTER_UNMOVE[mapManager->getLevel()-1].begin();
+						// 	pos != CHARACTER_UNMOVE[mapManager->getLevel()-1].end();
+						// 	pos++
+						// ) mask.insert(*pos);
+						// c->refreshMoveRange(mask);
+
+					// }
 					LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x)+ ", " + std::to_string(c->getAbsolutePos().y));
 				}
 				else{
@@ -279,7 +284,7 @@ void PlayerManager::setInitialLevel(int level){
 }
 
 void PlayerManager::update(){
-	for(auto &c: characters){
+	for(auto &c: currentLevelCharacters){
 		if(c -> walkDirectly())
 			findCharacterAttackTarget(c);
 	}
@@ -314,9 +319,10 @@ std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(
 void PlayerManager::findCharacterAttackTarget(std::shared_ptr<Character> character){
 	if(!character) return;
 	character->resetRange();
-	character->findAttackRange();
+	character->findAttackScope();
 	std::unordered_map<glm::ivec2, int> ar = character->getAttackRange();
 
+	buildCharacterTips(character);
 	if (auto cm = characterManager.lock()){
 		for(auto &[pos, null]: ar){
 			if(!cm->getPosCharacter(pos))
@@ -324,7 +330,6 @@ void PlayerManager::findCharacterAttackTarget(std::shared_ptr<Character> charact
 		}		
 	}
 	character->setAttackRange(ar);
-	buildCharacterTips(character);
 }
 
 void PlayerManager::buildCharacterTips(std::shared_ptr<Character> character){
@@ -352,7 +357,7 @@ void PlayerManager::buildCharacterTips(std::shared_ptr<Character> character){
 }
 
 std::shared_ptr<Character> PlayerManager::getCharacter(std::string id){
-	for(auto &c: characters){
+	for(std::shared_ptr<Character> &c: characters){
 		if(c->getName() == id) return c;
 	}
 	return nullptr;
@@ -511,8 +516,10 @@ void EnemyManager::loadCharacter(){
 
 void EnemyManager::setInitialLevel(int level){
 	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile( DATA_CHARACTER "enemy/enemy_starting_position.csv");
-	
+
+	currentLevelCharacters.clear();
 	data->erase(data->begin());
+	
 	for(auto &e: *data){
 		for(auto &c: characters){
 			if(c->getName() == e[CHARACTER_INDEX::NAME] && c->getClassName() == e[CHARACTER_INDEX::CLASS]){
@@ -523,6 +530,7 @@ void EnemyManager::setInitialLevel(int level){
 					characters.push_back(c->clone());
 
 					if (e[level*2] != "X"){
+						currentLevelCharacters.push_back(characters.back());
 						characters.back()->setAbsolutePos({std::stoi(e[level*2]) * TILE_SIZE, std::stoi(e[level*2+1]) * TILE_SIZE});
 						LOG_INFO("Set Copy of " + characters.back()->getName() + " Position: " + std::to_string(characters.back()->getAbsolutePos().x)+ ", " + std::to_string(characters.back()->getAbsolutePos().y));
 					}
@@ -534,6 +542,7 @@ void EnemyManager::setInitialLevel(int level){
 				
 				//not copy case => set directly
 				else if (e[level*2] != "X"){
+					currentLevelCharacters.push_back(c);
 					c->setAbsolutePos({std::stoi(e[level*2]) * TILE_SIZE, std::stoi(e[level*2+1]) * TILE_SIZE});
 					LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x)+ ", " + std::to_string(c->getAbsolutePos().y));
 				}

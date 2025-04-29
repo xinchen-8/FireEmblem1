@@ -74,6 +74,7 @@ void App::Update() {
         
         std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
         std::shared_ptr<Character> selectCharacter = playerManager->getPosCharacter(selection->getAbsolutePos());
+        std::shared_ptr<Character> selectEnemy = enemyManager->getPosCharacter(selection->getAbsolutePos());
         SelectionStatus status = selection->getStatus();
 
         //selectable => next is walk
@@ -89,17 +90,20 @@ void App::Update() {
             
             selection->setStatus(SelectionStatus::Locked);
             playerManager->clearTips();
-            selectedCharacter->buildWalkPath(selection->getAbsolutePos());            
+            selectedCharacter->buildWalkPath(selection->getAbsolutePos()); // trigger findCharacterAttackTarget when finished 
+            
         }
-        //UI mode is attack  => next is select attacked target
-        else if(status == SelectionStatus::Locked){
+        // UI mode is attack => next is select attacked target
+        else if(status == SelectionStatus::Locked && selectedCharacter->getWalkPath().empty()){
             selection->setStatus(SelectionStatus::Targeting);
+            playerManager->buildCharacterTips(selectedCharacter);
+            if(selectedCharacter->getAttackRange().size()==0) LOG_ERROR("NO ENEMY...");
             selection->setMoveLimit(selectedCharacter->getAttackRange());
             selection->setAbsolutePos(selection->getLimitRange().begin()->first);
         }
         //attackable => attack
-        else if(status == SelectionStatus::Targeting){
-
+        else if(status == SelectionStatus::Targeting && selectEnemy){
+            selectedCharacter->attack(selectEnemy);
         }
     }
 
@@ -125,8 +129,8 @@ void App::Update() {
             selectedCharacter->setForword(Forword::Down);
             selectedCharacter->setStatus(CharacterStatus::Moving);
             selectedCharacter->clearWalkPath();
-            playerManager->selectCharacter(selectedCharacter);
             
+            selection->setMoveLimit(playerManager->selectCharacter(selectedCharacter));
             selection->setStatus(SelectionStatus::Moving);
             selection->setAbsolutePos(selection->getOriginalSelectionPos());
             camera->resetCameraAbsolutePos();

@@ -21,6 +21,7 @@ public:
 	void setMoveLimit(std::unordered_map<glm::ivec2, int> limit) { limitRange = limit; } //limit with status
 	void setSelectCharacter(std::shared_ptr<Character> character);
 	void setAnimation() { m_Drawable = (status==SelectionStatus::Normal) ? chooseAnimation : moveAnimation; }
+	void clearLimitRange() { limitRange.clear(); }
 
 	std::shared_ptr<Character> getSelectCharacter() { return selectCharacter; }
 	glm::ivec2 getOriginalSelectionPos() { return originalSelectionPos; }

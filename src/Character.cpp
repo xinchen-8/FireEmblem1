@@ -245,29 +245,25 @@ void Character::freshItem(int delete_index){
 	}
 }
 
-void Character::setHP(int hp){
+void Character::setHP(int hp) {
 	if(hp > Hp_Limit) Hp_Current = Hp_Limit;
 	else if(hp > 0) Hp_Current = hp;
 }
 
 void Character::attack(std::shared_ptr<Character> target){
 	std::shared_ptr<Item> item = getCurrentHandHeldItem();
-	std::shared_ptr<HandHeldItem> handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(item);
-	if(!handHeldItem){
+
+	if(!item){
 		LOG_ERROR(name + " have no handheld weapon.");
 		return;
 	}
-	
-	handHeldItem->use(shared_from_this(), target);
+	std::shared_ptr<HandHeldItem> handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(item);	
+	handHeldItem->use(this, target);
 }
 
 std::shared_ptr<HandHeldItem> Character::getCurrentHandHeldItem(){
-	std::shared_ptr<HandHeldItem> handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
-	if(handHeldItem) return handHeldItem;
-	else{
-		freshItem();
-		return  std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
-	}
+	if(!items[handheld_index]) freshItem();
+	else return  std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
 	return nullptr;
 }
 
@@ -321,6 +317,64 @@ void Character::findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm:
     findMoveRange(new_mov, a_pos + glm::ivec2(-TILE_SIZE, 0), mask);
     findMoveRange(new_mov, a_pos + glm::ivec2(0, TILE_SIZE), mask);
     findMoveRange(new_mov, a_pos + glm::ivec2(0, -TILE_SIZE), mask);
+}
+
+void Character::findAttackScope(){
+	moveRange.clear();
+	attackRange.clear();
+	moveRange[absolutePos] = 0;
+
+	std::set<int> scope;
+	
+    for (std::shared_ptr<Item>& i : items) {
+		std::shared_ptr<HandHeldItem> hhi = std::dynamic_pointer_cast<HandHeldItem>(i);
+        for (int& j : hhi->getRng()) scope.insert(j);
+    }
+
+    if (scope.empty())
+        return;
+
+    glm::ivec2 dirs[] = {
+        {TILE_SIZE, 0}, {-TILE_SIZE, 0},
+        {0, TILE_SIZE}, {0, -TILE_SIZE}
+    };
+
+    std::queue<std::pair<glm::ivec2, int>> q;
+    std::unordered_set<glm::ivec2> visited;
+
+    for (const auto& pos : moveRange) {
+        for (const auto& dir : dirs) {
+            glm::ivec2 next = pos.first + dir;
+            if (mapManager->getPosTile(next)) {
+                q.push({next, 1});
+            }
+        }
+    }
+
+    while (!q.empty()) {
+        auto [pos, steps] = q.front(); q.pop();
+
+        if (visited.find(pos) != visited.end())
+            continue;
+        if (moveRange.find(pos) != moveRange.end())
+            continue; 
+
+        visited.insert(pos);
+
+        if (scope.count(steps)) {
+            attackRange[pos] = steps; 
+            // std::cout << "RED(" << pos.x << ", " << pos.y << ")" << std::endl;
+        }
+
+        if (*scope.rbegin() > steps) {
+            for (const auto& dir : dirs) {
+                glm::ivec2 next = pos + dir;
+                if (mapManager->getPosTile(next)) {
+                    q.push({next, steps + 1});
+                }
+            }
+        }
+    }
 }
 
 void Character::findAttackRange(){

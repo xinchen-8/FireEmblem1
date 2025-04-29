@@ -19,7 +19,7 @@ struct DijkstraNode {
     }
 };
 
-class Character : public CameraGameObject, std::enable_shared_from_this<Character> {
+class Character : public CameraGameObject{
 public:
 	Character(
 		std::shared_ptr<MapManager> mm,
@@ -80,9 +80,11 @@ public:
 	int getResGR() const { return ResGR; }
 	std::unordered_map<glm::ivec2, int> getMoveRange() { return moveRange; }
 	std::unordered_map<glm::ivec2, int> getAttackRange() { return attackRange; }
+	std::queue<glm::ivec2> getWalkPath() { return walkPath; }
 
 	void findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask);
-	void findAttackRange();
+	void findAttackScope();
+	void findAttackRange();// for personal attack scope
 	void setAttackRange(std::unordered_map<glm::ivec2, int> ar) { attackRange = ar; }
 
 	//items

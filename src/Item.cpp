@@ -11,7 +11,7 @@ Vulnerary::Vulnerary(std::vector<std::string> i_list) :
 
 }
 
-void Vulnerary::use(std::shared_ptr<Character> user, std::shared_ptr<Character> target){
+void Vulnerary::use(Character* user, std::shared_ptr<Character> target){
     user->setHP(user->getCurHP()+10);
     uses--;
 }
@@ -40,7 +40,7 @@ HandHeldItem::HandHeldItem(std::vector<std::string> w_list):
 	crt	   = std::stoi(w_list[HANDHELD_INDEX::CRT]);
 }
 
-void HandHeldItem::use(std::shared_ptr<Character> user, std::shared_ptr<Character> target){
+void HandHeldItem::use(Character* user, std::shared_ptr<Character> target){
     int power = user->getStr() + mt * (isAgainst(target->getClassName())? 3 : 1);
 	int critical = (user->getSkl() + user->getLck()) / 2 + crt;
 	int accuracy = hit + user->getSkl();
@@ -48,14 +48,16 @@ void HandHeldItem::use(std::shared_ptr<Character> user, std::shared_ptr<Characte
 }
 
 bool HandHeldItem::isAgainst(std::string className){
+	std::cout<<"meowstr"<<std::endl;
     for(auto &a: against){
+	    std::cout<<"meowstr1"<<std::endl;
         if(a==className) return true;
     }
     return false;
 }
 
 Rapier::Rapier(std::vector<std::string> w_list) : HandHeldItem(w_list) {
-    against = { "Cavalier", "Knight", "Paladins", "Generals" };
+    against = { "Cavalier", "Knight", "Paladin", "General" };
 }
 
 IronSword::IronSword(std::vector<std::string> w_list) : HandHeldItem(w_list) {
@@ -94,7 +96,7 @@ Heal::Heal(std::vector<std::string> w_list) : HandHeldItem(w_list) {
 
 }
 
-void Heal::use(std::shared_ptr<Character> user, std::shared_ptr<Character> target) {
+void Heal::use(Character* user, std::shared_ptr<Character> target) {
     int reg = target->getCurHP();
     target->setHP(reg+10);
     LOG_INFO(target->getName()+" HP+10: " + std::to_string(reg) + " -> " + std::to_string(target->getCurHP()));
@@ -113,5 +115,5 @@ HandAxe::HandAxe(std::vector<std::string> w_list) : HandHeldItem(w_list) {
 }
 
 Hammer::Hammer(std::vector<std::string> w_list) : HandHeldItem(w_list) {
-
+    against = { "Knight", "General" };
 }

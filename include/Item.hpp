@@ -9,7 +9,7 @@ class Character;
 class Item {
 public:
 	Item(std::string name, int uses, int worth, std::string note);
-	virtual void use(std::shared_ptr<Character> user, std::shared_ptr<Character> target) { uses--; }
+	virtual void use(Character* user, std::shared_ptr<Character> target) { uses--; }
 
 	std::string getName() { return name; }
 	int getUses() { return uses; }
@@ -28,14 +28,14 @@ protected:
 class Vulnerary : public Item {
 public:
 	Vulnerary(std::vector<std::string> i_list);
-	void use(std::shared_ptr<Character> user, std::shared_ptr<Character> target) override;
+	void use(Character* user, std::shared_ptr<Character> target) override;
 	std::shared_ptr<Item> clone() const override { return std::make_shared<Vulnerary>(*this); }
 };
 
 class HandHeldItem : public Item {
 public:
 	HandHeldItem(std::vector<std::string> w_list);
-	void use(std::shared_ptr<Character> user, std::shared_ptr<Character> target) override;
+	void use(Character* user, std::shared_ptr<Character> target) override;
 
 	bool isAgainst(std::string className);
 	int getMt() { return mt; }
@@ -60,9 +60,7 @@ private:
 class Rapier : public HandHeldItem {
 public:
 	Rapier(std::vector<std::string> w_list);
-	std::vector<std::string> against = {
-		"Cavalier", "Knight", "Paladins", "Generals"
-	};
+
 	std::shared_ptr<Item> clone() const override { return std::make_shared<Rapier>(*this); }
 };
 
@@ -117,7 +115,7 @@ public:
 class Heal : public HandHeldItem {
 public:
 	Heal(std::vector<std::string> w_list);
-	void use(std::shared_ptr<Character> user, std::shared_ptr<Character> target) override;
+	void use(Character* user, std::shared_ptr<Character> target) override;
 	std::shared_ptr<Item> clone() const override { return std::make_shared<Heal>(*this); }
 };
 

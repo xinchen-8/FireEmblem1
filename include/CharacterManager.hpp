@@ -29,6 +29,7 @@ protected:
 
     std::unordered_map<std::string, std::shared_ptr<std::unordered_map<std::string, int>>> costTable = {};
     std::vector<std::shared_ptr<Character>> characters = {};
+    std::vector<std::shared_ptr<Character>> currentLevelCharacters = {};
 
     std::shared_ptr<MapManager> mapManager = nullptr;
     std::weak_ptr<CharacterManager> characterManager;

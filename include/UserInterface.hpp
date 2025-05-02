@@ -49,6 +49,16 @@ private:
 	std::shared_ptr<Character> character = nullptr;
 };
 
+class SelectedUI : public UserInterface {
+public:
+	SelectedUI(std::vector<std::shared_ptr<Tile>>& tiles);
+	void load();
+	void update();
+	void active();
+private:
+	std::vector<std::string> options = {"Attack", ""};
+};
+
 class UIManager {
 public:
 	UIManager(
@@ -58,13 +68,12 @@ public:
 	);
 	void load();
 	void update();
+	void loadSelectedUI();
+	void updaeSelectedUI();
 	void changeVisibleTileInfo();
 	void changeVisibleCharacterInfo();
 	
-	void changeCharacterInfoUIMode();
-
 	std::vector<std::shared_ptr<Util::GameObject>> getChildren();
-	std::vector<std::shared_ptr<Util::GameObject>> getCharacterInfoUIChildren();
 
 private:
 	std::shared_ptr<MapManager> mapManager = nullptr;

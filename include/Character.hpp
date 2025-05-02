@@ -26,9 +26,8 @@ public:
 		std::vector<std::string> n_list,
 		std::vector<std::string> g_list,
 		std::shared_ptr<std::unordered_map<std::string, int>> wc,
-		bool isPlayer
+		bool isPlayer=true
 	);	
-	virtual std::shared_ptr<Character> clone() = 0;
 
 	bool walkDirectly();
 	void buildWalkPath(glm::ivec2 a_pos); //must in moveRange
@@ -78,6 +77,7 @@ public:
 	int getLckGR() const { return LckGR; }
 	int getDefGR() const { return DefGR; }
 	int getResGR() const { return ResGR; }
+
 	std::unordered_map<glm::ivec2, int> getMoveRange() { return moveRange; }
 	std::unordered_map<glm::ivec2, int> getAttackRange() { return attackRange; }
 	std::queue<glm::ivec2> getWalkPath() { return walkPath; }
@@ -86,7 +86,7 @@ public:
 	void findAttackScope();
 	void findAttackRange();// for personal attack scope
 	void setAttackRange(std::unordered_map<glm::ivec2, int> ar) { attackRange = ar; }
-
+	std::shared_ptr<Character> clone();
 	//items
 protected:
 	int gapOfAnimation = 3;
@@ -126,184 +126,6 @@ private:
 	std::shared_ptr<std::unordered_map<std::string, int>> walkCost = nullptr;
 	std::unordered_map<glm::ivec2, int> moveRange = {};
 	std::unordered_map<glm::ivec2, int> attackRange = {};
-};
-
-//class of characters
-class Lord final : public Character {
-public:
-	Lord(std::shared_ptr<MapManager> mm,
-			std::vector<std::string> n_list,
-			std::vector<std::string> g_list, 
-			std::shared_ptr<std::unordered_map<std::string, int>> wc,
-			bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-
-private:
-	std::string className = "Lord";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword }; 
-};
-
-class PegasusKnight final : public Character {
-public:
-	PegasusKnight(std::shared_ptr<MapManager> mm,
-					std::vector<std::string> n_list,
-					std::vector<std::string> g_list, 
-					std::shared_ptr<std::unordered_map<std::string, int>> wc,
-					bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-private:
-	std::string className = "PegasusKnight";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword, HandHeldItemType::Lance }; 
-};
-
-class Paladin final : public Character {
-public:
-	Paladin(std::shared_ptr<MapManager> mm,
-			std::vector<std::string> n_list,
-			std::vector<std::string> g_list, 
-			std::shared_ptr<std::unordered_map<std::string, int>> wc,
-			bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-
-private:
-	std::string className = "Paladin";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword, HandHeldItemType::Lance }; 
-};
-
-class Cavalier final : public Character {
-public:
-	Cavalier(std::shared_ptr<MapManager> mm,
-				std::vector<std::string> n_list,
-				std::vector<std::string> g_list, 
-				std::shared_ptr<std::unordered_map<std::string, int>> wc,
-				bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-
-private:
-	std::string className = "Cavalier";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword, HandHeldItemType::Lance }; 
-};
-
-class Knight final : public Character {
-public:
-	Knight(std::shared_ptr<MapManager> mm,
-			std::vector<std::string> n_list,
-			std::vector<std::string> g_list, 
-			std::shared_ptr<std::unordered_map<std::string, int>> wc,
-			bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-private:
-	std::string className = "Knight";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword, HandHeldItemType::Lance }; 
-};
-
-class Thief final : public Character {
-public:
-	Thief(std::shared_ptr<MapManager> mm,
-			std::vector<std::string> n_list,
-			std::vector<std::string> g_list, 
-			std::shared_ptr<std::unordered_map<std::string, int>> wc,
-			bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-
-private:
-	std::string className = "Thief";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword }; 
-};
-
-class Archer final : public Character {
-public:
-	Archer(std::shared_ptr<MapManager> mm,
-			std::vector<std::string> n_list,
-			std::vector<std::string> g_list, 
-			std::shared_ptr<std::unordered_map<std::string, int>> wc,
-			bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-
-private:
-	std::string className = "Archer";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Bow }; 
-};
-
-class Curate final : public Character {
-public:
-	Curate(std::shared_ptr<MapManager> mm,
-			std::vector<std::string> n_list,
-			std::vector<std::string> g_list, 
-			std::shared_ptr<std::unordered_map<std::string, int>> wc,
-			bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-
-private:
-	std::string className = "Curate";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Staff }; 
-};
-
-class Mercenary final : public Character {
-public:
-	Mercenary(std::shared_ptr<MapManager> mm,
-				std::vector<std::string> n_list,
-				std::vector<std::string> g_list, 
-				std::shared_ptr<std::unordered_map<std::string, int>> wc,
-				bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-
-private:
-	std::string className = "Mercenary";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Sword }; 
-};
-
-class Fighter final : public Character {
-public:
-	Fighter(std::shared_ptr<MapManager> mm,
-			std::vector<std::string> n_list,
-			std::vector<std::string> g_list, 
-			std::shared_ptr<std::unordered_map<std::string, int>> wc,
-			bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-
-private:
-	std::string className = "Fighter";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Axe }; 
-};
-
-class Hunter final : public Character {
-public:
-	Hunter(std::shared_ptr<MapManager> mm,
-			std::vector<std::string> n_list,
-			std::vector<std::string> g_list, 
-			std::shared_ptr<std::unordered_map<std::string, int>> wc,
-			bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-
-private:
-	std::string className = "Hunter";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Bow }; 
-};
-
-class Pirate final : public Character {
-public:
-	Pirate(std::shared_ptr<MapManager> mm,
-			std::vector<std::string> n_list,
-			std::vector<std::string> g_list, 
-			std::shared_ptr<std::unordered_map<std::string, int>> wc,
-			bool isPlayer);
-
-	std::shared_ptr<Character> clone() override;
-private:
-	std::string className = "Pirate";
-	std::vector<HandHeldItemType> usableHandHeldItem = { HandHeldItemType::Axe }; 
 };
 
 #endif

@@ -129,6 +129,8 @@ void CharacterInfoUI::update() {
     setString(content);
 }
 
+
+
 UIManager::UIManager(
 	std::shared_ptr<Selection> s,
 	std::shared_ptr<MapManager> tm,

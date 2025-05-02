@@ -145,107 +145,49 @@ void PlayerManager::loadCharacter(){
 		std::vector<std::string> g = (*g_data)[i];
 		std::vector<std::string> w = (*w_data)[i];
 
-		static std::unordered_map<std::string, std::function<void()>> characterFactory = {
-			{"Lord", [&]() { characters.push_back(std::make_shared<Lord>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true )); 
-			}},
-			{"Cavalier", [&]() { characters.push_back(std::make_shared<Cavalier>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true ));
-			}},
-			{"Paladin", [&]() { characters.push_back(std::make_shared<Paladin>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true ));
-			}},
-			{"PegasusKnight", [&]() { characters.push_back(std::make_shared<PegasusKnight>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
-			}},
-			{"Archer", [&]() { characters.push_back(std::make_shared<Archer>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
-			}},
-			{"Knight", [&]() { characters.push_back(std::make_shared<Knight>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
-			}},
-			// {"Thief", [&]() { characters.push_back(std::make_shared<Thief>(
-			// 	mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
-			// }},
-			{"Curate", [&]() { characters.push_back(std::make_shared<Curate>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
-			}},
-			{"Mercenary", [&]() { characters.push_back(std::make_shared<Mercenary>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
-			}},
-			{"Fighter", [&]() { characters.push_back(std::make_shared<Fighter>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
-			}},
-			{"Hunter", [&]() { characters.push_back(std::make_shared<Hunter>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
-			}},
-			{"Pirate", [&]() { characters.push_back(std::make_shared<Pirate>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true));
-			}}
-		};
-		static std::unordered_map<std::string, std::function<void()>> itemFactory = {
-			{"Vulnerary", [&]() { characters.back()->pushItem(std::make_shared<Vulnerary>(
-				(*itemData)[ITEM_ROWINDEX::VULNERARY])); 
-			}},
-			{"Rapier", [&]() { characters.back()->pushItem(std::make_shared<Rapier>(
-				(*weaponData)[HANDHELD_ROWINDEX::RAPIER])); 
-			}},
-			{"Iron Sword", [&]() { characters.back()->pushItem(std::make_shared<IronSword>(
-				(*weaponData)[HANDHELD_ROWINDEX::IRON_SWORD])); 
-			}},
-			{"Steel Sword", [&]() { characters.back()->pushItem(std::make_shared<SteelSword>(
-				(*weaponData)[HANDHELD_ROWINDEX::STEEL_SWORD])); 
-			}},
-			{"Iron Lance", [&]() { characters.back()->pushItem(std::make_shared<IronLance>(
-				(*weaponData)[HANDHELD_ROWINDEX::IRON_LANCE])); 
-			}},
-			{"Silver Lance", [&]() { characters.back()->pushItem(std::make_shared<SilverLance>(
-				(*weaponData)[HANDHELD_ROWINDEX::SILVER_LANCE])); 
-			}},
-			{"Javelin", [&]() { characters.back()->pushItem(std::make_shared<Javelin>(
-				(*weaponData)[HANDHELD_ROWINDEX::JAVELIN])); 
-			}},
-			{"Iron Bow", [&]() { characters.back()->pushItem(std::make_shared<IronBow>(
-				(*weaponData)[HANDHELD_ROWINDEX::IRON_BOW])); 
-			}},
-			{"Steel Bow", [&]() { characters.back()->pushItem(std::make_shared<SteelBow>(
-				(*weaponData)[HANDHELD_ROWINDEX::STEEL_BOW])); 
-			}},
-			{"Bowgun", [&]() { characters.back()->pushItem(std::make_shared<Bowgun>(
-				(*weaponData)[HANDHELD_ROWINDEX::BOWGUN])); 
-			}},
-			{"Heal", [&]() { characters.back()->pushItem(std::make_shared<Heal>(
-				(*weaponData)[HANDHELD_ROWINDEX::HEAL])); 
-			}},
-			{"Iron Axe", [&]() { characters.back()->pushItem(std::make_shared<IronAxe>(
-				(*weaponData)[HANDHELD_ROWINDEX::IRON_AXE])); 
-			}},
-			{"Steel Axe", [&]() { characters.back()->pushItem(std::make_shared<SteelAxe>(
-				(*weaponData)[HANDHELD_ROWINDEX::STEEL_AXE])); 
-			}},
-			{"Hand Axe", [&]() { characters.back()->pushItem(std::make_shared<HandAxe>(
-				(*weaponData)[HANDHELD_ROWINDEX::HAND_AXE])); 
-			}},
-			{"Hammer", [&]() { characters.back()->pushItem(std::make_shared<Hammer>(
-				(*weaponData)[HANDHELD_ROWINDEX::HAMMER])); 
-			}}
-		};
-		
-		if (characterFactory.find(e[CHARACTER_INDEX::CLASS]) != characterFactory.end()) {
-			characterFactory[e[CHARACTER_INDEX::CLASS]]();
-			characters.back()->setTileAnimation();
-			//build items
-			for(int j=1; j<5; j++){
-				if(w[j]=="0") continue;
-				else itemFactory[w[j]]();
-			}
-		} else {
-			std::cerr << "Unknown character type: " << e[CHARACTER_INDEX::CLASS] << std::endl;
+		characters.push_back(std::make_shared<Character>(
+			mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true
+			)
+		);
+		characters.back()->setTileAnimation();
+		//build items
+		for(int j=2; j<6; j++){
+			if(w[j]=="0") break;
+			
+			if (w[j] == "Vulnerary")
+			characters.back()->pushItem(std::make_shared<Vulnerary>((*itemData)[ITEM_ROWINDEX::VULNERARY]));
+			else if (w[j] == "Heal")
+				characters.back()->pushItem(std::make_shared<Heal>((*weaponData)[HANDHELD_ROWINDEX::HEAL]));
+			else if (w[j] == "Rapier")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::RAPIER]));
+			else if (w[j] == "Iron Sword")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_SWORD])); 
+			else if (w[j] == "Steel Sword")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_SWORD]));
+			else if (w[j] == "Iron Lance")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_LANCE]));
+			else if (w[j] == "Silver Lance")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::SILVER_LANCE])); 
+			else if (w[j] == "Javelin")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::JAVELIN])); 
+			else if (w[j] == "Iron Bow")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_BOW])); 
+			else if (w[j] == "Steel Bow")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_BOW])); 
+			else if (w[j] == "Bowgun")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::BOWGUN])); 
+			else if (w[j] == "Iron Axe")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_AXE]));
+			else if (w[j] == "Steel Axe")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_AXE]));
+			else if (w[j] == "Hand Axe")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAND_AXE]));
+			else if (w[j] == "Hammer")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAMMER]));
 		}
-		
 	}
-	LOG_INFO("Character loading success.");
 
+	LOG_INFO("Character loading success.");
 }
 
 void PlayerManager::setInitialLevel(int level){
@@ -412,105 +354,45 @@ void EnemyManager::loadCharacter(){
 		std::vector<std::string> g(9, "0");
 		std::vector<std::string> w = (*w_data)[i];
 		
-		static std::unordered_map<std::string, std::function<void()>> characterFactory = {
-			{"Lord", [&]() { characters.push_back(std::make_shared<Lord>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false )); 
-			}},
-			{"Cavalier", [&]() { characters.push_back(std::make_shared<Cavalier>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
-			}},
-			{"Paladin", [&]() { characters.push_back(std::make_shared<Paladin>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
-			}},
-			{"PegasusKnight", [&]() { characters.push_back(std::make_shared<PegasusKnight>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
-			}},
-			{"Archer", [&]() { characters.push_back(std::make_shared<Archer>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
-			}},
-			{"Knight", [&]() { characters.push_back(std::make_shared<Knight>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
-			}},
-			{"Thief", [&]() { characters.push_back(std::make_shared<Thief>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
-			}},
-			{"Curate", [&]() { characters.push_back(std::make_shared<Curate>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
-			}},
-			{"Mercenary", [&]() { characters.push_back(std::make_shared<Mercenary>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
-			}},
-			{"Fighter", [&]() { characters.push_back(std::make_shared<Fighter>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
-			}},
-			{"Hunter", [&]() { characters.push_back(std::make_shared<Hunter>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
-			}},
-			{"Pirate", [&]() { characters.push_back(std::make_shared<Pirate>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false ));
-			}}
-		};
-		static std::unordered_map<std::string, std::function<void()>> itemFactory = {
-			{"Vulnerary", [&]() { characters.back()->pushItem(std::make_shared<Vulnerary>(
-				(*itemData)[ITEM_ROWINDEX::VULNERARY])); 
-			}},
-			{"Rapier", [&]() { characters.back()->pushItem(std::make_shared<Rapier>(
-				(*weaponData)[HANDHELD_ROWINDEX::RAPIER])); 
-			}},
-			{"Iron Sword", [&]() { characters.back()->pushItem(std::make_shared<IronSword>(
-				(*weaponData)[HANDHELD_ROWINDEX::IRON_SWORD])); 
-			}},
-			{"Steel Sword", [&]() { characters.back()->pushItem(std::make_shared<SteelSword>(
-				(*weaponData)[HANDHELD_ROWINDEX::STEEL_SWORD])); 
-			}},
-			{"Iron Lance", [&]() { characters.back()->pushItem(std::make_shared<IronLance>(
-				(*weaponData)[HANDHELD_ROWINDEX::IRON_LANCE])); 
-			}},
-			{"Silver Lance", [&]() { characters.back()->pushItem(std::make_shared<SilverLance>(
-				(*weaponData)[HANDHELD_ROWINDEX::SILVER_LANCE])); 
-			}},
-			{"Javelin", [&]() { characters.back()->pushItem(std::make_shared<Javelin>(
-				(*weaponData)[HANDHELD_ROWINDEX::JAVELIN])); 
-			}},
-			{"Iron Bow", [&]() { characters.back()->pushItem(std::make_shared<IronBow>(
-				(*weaponData)[HANDHELD_ROWINDEX::IRON_BOW])); 
-			}},
-			{"Steel Bow", [&]() { characters.back()->pushItem(std::make_shared<SteelBow>(
-				(*weaponData)[HANDHELD_ROWINDEX::STEEL_BOW])); 
-			}},
-			{"Bowgun", [&]() { characters.back()->pushItem(std::make_shared<Bowgun>(
-				(*weaponData)[HANDHELD_ROWINDEX::BOWGUN])); 
-			}},
-			{"Heal", [&]() { characters.back()->pushItem(std::make_shared<Heal>(
-				(*weaponData)[HANDHELD_ROWINDEX::HEAL])); 
-			}},
-			{"Iron Axe", [&]() { characters.back()->pushItem(std::make_shared<IronAxe>(
-				(*weaponData)[HANDHELD_ROWINDEX::IRON_AXE])); 
-			}},
-			{"Steel Axe", [&]() { characters.back()->pushItem(std::make_shared<SteelAxe>(
-				(*weaponData)[HANDHELD_ROWINDEX::STEEL_AXE])); 
-			}},
-			{"Hand Axe", [&]() { characters.back()->pushItem(std::make_shared<HandAxe>(
-				(*weaponData)[HANDHELD_ROWINDEX::HAND_AXE])); 
-			}},
-			{"Hammer", [&]() { characters.back()->pushItem(std::make_shared<Hammer>(
-				(*weaponData)[HANDHELD_ROWINDEX::HAMMER])); 
-			}}
-		};
-		
-		if (characterFactory.find(e[1]) != characterFactory.end()) {
-			characterFactory[e[1]]();
-			characters.back()->setTileAnimation();
-			//build items
-			for(int j=2; j<6; j++){
-				if(w[j]=="0") break;
-				else itemFactory[w[j]]();
-			}
-		} else {
-			std::cerr << "Unknown enemy type: " << e[1] << std::endl;
+		characters.push_back(std::make_shared<Character>(mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false)); 
+		characters.back()->setTileAnimation();
+		//build items
+		for(int j=2; j<6; j++){
+			if(w[j]=="0") break;
+			
+			if (w[j] == "Vulnerary")
+			characters.back()->pushItem(std::make_shared<Vulnerary>((*itemData)[ITEM_ROWINDEX::VULNERARY]));
+			else if (w[j] == "Heal")
+				characters.back()->pushItem(std::make_shared<Heal>((*weaponData)[HANDHELD_ROWINDEX::HEAL]));
+			else if (w[j] == "Rapier")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::RAPIER]));
+			else if (w[j] == "Iron Sword")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_SWORD])); 
+			else if (w[j] == "Steel Sword")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_SWORD]));
+			else if (w[j] == "Iron Lance")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_LANCE]));
+			else if (w[j] == "Silver Lance")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::SILVER_LANCE])); 
+			else if (w[j] == "Javelin")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::JAVELIN])); 
+			else if (w[j] == "Iron Bow")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_BOW])); 
+			else if (w[j] == "Steel Bow")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_BOW])); 
+			else if (w[j] == "Bowgun")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::BOWGUN])); 
+			else if (w[j] == "Iron Axe")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_AXE]));
+			else if (w[j] == "Steel Axe")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_AXE]));
+			else if (w[j] == "Hand Axe")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAND_AXE]));
+			else if (w[j] == "Hammer")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAMMER]));
 		}
-		
 	}
+	
 	LOG_INFO("Enemy loading success.");
 }
 

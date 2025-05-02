@@ -22,6 +22,7 @@ void App::Start() {
     LOG_TRACE("Start");
     m_CurrentState = State::UPDATE;
     uiManager->load();
+    uiManager->update();
 }
 
 void App::Update() {
@@ -38,6 +39,7 @@ void App::Update() {
         selection->moveDirectly({ 0, TILE_SIZE });
         delayKeyCounter = delayKeyLimit;
 
+        uiManager->load();
         uiManager->update();
     }
     
@@ -47,6 +49,7 @@ void App::Update() {
         selection->moveDirectly({ 0, -TILE_SIZE });
         delayKeyCounter = delayKeyLimit;
 
+        uiManager->load();
         uiManager->update();
     }
 
@@ -56,6 +59,7 @@ void App::Update() {
         selection->moveDirectly({ -TILE_SIZE, 0 });
         delayKeyCounter = delayKeyLimit;
 
+        uiManager->load();
         uiManager->update();
     }
 
@@ -65,6 +69,7 @@ void App::Update() {
         selection->moveDirectly({ TILE_SIZE, 0 });
         delayKeyCounter = delayKeyLimit;
 
+        uiManager->load();
         uiManager->update();
     }
 
@@ -175,8 +180,6 @@ void App::Update() {
     //update
     camera->update();
     playerManager->update();
-    uiManager->load();
-    uiManager->update();
     if (!--delayKeyCounter) delayKeyCounter = delayKeyLimit;
 }
 

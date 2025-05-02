@@ -22,6 +22,9 @@ public:
 	void resetCameraAbsolutePos();
 	void setChildrenRelativePos();
 	void update();
+	
+	void removeChildren(std::vector<std::shared_ptr<Util::GameObject>> children) { for(auto &e: children) renderer.RemoveChild(e); }
+	void addChildren(std::vector<std::shared_ptr<Util::GameObject>> children) { renderer.AddChildren(children); }
 
 private:
 	std::vector<std::shared_ptr<CameraGameObject>> children = {};

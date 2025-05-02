@@ -6,12 +6,13 @@
 #include "Tile.hpp"
 #include "Selection.hpp"
 #include "CharacterManager.hpp"
+#include "Integration.hpp"
 
 class UserInterface : public Util::GameObject {
 public:
 	UserInterface(const std::vector<std::shared_ptr<Tile>> &tiles);
 
-	virtual void update() { setString(" "); }
+	virtual void update() = 0;
 	void setVisible(bool visible);
 	void setRelativePos(glm::ivec2 r_pos);
 	void setRelativePos();
@@ -33,17 +34,21 @@ private:
 class TileInfoUI : public UserInterface {
 public:
 	TileInfoUI(std::vector<std::shared_ptr<Tile>>& tiles);
-	void update(const Tile &tile);
+	void load(std::shared_ptr<Tile> tile);
+	void update() override;
+private:
+	std::shared_ptr<Tile> tile = nullptr;
 };
 
 class CharacterInfoUI : public UserInterface {
 public:
 	CharacterInfoUI(std::vector<std::shared_ptr<Tile>>& tiles);
-	using UserInterface::update;
-	void update(const Character &character);
+	void load(std::shared_ptr<Character> character);
+	void update() override;
+private:
+	std::shared_ptr<Character> character = nullptr;
 };
 
-	
 class UIManager {
 public:
 	UIManager(
@@ -51,10 +56,15 @@ public:
 		std::shared_ptr<MapManager> tm,
 		std::shared_ptr<PlayerManager> pm
 	);
+	void load();
 	void update();
 	void changeVisibleTileInfo();
 	void changeVisibleCharacterInfo();
+	
+	void changeCharacterInfoUIMode();
+
 	std::vector<std::shared_ptr<Util::GameObject>> getChildren();
+	std::vector<std::shared_ptr<Util::GameObject>> getCharacterInfoUIChildren();
 
 private:
 	std::shared_ptr<MapManager> mapManager = nullptr;

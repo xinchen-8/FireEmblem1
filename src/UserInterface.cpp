@@ -35,7 +35,7 @@ void UserInterface::setRelativePos(){
 void UserInterface::setUISize(glm::ivec2 windowNums) {
 	UItileNum = windowNums;
 
-	form = {};
+	form.clear();
 	for (int j = 0; j < windowNums.y; j++) {
 		std::vector<std::shared_ptr<Tile>> reg = {};
 
@@ -98,8 +98,12 @@ TileInfoUI::TileInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
 	});
 }
 
-void TileInfoUI::update(const Tile &tile) {
-	setString(tile.getName()+"\navoid +"+std::to_string(tile.getAvoid()));
+void TileInfoUI::load(std::shared_ptr<Tile> tile) {
+	if(tile) this->tile = tile;
+}
+
+void TileInfoUI::update(){
+	setString(tile->getName()+"\navoid +"+std::to_string(tile->getAvoid()));
 	// setAbsolutePos({ TILE_SIZE, TILE_SIZE });
 }
 
@@ -113,11 +117,15 @@ CharacterInfoUI::CharacterInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
 	});
 }
 
-void CharacterInfoUI::update(const Character &character) {
+void CharacterInfoUI::load(std::shared_ptr<Character> character) {
+	if (character) this->character = character;
+}
+
+void CharacterInfoUI::update() {
     std::string content=
-		character.getName() + "\n" +
-		character.getClassName() + "\n" +
-		"HP " + std::to_string(character.getCurHP()) + "/" + std::to_string(character.getHpLimit()) + "\n"; //first getHP() will be replaced by getCurHP()
+		character->getName() + "\n" +
+		character->getClassName() + "\n" +
+		"HP " + std::to_string(character->getCurHP()) + "/" + std::to_string(character->getHpLimit()) + "\n"; //first getHP() will be replaced by getCurHP()
     setString(content);
 }
 
@@ -135,14 +143,20 @@ UIManager::UIManager(
 
 	tileInfo = std::make_shared<TileInfoUI>(tiles);
 	characterInfo = std::make_shared<CharacterInfoUI>(tiles);
+	load();
+}
+
+void UIManager::load() {
+	tileInfo->load(mapManager->getPosTile(selection->getAbsolutePos()));
+
+	auto c = selection->getSelectCharacter();
+	if(c) characterInfo->load(c);
+	else characterInfo->load(playerManager->getPosCharacter(selection->getAbsolutePos()));
 }
 
 void UIManager::update() {
-	auto reg = mapManager->getPosTile(selection->getAbsolutePos());
-	if(reg) tileInfo->update(*reg);
-	auto c = playerManager->getPosCharacter(selection->getAbsolutePos());
-	if(c) characterInfo->update(*c); 
-	else characterInfo->update();
+	tileInfo->update();
+	characterInfo->update();
 }
 
 void UIManager::changeVisibleTileInfo() {
@@ -163,4 +177,4 @@ std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
 	for (auto &e : c) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(characterInfo);
 	return children;
-	}
+}

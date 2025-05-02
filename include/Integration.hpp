@@ -71,6 +71,11 @@ enum class HandHeldItemType {
 	Axe
 };
 
+enum class CharacterInfoMode {
+    Summary,  //basic info
+    Full  //all info
+};
+
 class CameraGameObject : public Util::GameObject {
 public:
 	glm::ivec2 getAbsolutePos() const { return absolutePos; }

@@ -21,10 +21,10 @@ App::App(){
 void App::Start() {
     LOG_TRACE("Start");
     m_CurrentState = State::UPDATE;
+    uiManager->load();
 }
 
 void App::Update() {
-    
     //end
     if (Util::Input::IsKeyUp(Util::Keycode::ESCAPE) ||
         Util::Input::IfExit()) {
@@ -175,6 +175,8 @@ void App::Update() {
     //update
     camera->update();
     playerManager->update();
+    uiManager->load();
+    uiManager->update();
     if (!--delayKeyCounter) delayKeyCounter = delayKeyLimit;
 }
 

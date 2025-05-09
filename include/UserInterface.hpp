@@ -31,7 +31,6 @@ protected:
 	std::vector<std::shared_ptr<Tile>> tileTable = {};
 };
 
-
 class TileInfoUI : public UserInterface {
 public:
 	TileInfoUI(std::vector<std::shared_ptr<Tile>>& tiles);
@@ -50,9 +49,9 @@ private:
 	std::shared_ptr<Character> character = nullptr;
 };
 
-class SelectedUI : public UserInterface {
+class ActUI : public UserInterface {
 public:
-	SelectedUI(std::vector<std::shared_ptr<Tile>>& tiles);
+	ActUI(std::vector<std::shared_ptr<Tile>>& tiles);
 	void setVisible(bool visible) override;
 	void load(std::vector<bool> flags);
 	void update(int listMov);
@@ -78,7 +77,7 @@ public:
 	void load();
 	void update();
 	void loadSelectedUI();
-	void updateSelectedUI(int listMov) { selected->update(listMov); }
+	void updateSelectedUI(int listMov) { selectedAct->update(listMov); }
 
 	void activeSelectedUI();
 	void changeVisibleTileInfo();
@@ -91,11 +90,11 @@ private:
 	std::shared_ptr<Selection> selection = nullptr;
 	std::shared_ptr<PlayerManager> playerManager = nullptr;
 	std::shared_ptr<EnemyManager> enemyManager = nullptr;
-	
+
 	std::vector<std::shared_ptr<Tile>> tiles = {};
 	std::shared_ptr<TileInfoUI> tileInfo = nullptr;
 	std::shared_ptr<CharacterInfoUI> characterInfo = nullptr;
-	std::shared_ptr<SelectedUI> selected = nullptr;
+	std::shared_ptr<ActUI> selectedAct = nullptr;
 	
 };
 

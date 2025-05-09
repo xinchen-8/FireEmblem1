@@ -14,7 +14,11 @@ Selection::Selection(){
 }
 
 bool Selection::moveJudge(Forword forword, glm::ivec2 map_size){
-	if(status == SelectionStatus::Waiting) return false;
+	if(status != SelectionStatus::Normal &&
+		status != SelectionStatus::Moving &&
+		status != SelectionStatus::AttackTargeting) 
+		return false;
+	
 	switch(forword){
 		case Forword::Up:
 			if(absolutePos.y < map_size.y - TILE_SIZE) return true;

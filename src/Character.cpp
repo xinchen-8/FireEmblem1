@@ -54,7 +54,7 @@ bool Character::walkDirectly(){
 	if(status != CharacterStatus::Moving) return false;
 	if(walkPath.size() == 0) return false;
 
-	std::cout<<"walkDirectly: " << absolutePos.x << ", " << absolutePos.y << std::endl;
+	// std::cout<<"walkDirectly: " << absolutePos.x << ", " << absolutePos.y << std::endl;
 	
 	glm::ivec2 p = walkPath.front();
 	if(p==absolutePos){
@@ -79,7 +79,6 @@ bool Character::walkDirectly(){
 	
 	if(!walkPath.size()){
 		setStatus(CharacterStatus::Normal);
-		m_ZIndex = 3;
 	}
 	return false;
 }
@@ -129,7 +128,7 @@ void Character::buildWalkPath(glm::ivec2 a_pos){
 			
 			//judge border of range
             if (moveRange.find(next) == moveRange.end()) continue;
-			std::cout<<"next: "<<next.x<<", "<<next.y<<std::endl;
+			// std::cout<<"next: "<<next.x<<", "<<next.y<<std::endl;
             auto nextTile = mapManager->getPosTile(next);
             if (!nextTile) continue;
 

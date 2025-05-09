@@ -60,7 +60,7 @@ void App::Update() {
         pc->MovCase({ TILE_SIZE, 0 });
         delayKeyCounter = delayKeyLimit;
     }
-    //selected UI move
+    //selectedAct UI move
     if (((Util::Input::IsKeyPressed(Util::Keycode::UP) && delayKeyCounter <= delayKeyCheck) || 
         (Util::Input::IsKeyDown(Util::Keycode::UP))) && selection->getStatus() == SelectionStatus::SUI){
 
@@ -96,7 +96,7 @@ void App::Update() {
         // }
         // //select walk (UI) => back to select character
         // if(status == SelectionStatus::SUI){
-        //     if(!selectedCharacter) LOG_DEBUG("No character selected");
+        //     if(!selectedCharacter) LOG_DEBUG("No character selectedAct");
             
         //     selectedCharacter->setAbsolutePos(selection->getOriginalSelectionPos());
         //     selectedCharacter->setForword(Forword::Down);
@@ -110,7 +110,7 @@ void App::Update() {
         // }
         // //select character => back to none
         // else if(status == SelectionStatus::Moving){
-        //     if(!selectedCharacter) LOG_DEBUG("No character selected");
+        //     if(!selectedCharacter) LOG_DEBUG("No character selectedAct");
 
         //     selectedCharacter->setAbsolutePos(selection->getOriginalSelectionPos());
         //     selectedCharacter->setStatus(CharacterStatus::Normal);

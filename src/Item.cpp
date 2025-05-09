@@ -20,7 +20,7 @@ HandHeldItem::HandHeldItem(std::vector<std::string> w_list):
     Item(w_list[HANDHELD_INDEX::NAME], std::stoi(w_list[HANDHELD_INDEX::USES]), 
         std::stoi(w_list[HANDHELD_INDEX::WORTH]), w_list[HANDHELD_INDEX::NOTE]){
         
-    std::cout<<name<<std::endl;
+    // std::cout<<name<<std::endl;
     mt = std::stoi(w_list[HANDHELD_INDEX::MT]);
     wt = std::stoi(w_list[HANDHELD_INDEX::WT]);
     hit = std::stoi(w_list[HANDHELD_INDEX::HIT]);    

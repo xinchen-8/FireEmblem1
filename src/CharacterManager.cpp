@@ -67,11 +67,12 @@ void CharacterManager::clearTips() {
 
 bool CharacterManager::update(){
 	for(auto &c: currentLevelCharacters){
-		if(c->getCurHP()==0){
+		if(c->getCurHP()<=0){
 			auto it = std::find(currentLevelCharacters.begin(), currentLevelCharacters.end(), c);
 			if (it != currentLevelCharacters.end()) {
 				currentLevelCharacters.erase(it);
 				LOG_INFO("Remove "+c->getName() +" From LevelCharacterVector.");
+				break;
 			}
 		}
 	}
@@ -82,8 +83,7 @@ bool CharacterManager::update(){
 }
 
 bool CharacterManager::isNoMovableCharacter(){
-	if(currentUnwaitedCharacters.size()==0) return true;
-	return false;
+	return currentUnwaitedCharacters.size()==0;
 }
 
 std::shared_ptr<Character> CharacterManager::getPosMovableCharacter(glm::ivec2 a_pos){
@@ -192,7 +192,7 @@ void PlayerManager::loadCharacter(){
 		//build items
 		for(int j=1; j<4; j++){
 			if(w[j]=="0") break;
-			std::cout<<w[j]<<std::endl;
+			// std::cout<<w[j]<<std::endl;
 			if (w[j] == "Vulnerary")
 			characters.back()->pushItem(std::make_shared<Vulnerary>((*itemData)[ITEM_ROWINDEX::VULNERARY]));
 			else if (w[j] == "Heal")
@@ -267,11 +267,12 @@ void PlayerManager::setInitialLevel(int level){
 
 bool PlayerManager::update(){
 	for(auto &c: currentLevelCharacters){
-		if(c->getCurHP()==0){
+		if(c->getCurHP()<=0){
 			auto it = std::find(currentLevelCharacters.begin(), currentLevelCharacters.end(), c);
 			if (it != currentLevelCharacters.end()) {
 				currentLevelCharacters.erase(it);
 				LOG_INFO("Remove "+c->getName() +" From LevelCharacterVector.");
+				break;
 			}
 		}
 	}
@@ -279,6 +280,7 @@ bool PlayerManager::update(){
 	for(auto &c: currentLevelCharacters){
 		if(c -> walkDirectly()){
 			findCharacterAttackTarget(c);
+			c->SetZIndex(3);
 			return true; //the trigger about character is arrived
 		}
 	}

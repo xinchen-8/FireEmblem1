@@ -49,8 +49,7 @@ enum class SelectionStatus{
 	SUI,
 	AttackTargeting,
 	AttackWUI,
-	ITEMIUI,
-	Waiting
+	ITEMIUI
 };
 
 enum class CharacterStatus{

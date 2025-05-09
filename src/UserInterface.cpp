@@ -129,7 +129,7 @@ void CharacterInfoUI::update() {
     setString(content);
 }
 
-SelectedUI::SelectedUI(std::vector<std::shared_ptr<Tile>>& tiles) : UserInterface(tiles){
+ActUI::ActUI(std::vector<std::shared_ptr<Tile>>& tiles) : UserInterface(tiles){
 	setUISize({ 4, 3 });
 	setRelativePos({
 		+ floor(PTSD_Config::WINDOW_WIDTH / 2) - 5 * TILE_SIZE,
@@ -139,7 +139,7 @@ SelectedUI::SelectedUI(std::vector<std::shared_ptr<Tile>>& tiles) : UserInterfac
 	setVisible(false);
 }
 
-void SelectedUI::setVisible(bool visible){
+void ActUI::setVisible(bool visible){
 	m_Visible = visible;
 	point->setVisible(visible);
 	for (auto& row : form) {
@@ -149,7 +149,7 @@ void SelectedUI::setVisible(bool visible){
 	}
 }
 
-void SelectedUI::load(std::vector<bool> flags){	
+void ActUI::load(std::vector<bool> flags){	
 	if( flags.size() == option_flags.size()){
 		option_flags = flags;
 		for(int i=0; i<option_flags.size(); i++){
@@ -172,7 +172,7 @@ void SelectedUI::load(std::vector<bool> flags){
 	else LOG_ERROR("Not Correct Input Flags!");
 }
 
-void SelectedUI::update(int listMov){
+void ActUI::update(int listMov){
 	for(int i=selectPoint+listMov; i<option_flags.size() && i>=0; i+=listMov){
 		if(option_flags[i]){
 			selectPoint = i;
@@ -183,7 +183,7 @@ void SelectedUI::update(int listMov){
 	}
 }
 
-std::vector<std::shared_ptr<Util::GameObject>> SelectedUI::getChildren(){
+std::vector<std::shared_ptr<Util::GameObject>> ActUI::getChildren(){
 	std::vector<std::shared_ptr<Util::GameObject>> children;
 	children.push_back(point);
 	for (auto& row : form) {
@@ -209,7 +209,7 @@ UIManager::UIManager(
 
 	tileInfo = std::make_shared<TileInfoUI>(tiles);
 	characterInfo = std::make_shared<CharacterInfoUI>(tiles);
-	selected = std::make_shared<SelectedUI>(tiles);
+	selectedAct = std::make_shared<ActUI>(tiles);
 	load();
 	tileInfo->setVisible(true);
 	characterInfo->setVisible(true);
@@ -232,7 +232,7 @@ void UIManager::update() {
 }
 
 void UIManager::loadSelectedUI(){
-	if(selected->getVisible()) return;
+	if(selectedAct->getVisible()) return;
 
 	std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
 	std::vector<bool> flags = {};
@@ -241,12 +241,12 @@ void UIManager::loadSelectedUI(){
 	flags.push_back(true); //"Wait"
 	//"Trade" not yet
 		
-	selected->load(flags);
-	selected->setVisible(true);
+	selectedAct->load(flags);
+	selectedAct->setVisible(true);
 }
 
 void UIManager::activeSelectedUI(){
-	std::string act = selected->getActive();
+	std::string act = selectedAct->getActive();
 	std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
 
 	if(act=="Attack" && selectedCharacter){
@@ -272,7 +272,7 @@ void UIManager::activeSelectedUI(){
 		playerManager->clearTips();
 	}
 	else LOG_ERROR("NO Act With: " + act);
-	selected->setVisible(false);
+	selectedAct->setVisible(false);
 }
 
 void UIManager::changeVisibleTileInfo() {
@@ -287,13 +287,13 @@ std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
 	std::vector<std::shared_ptr<Util::GameObject>> children = {};
 	std::vector<std::shared_ptr<Util::GameObject>> reg = tileInfo->getChildren();
 	std::vector<std::shared_ptr<Util::GameObject>> c = characterInfo->getChildren();
-	std::vector<std::shared_ptr<Util::GameObject>> s = selected->getChildren();
+	std::vector<std::shared_ptr<Util::GameObject>> s = selectedAct->getChildren();
 
 	for (auto &e : reg) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(tileInfo);
 	for (auto &e : c) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(characterInfo);
 	for (auto &e : s) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
-	children.push_back(selected);
+	children.push_back(selectedAct);
 	return children;
 }

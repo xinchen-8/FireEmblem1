@@ -12,19 +12,20 @@ class UserInterface : public Util::GameObject {
 public:
 	UserInterface(const std::vector<std::shared_ptr<Tile>> &tiles);
 
-	virtual void update() = 0;
-	void setVisible(bool visible);
+	virtual void update() { return; }
+	virtual void setVisible(bool visible);
 	void setRelativePos(glm::ivec2 r_pos);
 	void setRelativePos();
 	void setUISize(glm::ivec2 windowNums);
 	void setString(std::string content);
 
 	glm::ivec2 getTileRelativePos(glm::ivec2 pos);
+	glm::ivec2 getRelativePos() { return m_Transform.translation; }
 	glm::ivec2 getUISize() { return { UItileNum.x * TILE_SIZE, UItileNum.y * TILE_SIZE }; }
 	bool getVisible() const { return m_Visible; }
 	virtual std::vector<std::shared_ptr<GameObject>> getChildren();
 
-private:
+protected:
 	glm::ivec2 UItileNum = { 0, 0 };
 	std::vector<std::vector<std::shared_ptr<Tile>>> form = {};
 	std::vector<std::shared_ptr<Tile>> tileTable = {};
@@ -52,11 +53,18 @@ private:
 class SelectedUI : public UserInterface {
 public:
 	SelectedUI(std::vector<std::shared_ptr<Tile>>& tiles);
-	void load();
-	void update();
-	void active();
+	void setVisible(bool visible) override;
+	void load(std::vector<bool> flags);
+	void update(int listMov);
+
+	std::string getActive(){ return options[selectPoint]; }
+	std::vector<std::shared_ptr<GameObject>> getChildren() override;
 private:
-	std::vector<std::string> options = {"Attack", ""};
+	const std::vector<std::string> options = {"Attack","Item", "Wait"};//"Trade"
+	std::vector<bool> option_flags = {0,1,1};
+	int selectPoint = 0;
+	
+	std::shared_ptr<Tile> point = std::make_shared<Tile>("Point", TILE_SELECTION "point.png");
 };
 
 class UIManager {
@@ -64,12 +72,15 @@ public:
 	UIManager(
 		std::shared_ptr<Selection> s,
 		std::shared_ptr<MapManager> tm,
-		std::shared_ptr<PlayerManager> pm
+		std::shared_ptr<PlayerManager> pm,
+		std::shared_ptr<EnemyManager> em
 	);
 	void load();
 	void update();
 	void loadSelectedUI();
-	void updaeSelectedUI();
+	void updateSelectedUI(int listMov) { selected->update(listMov); }
+
+	void activeSelectedUI();
 	void changeVisibleTileInfo();
 	void changeVisibleCharacterInfo();
 	
@@ -79,10 +90,12 @@ private:
 	std::shared_ptr<MapManager> mapManager = nullptr;
 	std::shared_ptr<Selection> selection = nullptr;
 	std::shared_ptr<PlayerManager> playerManager = nullptr;
-
+	std::shared_ptr<EnemyManager> enemyManager = nullptr;
+	
 	std::vector<std::shared_ptr<Tile>> tiles = {};
 	std::shared_ptr<TileInfoUI> tileInfo = nullptr;
 	std::shared_ptr<CharacterInfoUI> characterInfo = nullptr;
+	std::shared_ptr<SelectedUI> selected = nullptr;
 	
 };
 

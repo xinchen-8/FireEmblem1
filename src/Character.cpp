@@ -43,6 +43,11 @@ Character::Character(
 	//axe
 	if(className=="Fighter" || className=="Pirate")
 		usableHandHeldItem.push_back(HandHeldItemType::Axe);
+
+	if(className=="Archer" || className=="Fighter" || className=="Pirate")
+		gapOfAnimation = 2;
+	
+	m_ZIndex = 3;
 }
 
 bool Character::walkDirectly(){
@@ -145,6 +150,7 @@ void Character::buildWalkPath(glm::ivec2 a_pos){
 
 void Character::refreshMoveRange(std::unordered_set<glm::ivec2> mask){
 	moveRange.clear();
+	attackRange.clear();
 	
     std::shared_ptr<Tile> tile = mapManager->getPosTile(absolutePos);
     int cost = (*walkCost)[tile->getName()];
@@ -211,7 +217,7 @@ void Character::setTileAnimation(){
 
 
 	std::vector<std::string> reg = {};
-	for (int i = 0; i <= 4 * gapOfAnimation - 1; i++) {
+	for (int i = 0; i < 2*3 + gapOfAnimation*2; i++) {
 		if(isPlayer){
 			reg.push_back(TILE_PLAYER + id + "_" + std::to_string(i) + ".png");
 			LOG_INFO("add " TILE_PLAYER + id + "_" + std::to_string(i) + ".png");
@@ -237,14 +243,13 @@ void Character::setTileAnimation(){
 			walkAnimation[Forword::Up] = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0);
 			reg = {};
 		}
-		else if (i == gapOfAnimation * 4 - 1) {
+		else if (i == 2*3 + gapOfAnimation*2-1) {
 			waitAnimation = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0);
 			reg = {};
 		}
 	}
 	m_Transform.scale = {TILE_SCALE, TILE_SCALE};
 	m_Visible = true;
-	m_ZIndex = 3;
 	setAnimation();
 }
 
@@ -303,9 +308,11 @@ bool Character::attacked(int power, int crt, int acc, bool isMagical){ // return
 		}
 		else return true;
 
-		if(Hp_Current<=0) // died not yet
-			absolutePos = {-1, -1};
-
+		if(Hp_Current<=0){ // died not yet
+			LOG_INFO(name + ": HP = "+ std::to_string(Hp_Current));
+			absolutePos = {-TILE_SIZE, -TILE_SIZE};
+			setVisible(false);
+		}
 		return false;
 	}
 }

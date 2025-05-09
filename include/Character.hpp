@@ -77,6 +77,7 @@ public:
 	int getLckGR() const { return LckGR; }
 	int getDefGR() const { return DefGR; }
 	int getResGR() const { return ResGR; }
+	CharacterStatus getStatus() const { return status; }
 
 	std::unordered_map<glm::ivec2, int> getMoveRange() { return moveRange; }
 	std::unordered_map<glm::ivec2, int> getAttackRange() { return attackRange; }

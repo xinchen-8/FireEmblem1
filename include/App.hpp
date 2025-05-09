@@ -5,6 +5,7 @@
 #include "Tile.hpp"
 #include "Util/Renderer.hpp"
 #include "Camera.hpp"
+#include "ProcessController.hpp"
 
 class App {
 public:
@@ -21,7 +22,7 @@ public:
     void Update();
     void End(); // NOLINT(readability-convert-member-functions-to-static)
 
-
+    friend class ProcessController;
 private:
     //void ValidTask();
 
@@ -39,12 +40,14 @@ private:
 
     std::shared_ptr<Selection> selection = std::make_shared<Selection>();
     std::shared_ptr<UIManager> uiManager = std::make_shared<UIManager>(
-        selection, mapManager, playerManager
+        selection, mapManager, playerManager, enemyManager
     );
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(  
         playerManager, enemyManager, mapManager, uiManager, selection
     );
-
+    std::shared_ptr<ProcessController> pc = std::make_shared<ProcessController>(
+        mapManager, playerManager, enemyManager, selection, uiManager
+    );
 };
 
 #endif

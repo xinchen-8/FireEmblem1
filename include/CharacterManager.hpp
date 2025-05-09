@@ -13,24 +13,32 @@ public:
 
     // void refreshAllCharacterMoveRange();
     // void buildCharacterTips(); //Overload
+    void removeUnwaitingCharacter(std::shared_ptr<Character> c);
+    void reloadUnwaitingCharacter();
     void clearTips();
 
-    virtual void update();
+    virtual bool update();
 
     void setCharaterManager(std::weak_ptr<CharacterManager> cm){ characterManager = cm;}
+    bool isNoMovableCharacter();
 
-    std::shared_ptr<Character> getPosCharacter(glm::ivec2 a_pos);
+    std::shared_ptr<Character> getPosMovableCharacter(glm::ivec2 a_pos);
+    std::shared_ptr<Character> getPosLevelCharacter(glm::ivec2 a_pos);
     std::unordered_set<glm::ivec2> getCharacterPos();
+    
     std::shared_ptr<Tile> getTipTile(glm::ivec2 a_pos);
+    std::vector<std::shared_ptr<Character>> getCurrentLevelCharacters() { return currentLevelCharacters; }
+    std::vector<std::shared_ptr<Character>> getCurrentUnwaitedCharacters(){ return currentUnwaitedCharacters; }
     std::vector<std::shared_ptr<CameraGameObject>> getChildren();
 
 protected:
-    bool tipsVisible = false;
+    bool tipsVisible = true;
 
     std::unordered_map<std::string, std::shared_ptr<std::unordered_map<std::string, int>>> costTable = {};
     std::vector<std::shared_ptr<Character>> characters = {};
     std::vector<std::shared_ptr<Character>> currentLevelCharacters = {};
-
+    std::vector<std::shared_ptr<Character>> currentUnwaitedCharacters = {};
+    
     std::shared_ptr<MapManager> mapManager = nullptr;
     std::weak_ptr<CharacterManager> characterManager;
     std::vector<std::vector<std::shared_ptr<Tile>>> tips = {};
@@ -43,7 +51,7 @@ public:
     void loadCharacter() override;
     void setInitialLevel(int level) override;
     
-    void update() override;
+    bool update() override;
 
     void changeTipsVisible(std::shared_ptr<Character> character = nullptr);
     void buildCharacterTips(std::shared_ptr<Character> character);

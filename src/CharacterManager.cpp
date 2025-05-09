@@ -42,6 +42,21 @@ CharacterManager::CharacterManager(std::shared_ptr<MapManager> mm):mapManager(mm
 // 	}
 // }
 
+void CharacterManager::removeUnwaitingCharacter(std::shared_ptr<Character> c){
+	auto it = std::find(currentUnwaitedCharacters.begin(), currentUnwaitedCharacters.end(), c);
+    if (it != currentUnwaitedCharacters.end()) {
+        currentUnwaitedCharacters.erase(it);
+		LOG_INFO("Remove "+c->getName() +" From UnwaitingCharacterVector.");
+    }
+}
+
+void CharacterManager::reloadUnwaitingCharacter(){
+	for(auto &c: currentLevelCharacters){
+		c->setStatus(CharacterStatus::Normal);
+		currentUnwaitedCharacters.push_back(c);
+	}
+}
+
 void CharacterManager::clearTips() {
 	for(auto &r: tips){
 		for(auto &t: r){
@@ -50,13 +65,36 @@ void CharacterManager::clearTips() {
 	}
 }
 
-void CharacterManager::update(){
+bool CharacterManager::update(){
 	for(auto &c: currentLevelCharacters){
+		if(c->getCurHP()==0){
+			auto it = std::find(currentLevelCharacters.begin(), currentLevelCharacters.end(), c);
+			if (it != currentLevelCharacters.end()) {
+				currentLevelCharacters.erase(it);
+				LOG_INFO("Remove "+c->getName() +" From LevelCharacterVector.");
+			}
+		}
+	}
+	for(auto &c: currentUnwaitedCharacters){
 		c -> walkDirectly();
 	}
+	return false;
 }
 
-std::shared_ptr<Character> CharacterManager::getPosCharacter(glm::ivec2 a_pos){
+bool CharacterManager::isNoMovableCharacter(){
+	if(currentUnwaitedCharacters.size()==0) return true;
+	return false;
+}
+
+std::shared_ptr<Character> CharacterManager::getPosMovableCharacter(glm::ivec2 a_pos){
+	for(std::shared_ptr<Character> &c: currentUnwaitedCharacters){
+
+		if(c->getAbsolutePos() == a_pos) return c;
+	}
+	return nullptr;
+}
+
+std::shared_ptr<Character> CharacterManager::getPosLevelCharacter(glm::ivec2 a_pos){
 	for(std::shared_ptr<Character> &c: currentLevelCharacters){
 
 		if(c->getAbsolutePos() == a_pos) return c;
@@ -64,9 +102,9 @@ std::shared_ptr<Character> CharacterManager::getPosCharacter(glm::ivec2 a_pos){
 	return nullptr;
 }
 
-std::unordered_set<glm::ivec2>  CharacterManager::getCharacterPos(){
+std::unordered_set<glm::ivec2> CharacterManager::getCharacterPos(){
 	std::unordered_set<glm::ivec2> pos = {};
-	for(auto &c: characters){
+	for(auto &c: currentLevelCharacters){
 		pos.insert(c->getAbsolutePos());
 	}
 	return pos;
@@ -145,15 +183,16 @@ void PlayerManager::loadCharacter(){
 		std::vector<std::string> g = (*g_data)[i];
 		std::vector<std::string> w = (*w_data)[i];
 
-		characters.push_back(std::make_shared<Character>(
-			mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true
+		characters.push_back(
+			std::make_shared<Character>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true
 			)
 		);
 		characters.back()->setTileAnimation();
 		//build items
-		for(int j=2; j<6; j++){
+		for(int j=1; j<4; j++){
 			if(w[j]=="0") break;
-			
+			std::cout<<w[j]<<std::endl;
 			if (w[j] == "Vulnerary")
 			characters.back()->pushItem(std::make_shared<Vulnerary>((*itemData)[ITEM_ROWINDEX::VULNERARY]));
 			else if (w[j] == "Heal")
@@ -223,13 +262,27 @@ void PlayerManager::setInitialLevel(int level){
 			}
 		}
 	}
+	currentUnwaitedCharacters = currentLevelCharacters;
 }
 
-void PlayerManager::update(){
+bool PlayerManager::update(){
 	for(auto &c: currentLevelCharacters){
-		if(c -> walkDirectly())
-			findCharacterAttackTarget(c);
+		if(c->getCurHP()==0){
+			auto it = std::find(currentLevelCharacters.begin(), currentLevelCharacters.end(), c);
+			if (it != currentLevelCharacters.end()) {
+				currentLevelCharacters.erase(it);
+				LOG_INFO("Remove "+c->getName() +" From LevelCharacterVector.");
+			}
+		}
 	}
+
+	for(auto &c: currentLevelCharacters){
+		if(c -> walkDirectly()){
+			findCharacterAttackTarget(c);
+			return true; //the trigger about character is arrived
+		}
+	}
+	return false;
 }
 
 void PlayerManager::changeTipsVisible(std::shared_ptr<Character> character){
@@ -267,7 +320,7 @@ void PlayerManager::findCharacterAttackTarget(std::shared_ptr<Character> charact
 	buildCharacterTips(character);
 	if (auto cm = characterManager.lock()){
 		for(auto &[pos, null]: ar){
-			if(!cm->getPosCharacter(pos))
+			if(!cm->getPosLevelCharacter(pos))
 				ar.erase(pos);
 		}		
 	}
@@ -437,4 +490,5 @@ void EnemyManager::setInitialLevel(int level){
 			}
 		}
 	}
+	currentUnwaitedCharacters = currentLevelCharacters;
 }

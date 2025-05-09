@@ -45,8 +45,11 @@ inline bool operator==(const glm::ivec2& a, const glm::ivec2& b) {
 enum class SelectionStatus{
 	Normal,
 	Moving,
-	Locked, //for choose UI
-	Targeting,
+	Walking,
+	SUI,
+	AttackTargeting,
+	AttackWUI,
+	ITEMIUI,
 	Waiting
 };
 

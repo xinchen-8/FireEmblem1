@@ -20,11 +20,13 @@ HandHeldItem::HandHeldItem(std::vector<std::string> w_list):
     Item(w_list[HANDHELD_INDEX::NAME], std::stoi(w_list[HANDHELD_INDEX::USES]), 
         std::stoi(w_list[HANDHELD_INDEX::WORTH]), w_list[HANDHELD_INDEX::NOTE]){
         
+    std::cout<<name<<std::endl;
     mt = std::stoi(w_list[HANDHELD_INDEX::MT]);
     wt = std::stoi(w_list[HANDHELD_INDEX::WT]);
     hit = std::stoi(w_list[HANDHELD_INDEX::HIT]);    
     std::string data = w_list[HANDHELD_INDEX::RNG];
-    size_t pos = w_list[HANDHELD_INDEX::RNG].find("~");
+    
+    size_t pos = data.find("~");
     if (pos != std::string::npos) {
         int first = std::stoi(data.substr(0, pos));
         int second = std::stoi(data.substr(pos + 1));
@@ -41,7 +43,7 @@ HandHeldItem::HandHeldItem(std::vector<std::string> w_list):
 Weapon::Weapon(std::vector<std::string> w_list): HandHeldItem(w_list){
     if(name == "Rapier")
         against = { "Cavalier", "Knight", "Paladin", "General" };
-    if(name == "Hammer")
+    else if(name == "Hammer")
         against = { "Knight", "General" };
 }
 

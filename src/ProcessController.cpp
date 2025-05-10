@@ -29,14 +29,14 @@ void ProcessController::ReturnCase(){
     else if(status == SelectionStatus::Walking && selectedCharacter->getWalkPath().empty())
         SUItoOption();
     //act
-    else if(status == SelectionStatus::SUI) 
-        uiManager->activeSelectedUI();
+    else if(status == SelectionStatus::SUI)
+        uiManager->activeActUI();
     //attack targeting => WUI
     else if(status == SelectionStatus::AttackTargeting && selectEnemy)
-        ATKTargetingToATKWUI();
+        ATKTargetingToATKWUI(selectEnemy->getAbsolutePos());
     //WUI => attack then wait
     else if(status == SelectionStatus::AttackWUI)
-        ATKWUIToNormal(selectedCharacter, selectEnemy);
+        ATKToNormal(selectedCharacter, selectEnemy);
     //item UI => wait
     else if(status == SelectionStatus::ITEMIUI)
         IUIToNormal(selectedCharacter);
@@ -54,7 +54,8 @@ void ProcessController::MovCase(glm::ivec2 mov){
 }
 
 void ProcessController::MovCase(int listMov){
-    uiManager->updateSelectedUI(listMov);
+    uiManager->updateActUI(listMov);
+    uiManager->updateWeaponUI(listMov);
     //other ui...
 }
 
@@ -72,19 +73,19 @@ void ProcessController::movingToSUI(std::shared_ptr<Character> &selectedCharacte
 }
 
 void ProcessController::SUItoOption(){
-    uiManager->activeSelectedUI();
+    uiManager->activeActUI();
 }
 
-void ProcessController::ATKTargetingToATKWUI(){
-    LOG_WARN("WUI is not yet!");
+void ProcessController::ATKTargetingToATKWUI(glm::ivec2 targetPos){
     selection->setStatus(SelectionStatus::AttackWUI);
-    //mot yet
+    uiManager->loadWeaponUI(targetPos);
 }
 
-void ProcessController::ATKWUIToNormal(
+void ProcessController::ATKToNormal(
     std::shared_ptr<Character> &selectedCharacter, 
     std::shared_ptr<Character> &selectEnemy){
 
+    uiManager->actWeaponUI();
     selectedCharacter->attack(selectEnemy);
     selectedCharacter->setStatus(CharacterStatus::Waiting);
     playerManager->removeUnwaitingCharacter(selectedCharacter);

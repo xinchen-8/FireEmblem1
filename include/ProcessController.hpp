@@ -24,8 +24,8 @@ private:
     void movingToSUI(std::shared_ptr<Character> &selectedCharacter);
     
     void SUItoOption();
-    void ATKTargetingToATKWUI();
-    void ATKWUIToNormal(std::shared_ptr<Character> &selectedCharacter, std::shared_ptr<Character> &selectEnemy);
+    void ATKTargetingToATKWUI(glm::ivec2 target);
+    void ATKToNormal(std::shared_ptr<Character> &selectedCharacter, std::shared_ptr<Character> &selectEnemy);
     void IUIToNormal(std::shared_ptr<Character> &selectedCharacter);
 
     std::shared_ptr<MapManager> mapManager = nullptr;

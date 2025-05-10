@@ -62,16 +62,16 @@ void App::Update() {
     }
     //selectedAct UI move
     if (((Util::Input::IsKeyPressed(Util::Keycode::UP) && delayKeyCounter <= delayKeyCheck) || 
-        (Util::Input::IsKeyDown(Util::Keycode::UP))) && selection->getStatus() == SelectionStatus::SUI){
+        (Util::Input::IsKeyDown(Util::Keycode::UP)))){
 
-        uiManager->updateSelectedUI(-1);
+        pc->MovCase(-1);
         delayKeyCounter = delayKeyLimit;
     }
 
     else if (((Util::Input::IsKeyPressed(Util::Keycode::DOWN) && delayKeyCounter <= delayKeyCheck) || 
-    (Util::Input::IsKeyDown(Util::Keycode::DOWN))) && selection->getStatus() == SelectionStatus::SUI){
+    (Util::Input::IsKeyDown(Util::Keycode::DOWN)))){
 
-        uiManager->updateSelectedUI(1);
+        pc->MovCase(1);
         delayKeyCounter = delayKeyLimit;
     }
     //select character method
@@ -148,7 +148,7 @@ void App::Update() {
     //update
     camera->update();
     if(playerManager->update() && selection->getStatus()==SelectionStatus::Walking){
-        uiManager->loadSelectedUI();
+        uiManager->loadActUI();
         selection->setStatus(SelectionStatus::SUI);
     }
     enemyManager->update();

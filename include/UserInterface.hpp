@@ -31,6 +31,24 @@ protected:
 	std::vector<std::shared_ptr<Tile>> tileTable = {};
 };
 
+class SelectedUI : public UserInterface{ //base on ActUI
+public:
+	SelectedUI(std::vector<std::shared_ptr<Tile>>& tiles);
+	void setVisible(bool visible) override;
+	virtual void load(std::vector<bool> flags);
+	virtual void update(int listMov);
+
+	std::string getActive(){ return options[selectPoint]; }
+	int getSelectPointIndex() { return selectPoint; }
+	std::vector<std::shared_ptr<GameObject>> getChildren() override;
+protected:
+	std::vector<std::string> options;
+	std::vector<bool> option_flags;
+	int selectPoint = 0;
+
+	std::shared_ptr<Tile> point = std::make_shared<Tile>("Point", TILE_SELECTION "point.png");
+};
+
 class TileInfoUI : public UserInterface {
 public:
 	TileInfoUI(std::vector<std::shared_ptr<Tile>>& tiles);
@@ -49,21 +67,16 @@ private:
 	std::shared_ptr<Character> character = nullptr;
 };
 
-class ActUI : public UserInterface {
+class ActUI : public SelectedUI {
 public:
 	ActUI(std::vector<std::shared_ptr<Tile>>& tiles);
-	void setVisible(bool visible) override;
-	void load(std::vector<bool> flags);
-	void update(int listMov);
-
 	std::string getActive(){ return options[selectPoint]; }
-	std::vector<std::shared_ptr<GameObject>> getChildren() override;
-private:
-	const std::vector<std::string> options = {"Attack","Item", "Wait"};//"Trade"
-	std::vector<bool> option_flags = {0,1,1};
-	int selectPoint = 0;
-	
-	std::shared_ptr<Tile> point = std::make_shared<Tile>("Point", TILE_SELECTION "point.png");
+};
+
+class WeaponUI : public SelectedUI {
+public:
+	WeaponUI(std::vector<std::shared_ptr<Tile>>& tiles);
+	void loadWeapon(std::vector<std::shared_ptr<Weapon>> weapons);
 };
 
 class UIManager {
@@ -76,10 +89,15 @@ public:
 	);
 	void load();
 	void update();
-	void loadSelectedUI();
-	void updateSelectedUI(int listMov) { selectedAct->update(listMov); }
 
-	void activeSelectedUI();
+	void loadActUI();
+	void updateActUI(int listMov) { selectedAct->update(listMov); }
+	void activeActUI();
+
+	void loadWeaponUI(glm::ivec2 targetPos);
+	void updateWeaponUI(int listMov) { selectedWeapon->update(listMov);}
+	void actWeaponUI();
+
 	void changeVisibleTileInfo();
 	void changeVisibleCharacterInfo();
 	
@@ -95,7 +113,7 @@ private:
 	std::shared_ptr<TileInfoUI> tileInfo = nullptr;
 	std::shared_ptr<CharacterInfoUI> characterInfo = nullptr;
 	std::shared_ptr<ActUI> selectedAct = nullptr;
-	
+	std::shared_ptr<WeaponUI> selectedWeapon = nullptr;
 };
 
 #endif

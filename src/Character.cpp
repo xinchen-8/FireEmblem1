@@ -209,6 +209,11 @@ void Character::setStatus(CharacterStatus status){
 	setAnimation();
 }
 
+void Character::setHandHeldItemWithIndex(int index){
+	if(std::dynamic_pointer_cast<HandHeldItem>(items[index])) handheld_index = index;
+	else LOG_ERROR("This Index of Items is not a HandHeld Item.");
+}
+
 void Character::setTileAnimation(){
 	
 	std::string id = className;

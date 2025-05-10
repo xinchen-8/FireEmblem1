@@ -40,6 +40,7 @@ public:
 	void setAnimation();
 	void setStatus(CharacterStatus status);
 	void setForword(Forword forword){ this->forword = forword; }
+	void setHandHeldItemWithIndex(int index);
 
 	void setVisible(bool visible){ m_Visible = visible; }
 	void setHeadshotAnimation(std::shared_ptr<Util::Animation> a_headshotAnimation){ headshotAnimation = a_headshotAnimation; }
@@ -78,6 +79,7 @@ public:
 	int getDefGR() const { return DefGR; }
 	int getResGR() const { return ResGR; }
 	CharacterStatus getStatus() const { return status; }
+	std::vector<std::shared_ptr<Item>> getItems() { return items; }
 
 	std::unordered_map<glm::ivec2, int> getMoveRange() { return moveRange; }
 	std::unordered_map<glm::ivec2, int> getAttackRange() { return attackRange; }

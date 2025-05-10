@@ -235,16 +235,22 @@ void WeaponUI::loadWeapon(std::vector<std::shared_ptr<Weapon>> weapons){
 	// for(auto &t: options) std::cout<<t<<std::endl;
 	// for(const auto &t: option_flags) std::cout<<std::to_string(t)<<std::endl;
 	
-	int spaceCounter = 0;
-	std::string str = "";
 	for(int i=0; i<option_flags.size(); i++){
-		if(option_flags[i]) str += options[i] + "\n";
-		else spaceCounter++;
-	}
-	while(--spaceCounter) str+="\n";
-	// std::cout<<str<<std::endl;
-	setString(str);
-	point->setRelativePos(m_Transform.translation+glm::vec2(-TILE_SIZE/2, 1.5 * TILE_SIZE)); // offset
+			if(option_flags[i]){
+				selectPoint = i;
+				break;
+			}
+		}
+		
+		int spaceCounter = 0;
+		std::string str = "";
+		for(int i=0; i<option_flags.size(); i++){
+			if(option_flags[i]) str += options[i] + "\n";
+			else spaceCounter++;
+		}
+		while(--spaceCounter) str+="\n";
+		setString(str);
+		point->setRelativePos(m_Transform.translation+glm::vec2(-TILE_SIZE/2, 1.5 * TILE_SIZE));
 }
 
 UIManager::UIManager(

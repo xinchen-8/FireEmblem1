@@ -210,7 +210,10 @@ void Character::setStatus(CharacterStatus status){
 }
 
 void Character::setHandHeldItemWithIndex(int index){
-	if(std::dynamic_pointer_cast<HandHeldItem>(items[index])) handheld_index = index;
+	if(std::dynamic_pointer_cast<HandHeldItem>(items[index])){
+		handheld_index = index;
+		LOG_INFO("The Character Hand Holding a " + items[index]->getName());
+	}
 	else LOG_ERROR("This Index of Items is not a HandHeld Item.");
 }
 

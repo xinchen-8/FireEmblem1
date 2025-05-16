@@ -50,6 +50,15 @@ private:
 	std::shared_ptr<Character> character = nullptr;
 };
 
+class CharacterInfoUIFull : public UserInterface {
+public:
+	CharacterInfoUIFull(std::vector<std::shared_ptr<Tile>>& tiles);
+	void load(std::shared_ptr<Character> character);
+	void update() override;
+private:
+	std::shared_ptr<Character> character = nullptr;
+};
+
 class SelectedUI : public UserInterface {
 public:
 	SelectedUI(std::vector<std::shared_ptr<Tile>>& tiles);
@@ -83,6 +92,7 @@ public:
 	void activeSelectedUI();
 	void changeVisibleTileInfo();
 	void changeVisibleCharacterInfo();
+	void changeVisibleCharacterInfoFull();
 	
 	std::vector<std::shared_ptr<Util::GameObject>> getChildren();
 
@@ -95,6 +105,7 @@ private:
 	std::vector<std::shared_ptr<Tile>> tiles = {};
 	std::shared_ptr<TileInfoUI> tileInfo = nullptr;
 	std::shared_ptr<CharacterInfoUI> characterInfo = nullptr;
+	std::shared_ptr<CharacterInfoUIFull> characterInfoFull = nullptr;
 	std::shared_ptr<SelectedUI> selected = nullptr;
 	
 };

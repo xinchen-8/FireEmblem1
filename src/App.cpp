@@ -133,9 +133,16 @@ void App::Update() {
         LOG_INFO("F2 pressed");
         uiManager->changeVisibleCharacterInfo();
     }
-    //player tip 
+
+    //character info UI full
     if (Util::Input::IsKeyDown(Util::Keycode::F3)) {
         LOG_INFO("F3 pressed");
+        uiManager->changeVisibleCharacterInfoFull();
+    }
+
+    //player tip 
+    if (Util::Input::IsKeyDown(Util::Keycode::F4)) {
+        LOG_INFO("F4 pressed");
         playerManager->changeTipsVisible(selection->getSelectCharacter());
     }
     //all tip 

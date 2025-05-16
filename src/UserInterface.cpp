@@ -129,6 +129,33 @@ void CharacterInfoUI::update() {
     setString(content);
 }
 
+CharacterInfoUIFull::CharacterInfoUIFull(std::vector<std::shared_ptr<Tile>>& tiles) :
+	UserInterface(tiles) {
+	setUISize({ 5, 7 });
+
+	setRelativePos({
+		+ floor(PTSD_Config::WINDOW_WIDTH / 2) - 5 * TILE_SIZE,
+		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 4 * TILE_SIZE
+	});
+}
+
+void CharacterInfoUIFull::load(std::shared_ptr<Character> character) {
+	if (character) this->character = character;
+}
+
+void CharacterInfoUIFull::update() {
+	std::string content=
+		character->getName() +"\n" +
+		character->getClassName() + "\n" +
+		"Lv  " + std::to_string(character->getLevel()) + "  Exp " + std::to_string(character->getExp()) + "\n" +
+		"HP  " + std::to_string(character->getCurHP()) + " / " + std::to_string(character->getHpLimit()) + "\n" +
+		"Str " + std::to_string(character->getStr()) + "  Lck " + std::to_string(character->getLck()) + "\n" +
+		"Skl " + std::to_string(character->getSkl()) + "  Def " + std::to_string(character->getDef()) + "\n" +
+		"Wlv " + std::to_string(character->getWlv()) + "  Res " + std::to_string(character->getRes()) + "\n" +
+		"Spd " + std::to_string(character->getSpd()) + "  Mov " + std::to_string(character->getMov());
+	setString(content);
+}
+
 SelectedUI::SelectedUI(std::vector<std::shared_ptr<Tile>>& tiles) : UserInterface(tiles){
 	setUISize({ 4, 3 });
 	setRelativePos({
@@ -209,10 +236,12 @@ UIManager::UIManager(
 
 	tileInfo = std::make_shared<TileInfoUI>(tiles);
 	characterInfo = std::make_shared<CharacterInfoUI>(tiles);
+	characterInfoFull = std::make_shared<CharacterInfoUIFull>(tiles);
 	selected = std::make_shared<SelectedUI>(tiles);
 	load();
 	tileInfo->setVisible(true);
 	characterInfo->setVisible(true);
+	characterInfoFull->setVisible(true);
 }
 
 void UIManager::load() {
@@ -221,14 +250,24 @@ void UIManager::load() {
 	auto s = selection->getSelectCharacter();
 	auto c = playerManager->getPosLevelCharacter(selection->getAbsolutePos());
 	auto e = enemyManager->getPosLevelCharacter(selection->getAbsolutePos());
-	if(c) characterInfo->load(c);
-	else if(e) characterInfo->load(e);
-	else if(s && selection->getStatus()==SelectionStatus::Moving) characterInfo->load(s);
+	if(c){
+		characterInfo->load(c);
+		characterInfoFull->load(c);
+	}
+	else if(e){
+		characterInfo->load(e);
+		characterInfoFull->load(e);
+	}
+	else if(s && selection->getStatus()==SelectionStatus::Moving){
+		characterInfo->load(s);
+		characterInfoFull->load(s);
+	}
 }
 
 void UIManager::update() {
 	tileInfo->update();
 	characterInfo->update();
+	characterInfoFull->update();
 }
 
 void UIManager::loadSelectedUI(){
@@ -283,16 +322,23 @@ void UIManager::changeVisibleCharacterInfo() {
 	characterInfo->setVisible(!characterInfo->getVisible());
 }
 
+void UIManager::changeVisibleCharacterInfoFull() {
+	characterInfoFull->setVisible(!characterInfoFull->getVisible());
+}
+
 std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
 	std::vector<std::shared_ptr<Util::GameObject>> children = {};
 	std::vector<std::shared_ptr<Util::GameObject>> reg = tileInfo->getChildren();
 	std::vector<std::shared_ptr<Util::GameObject>> c = characterInfo->getChildren();
+	std::vector<std::shared_ptr<Util::GameObject>> cf = characterInfoFull->getChildren();
 	std::vector<std::shared_ptr<Util::GameObject>> s = selected->getChildren();
 
 	for (auto &e : reg) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(tileInfo);
 	for (auto &e : c) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(characterInfo);
+	for (auto &e : cf) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
+	children.push_back(characterInfoFull);
 	for (auto &e : s) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(selected);
 	return children;

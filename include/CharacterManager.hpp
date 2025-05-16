@@ -8,8 +8,8 @@ class CharacterManager{
 public:
     //init
     CharacterManager(std::shared_ptr<MapManager> mm);
-    virtual void loadCharacter() = 0;
-    virtual void setInitialLevel(int level) = 0;
+    void loadCharacter();
+    void setInitialLevel(int level);
 
     // void refreshAllCharacterMoveRange();
     // void buildCharacterTips(); //Overload
@@ -32,6 +32,7 @@ public:
     std::vector<std::shared_ptr<CameraGameObject>> getChildren();
 
 protected:
+    bool isEnemy = false;
     bool tipsVisible = true;
 
     std::unordered_map<std::string, std::shared_ptr<std::unordered_map<std::string, int>>> costTable = {};
@@ -48,9 +49,6 @@ class PlayerManager : public CharacterManager{
 public:
     // using CharacterManager::buildCharacterTips;
     PlayerManager(std::shared_ptr<MapManager> mm);
-    void loadCharacter() override;
-    void setInitialLevel(int level) override;
-    
     bool update() override;
 
     void changeTipsVisible(std::shared_ptr<Character> character = nullptr);
@@ -65,8 +63,6 @@ class EnemyManager : public CharacterManager{
 public:
     // using CharacterManager::buildCharacterTips;
     EnemyManager(std::shared_ptr<MapManager> mm);
-    void loadCharacter() override;
-    void setInitialLevel(int level) override;
 };
 
 #endif

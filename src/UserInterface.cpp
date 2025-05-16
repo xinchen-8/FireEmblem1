@@ -103,7 +103,10 @@ void SelectedUI::setVisible(bool visible){
 	}
 }
 
-void SelectedUI::load(std::vector<bool> flags){	
+void SelectedUI::load(std::vector<bool> flags, bool targetIsPlayer){
+	if(targetIsPlayer) options[0] = "Target";
+	else options[0] = "Attack";
+
 	if( flags.size() == option_flags.size()){
 		option_flags = flags;
 		for(int i=0; i<option_flags.size(); i++){
@@ -209,21 +212,17 @@ WeaponUI::WeaponUI(std::vector<std::shared_ptr<Tile>>& tiles): SelectedUI(tiles)
 	});
 }
 
-void WeaponUI::loadWeapon(std::vector<std::shared_ptr<Weapon>> weapons){
+void WeaponUI::loadWeapon(std::vector<std::shared_ptr<HandHeldItem>> HHitems){
 	// std::cout<<std::to_string(weapons.size())<<std::endl;
-	if(weapons.size()!=4){
-		LOG_ERROR("Not Correct Input Weapon List!");
-		return;
-	}
 	options.clear();
 	option_flags.clear();
 
-	for(auto &w: weapons){
-		if(w!=nullptr){
+	for(auto &i: HHitems){
+		if(i!=nullptr){
 			// std::ostringstream reg;
 		    // reg << std::left << std::setw(15) << w->getName() 
 				// << std::right << std::setw(3) << w->getUses();
-			options.push_back(w->getName()+" "+std::to_string(w->getUses()));
+			options.push_back(i->getName()+" "+std::to_string(i->getUses()));
 			option_flags.push_back(true);
 		}
 		else{
@@ -236,21 +235,64 @@ void WeaponUI::loadWeapon(std::vector<std::shared_ptr<Weapon>> weapons){
 	// for(const auto &t: option_flags) std::cout<<std::to_string(t)<<std::endl;
 	
 	for(int i=0; i<option_flags.size(); i++){
-			if(option_flags[i]){
-				selectPoint = i;
-				break;
-			}
+		if(option_flags[i]){
+			selectPoint = i;
+			break;
 		}
+	}
 		
-		int spaceCounter = 0;
-		std::string str = "";
-		for(int i=0; i<option_flags.size(); i++){
-			if(option_flags[i]) str += options[i] + "\n";
-			else spaceCounter++;
+	int spaceCounter = 0;
+	std::string str = "";
+	for(int i=0; i<option_flags.size(); i++){
+		if(option_flags[i]) str += options[i] + "\n";
+		else spaceCounter++;
+	}
+	while(--spaceCounter) str+="\n";
+	setString(str);
+	point->setRelativePos(m_Transform.translation+glm::vec2(-TILE_SIZE/2, 1.5 * TILE_SIZE));
+}
+
+ItemUI::ItemUI(std::vector<std::shared_ptr<Tile>>& tiles): SelectedUI(tiles){
+	setUISize({ 6, 3 });
+	m_Transform.scale = {1, 0.8};
+	setRelativePos({
+		+ floor(PTSD_Config::WINDOW_WIDTH / 2) - 7 * TILE_SIZE,
+		+ floor(PTSD_Config::WINDOW_HEIGHT / 2) - 4 * TILE_SIZE
+	});
+}
+
+void ItemUI::loadItem(std::vector<std::shared_ptr<Item>> items, int handheldIndex){
+	options.clear();
+	option_flags.clear();
+
+	for(auto &w: items){
+		if(w!=nullptr){
+			options.push_back(w->getName()+" "+std::to_string(w->getUses()));
+			option_flags.push_back(true);
 		}
-		while(--spaceCounter) str+="\n";
-		setString(str);
-		point->setRelativePos(m_Transform.translation+glm::vec2(-TILE_SIZE/2, 1.5 * TILE_SIZE));
+		else{
+			options.push_back("null");
+			option_flags.push_back(false);
+		}
+	}
+
+	std::string str = "";
+	for(int i=0; i<option_flags.size(); i++) str += options[i] + "\n";
+	setString(str);
+	if(items[handheldIndex]) selectPoint = handheldIndex;
+	point->setRelativePos(m_Transform.translation+glm::vec2(-TILE_SIZE/2, 1.65 * TILE_SIZE - handheldIndex * 30));	
+}
+
+void ItemUI::update(int listMov){
+	if(!getVisible()) return;
+	for(int i=selectPoint+listMov; i<option_flags.size() && i>=0; i+=listMov){
+		if(static_cast<bool>(option_flags[i])){
+			selectPoint = i;
+			glm::vec2 regPos = point->getRelativePos();
+			point->setRelativePos(regPos - glm::vec2(0, 30 * listMov));
+			return;
+		}
+	}
 }
 
 UIManager::UIManager(
@@ -270,6 +312,7 @@ UIManager::UIManager(
 	characterInfo = std::make_shared<CharacterInfoUI>(tiles);
 	selectedAct = std::make_shared<ActUI>(tiles);
 	selectedWeapon = std::make_shared<WeaponUI>(tiles);
+	selectedItem = std::make_shared<ItemUI>(tiles);
 	load();
 	tileInfo->setVisible(true);
 	characterInfo->setVisible(true);
@@ -301,10 +344,9 @@ void UIManager::loadActUI(){
 	flags.push_back(true); //"Wait"
 	//"Trade" not yet
 		
-	selectedAct->load(flags);
+	selectedAct->load(flags, (selectedCharacter->getClassName()=="Curate"));
 	selectedAct->setVisible(true);
 }
-
 
 void UIManager::activeActUI(){
 	std::string act = selectedAct->getActive();
@@ -319,11 +361,20 @@ void UIManager::activeActUI(){
         selection->setMoveLimit(selectedCharacter->getAttackRange());
         selection->setAbsolutePos(selection->getLimitRange().begin()->first);
 	}
-	else if(act=="Item"){
-		LOG_INFO("Select Item Option");
-		LOG_WARN("IUI is not yet!");
-		selection->setStatus(SelectionStatus::ITEMIUI);
+	else if(act=="Target" && selectedCharacter){
+		LOG_INFO("Select Target Option");
+		selection->setStatus(SelectionStatus::Targeting);
 
+        playerManager->buildCharacterTips(selectedCharacter);
+        if(selectedCharacter->getAttackRange().size()==0) LOG_ERROR("NO PLAYER...");
+        selection->setMoveLimit(selectedCharacter->getAttackRange());
+        selection->setAbsolutePos(selection->getLimitRange().begin()->first);
+	}
+	else if(act=="Item" && selectedCharacter){
+		LOG_INFO("Select Item Option");
+		selection->setStatus(SelectionStatus::ITEMIUI);
+		loadItemUI();
+		selectedItem->setVisible(true);
 	}
 	else if(act=="Wait" && selectedCharacter){
 		LOG_INFO("Select Wait Option");
@@ -336,32 +387,40 @@ void UIManager::activeActUI(){
 	selectedAct->setVisible(false);
 }
 
-void UIManager::loadWeaponUI(glm::ivec2 targetPos){
+void UIManager::loadWeaponUI(glm::ivec2 targetPos, bool isHealSpecialCase){
 	// if(selectedWeapon->getVisible()) return;
 
 	std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
-	
 	int steps = 0;
 	glm::ivec2 distance = selectedCharacter->getAbsolutePos() - targetPos;
 	steps += abs(distance.x)/TILE_SIZE;
 	steps += abs(distance.y)/TILE_SIZE;
 
 	std::vector<std::shared_ptr<Item>> items = selectedCharacter->getItems();
-	std::vector<std::shared_ptr<Weapon>> weapons = {nullptr, nullptr, nullptr, nullptr};
-
-	for (int i=0; i<items.size(); i++){
-		auto weapon = std::dynamic_pointer_cast<Weapon>(items[i]);
-		if(!weapon) weapons[i] = nullptr;
-		else{
-			for(auto &r: weapon->getRng()){
-				if(r==steps){
-					weapons[i] = weapon;
-					break;
+	std::vector<std::shared_ptr<HandHeldItem>> HHitems = {nullptr, nullptr, nullptr, nullptr};
+	
+	if(isHealSpecialCase){
+		for (int i=0; i<items.size(); i++){
+			auto heal = std::dynamic_pointer_cast<Heal>(items[i]);
+			if(!heal) HHitems[i] = nullptr;
+			else HHitems[i] = std::dynamic_pointer_cast<HandHeldItem>(items[i]);
+		}
+	}
+	else{
+		for (int i=0; i<items.size(); i++){
+			auto weapon = std::dynamic_pointer_cast<Weapon>(items[i]);
+			if(!weapon) HHitems[i] = nullptr;
+			else{
+				for(auto &r: weapon->getRng()){
+					if(r==steps){
+						HHitems[i] = std::dynamic_pointer_cast<HandHeldItem>(items[i]);
+						break;
+					}
 				}
 			}
 		}
 	}
-	selectedWeapon->loadWeapon(weapons);
+	selectedWeapon->loadWeapon(HHitems);
 	selectedWeapon->setVisible(true);
 }
 
@@ -371,6 +430,31 @@ void UIManager::actWeaponUI(){
 	selectedWeapon->setVisible(false);
 }
 
+void UIManager::loadItemUI(){
+	std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
+	std::vector<std::shared_ptr<Item>> items = selectedCharacter->getItems();
+	int index = selectedCharacter->getHandHeldIndex();
+
+	selectedItem->loadItem(items, index);
+	selectedItem->setVisible(true);
+}
+
+void UIManager::actItemUI(){
+	std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
+	std::shared_ptr<Item> item = selectedCharacter->getItems()[selectedItem->getSelectPointIndex()];
+	std::shared_ptr<HandHeldItem> hhi = std::dynamic_pointer_cast<HandHeldItem>(item);
+	std::shared_ptr<Vulnerary> vi = std::dynamic_pointer_cast<Vulnerary>(item);
+
+	if(hhi){
+		selectedCharacter->setHandHeldItemWithIndex(selectedItem->getSelectPointIndex());
+		LOG_INFO("Now " + selectedCharacter->getName() + " Hand Holding the "+hhi->getName()+". ");
+	}
+	else if(vi){
+		selectedCharacter->useVulnerary(selectedItem->getSelectPointIndex());
+	}
+	else LOG_ERROR("unkown Item Error!");
+	selectedItem->setVisible(false);
+}
 
 void UIManager::changeVisibleTileInfo() {
 	tileInfo->setVisible(!tileInfo->getVisible());
@@ -386,6 +470,7 @@ std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
 	std::vector<std::shared_ptr<Util::GameObject>> c = characterInfo->getChildren();
 	std::vector<std::shared_ptr<Util::GameObject>> a = selectedAct->getChildren();
 	std::vector<std::shared_ptr<Util::GameObject>> w = selectedWeapon->getChildren();
+	std::vector<std::shared_ptr<Util::GameObject>> i = selectedItem->getChildren();
 
 	for (auto &e : reg) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(tileInfo);
@@ -395,5 +480,7 @@ std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
 	children.push_back(selectedAct);
 	for (auto &e : w) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(selectedWeapon);
+	for (auto &e : i) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
+	children.push_back(selectedItem);
 	return children;
 }

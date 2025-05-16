@@ -47,6 +47,8 @@ enum class SelectionStatus{
 	Moving,
 	Walking,
 	SUI,
+	Targeting,
+	HUI,
 	AttackTargeting,
 	AttackWUI,
 	ITEMIUI

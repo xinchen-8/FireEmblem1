@@ -14,6 +14,7 @@ Vulnerary::Vulnerary(std::vector<std::string> i_list) :
 void Vulnerary::use(Character* user, std::shared_ptr<Character> target){
     user->setHP(user->getCurHP()+10);
     uses--;
+    LOG_INFO("Vulerary Used Successfully.");
 }
 
 HandHeldItem::HandHeldItem(std::vector<std::string> w_list): 

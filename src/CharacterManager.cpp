@@ -4,43 +4,119 @@ CharacterManager::CharacterManager(std::shared_ptr<MapManager> mm):mapManager(mm
 
 }
 
-// cost time too long => crash
-// void CharacterManager::refreshAllCharacterMoveRange(){
-// 	std::cout<<"meow1"<<std::endl;
 
-// 	std::unordered_set<glm::ivec2> mask;
-// 	if (auto cm = characterManager.lock()) {
-// 		for(auto ac: cm->getChildren()) 
-// 			mask.insert(ac->getAbsolutePos());
-// 	}
-// 	std::cout<<"meow2"<<std::endl;
+void CharacterManager::loadCharacter(){
+	//character sequence of all of data must be the same
+	//items
+	std::shared_ptr<std::vector<std::vector<std::string>>> weaponData = Tool::inputFile( DATA_ITEM "weapon_data.csv");
+	std::shared_ptr<std::vector<std::vector<std::string>>> itemData = Tool::inputFile( DATA_ITEM "items_data.csv");
+	
+	
+	std::shared_ptr<std::vector<std::vector<std::string>>> data = nullptr;
+	std::shared_ptr<std::vector<std::vector<std::string>>> g_data = nullptr;
+	std::shared_ptr<std::vector<std::vector<std::string>>> w_data = nullptr;
+	
+	if(isEnemy){	
+		data = Tool::inputFile( DATA_CHARACTER "enemy/enemy_data.csv");
+		w_data = Tool::inputFile( DATA_CHARACTER "enemy/enemy_starting_items.csv");
+	}
+	else{
+		data = Tool::inputFile( DATA_CHARACTER "players/player_base_data.csv");
+		g_data = Tool::inputFile( DATA_CHARACTER "players/player_growth_rate.csv");
+		g_data->erase(g_data->begin());
+		w_data = Tool::inputFile( DATA_CHARACTER "players/player_starting_items.csv");
+	}
 
-// 	for(auto c: characters){
-// 		c->refreshMoveRange(mask);
-// 		std::cout<<"meow2meow"<<std::endl;
-// 	}
-// 	std::cout<<"meow3"<<std::endl;
+	data->erase(data->begin());
+	w_data->erase(w_data->begin());
+	for(std::size_t i = 0; i<data->size(); i++){
+		std::vector<std::string> e = (*data)[i];
+		std::vector<std::string> g = (!isEnemy)? (*g_data)[i] : std::vector<std::string>(10, "0");
+		std::vector<std::string> w = (*w_data)[i];
 
-// }
+		characters.push_back(
+			std::make_shared<Character>(
+				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], !isEnemy
+			)
+		);
+		characters.back()->setTileAnimation();
+		//build items
+		for(int j=1; j<4; j++){
+			if(w[j]=="0") break;
+			// std::cout<<w[j]<<std::endl;
+			if (w[j] == "Vulnerary")
+				characters.back()->pushItem(std::make_shared<Vulnerary>((*itemData)[ITEM_ROWINDEX::VULNERARY]));
+			else if (w[j] == "Heal")
+				characters.back()->pushItem(std::make_shared<Heal>((*weaponData)[HANDHELD_ROWINDEX::HEAL]));
+			else if (w[j] == "Rapier")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::RAPIER]));
+			else if (w[j] == "Iron Sword")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_SWORD])); 
+			else if (w[j] == "Steel Sword")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_SWORD]));
+			else if (w[j] == "Iron Lance")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_LANCE]));
+			else if (w[j] == "Silver Lance")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::SILVER_LANCE])); 
+			else if (w[j] == "Javelin")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::JAVELIN])); 
+			else if (w[j] == "Iron Bow")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_BOW])); 
+			else if (w[j] == "Steel Bow")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_BOW])); 
+			else if (w[j] == "Bowgun")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::BOWGUN])); 
+			else if (w[j] == "Iron Axe")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_AXE]));
+			else if (w[j] == "Steel Axe")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_AXE]));
+			else if (w[j] == "Hand Axe")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAND_AXE]));
+			else if (w[j] == "Hammer")
+				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAMMER]));
+		}
+	}
 
-// void CharacterManager::buildCharacterTips(){
-// 	clearTips();
+	LOG_INFO("Character loading success.");
+}
 
-// 	for(auto c: characters){
-// 		glm::ivec2 c_pos = c->getAbsolutePos();
-// 		if(c_pos.x==-1 && c_pos.y==-1) continue;
+void CharacterManager::setInitialLevel(int level){
+	std::shared_ptr<std::vector<std::vector<std::string>>> data = nullptr;
+	if(!isEnemy) data = Tool::inputFile( DATA_CHARACTER "players/player_starting_position.csv");
+	else data = Tool::inputFile( DATA_CHARACTER "enemy/enemy_starting_position.csv");
 
-// 		for(auto [pos, mov]: c->getMoveRange()){
-// 			std::shared_ptr<Tile> tip = getTipTile(pos);
-// 			tip->setStart();
-// 			std::vector<std::string> r = {TILE_SELECTION "tip0.png"};
-// 			tip->setAnimation( std::make_shared<Util::Animation>(
-// 				r, true, TILE_INTERVAL, true, 0)
-// 			);
-// 			tip->SetVisible(true);
-// 		}
-// 	}
-// }
+	currentLevelCharacters.clear();
+	data->erase(data->begin());
+
+	for(auto &e: *data){
+		for(auto &c: characters){
+			
+			if(c->getName() == e[0]){
+				if (e[level*2-1] != "X"){
+					currentLevelCharacters.push_back(c);
+					c->setAbsolutePos({std::stoi(e[level*2-1]) * TILE_SIZE, std::stoi(e[level*2]) * TILE_SIZE});
+
+					// if (auto cm = characterManager.lock()){
+					// 	std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
+						
+						// for(auto pos = CHARACTER_UNMOVE[mapManager->getLevel()-1].begin();
+						// 	pos != CHARACTER_UNMOVE[mapManager->getLevel()-1].end();
+						// 	pos++
+						// ) mask.insert(*pos);
+						// c->refreshMoveRange(mask);
+
+					// }
+					LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x)+ ", " + std::to_string(c->getAbsolutePos().y));
+				}
+				else{
+					c->setAbsolutePos({-1, -1});
+					c->setVisible(false);
+				}
+			}
+		}
+	}
+	currentUnwaitedCharacters = currentLevelCharacters;
+}
 
 void CharacterManager::removeUnwaitingCharacter(std::shared_ptr<Character> c){
 	auto it = std::find(currentUnwaitedCharacters.begin(), currentUnwaitedCharacters.end(), c);
@@ -51,6 +127,7 @@ void CharacterManager::removeUnwaitingCharacter(std::shared_ptr<Character> c){
 }
 
 void CharacterManager::reloadUnwaitingCharacter(){
+	currentUnwaitedCharacters.clear();
 	for(auto &c: currentLevelCharacters){
 		c->setStatus(CharacterStatus::Normal);
 		currentUnwaitedCharacters.push_back(c);
@@ -165,106 +242,6 @@ PlayerManager::PlayerManager(std::shared_ptr<MapManager> mm):
 	}
 }
 
-void PlayerManager::loadCharacter(){
-	//character sequence of all of data must be the same
-	//items
-	std::shared_ptr<std::vector<std::vector<std::string>>> weaponData = Tool::inputFile( DATA_ITEM "weapon_data.csv");
-	std::shared_ptr<std::vector<std::vector<std::string>>> itemData = Tool::inputFile( DATA_ITEM "items_data.csv");
-	
-	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile( DATA_CHARACTER "players/player_base_data.csv");
-	std::shared_ptr<std::vector<std::vector<std::string>>> g_data = Tool::inputFile( DATA_CHARACTER "players/player_growth_rate.csv");
-	std::shared_ptr<std::vector<std::vector<std::string>>> w_data = Tool::inputFile( DATA_CHARACTER "players/player_starting_items.csv");
-	
-	data->erase(data->begin());
-	g_data->erase(g_data->begin());
-	w_data->erase(w_data->begin());
-	for(std::size_t i = 0; i<data->size(); i++){
-		std::vector<std::string> e = (*data)[i];
-		std::vector<std::string> g = (*g_data)[i];
-		std::vector<std::string> w = (*w_data)[i];
-
-		characters.push_back(
-			std::make_shared<Character>(
-				mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], true
-			)
-		);
-		characters.back()->setTileAnimation();
-		//build items
-		for(int j=1; j<4; j++){
-			if(w[j]=="0") break;
-			// std::cout<<w[j]<<std::endl;
-			if (w[j] == "Vulnerary")
-			characters.back()->pushItem(std::make_shared<Vulnerary>((*itemData)[ITEM_ROWINDEX::VULNERARY]));
-			else if (w[j] == "Heal")
-				characters.back()->pushItem(std::make_shared<Heal>((*weaponData)[HANDHELD_ROWINDEX::HEAL]));
-			else if (w[j] == "Rapier")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::RAPIER]));
-			else if (w[j] == "Iron Sword")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_SWORD])); 
-			else if (w[j] == "Steel Sword")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_SWORD]));
-			else if (w[j] == "Iron Lance")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_LANCE]));
-			else if (w[j] == "Silver Lance")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::SILVER_LANCE])); 
-			else if (w[j] == "Javelin")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::JAVELIN])); 
-			else if (w[j] == "Iron Bow")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_BOW])); 
-			else if (w[j] == "Steel Bow")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_BOW])); 
-			else if (w[j] == "Bowgun")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::BOWGUN])); 
-			else if (w[j] == "Iron Axe")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_AXE]));
-			else if (w[j] == "Steel Axe")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_AXE]));
-			else if (w[j] == "Hand Axe")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAND_AXE]));
-			else if (w[j] == "Hammer")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAMMER]));
-		}
-	}
-
-	LOG_INFO("Character loading success.");
-}
-
-void PlayerManager::setInitialLevel(int level){
-	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile( DATA_CHARACTER "players/player_starting_position.csv");
-	
-	currentLevelCharacters.clear();
-	data->erase(data->begin());
-
-	for(auto &e: *data){
-		for(auto &c: characters){
-			
-			if(c->getName() == e[0]){
-				if (e[level*2-1] != "X"){
-					currentLevelCharacters.push_back(c);
-					c->setAbsolutePos({std::stoi(e[level*2-1]) * TILE_SIZE, std::stoi(e[level*2]) * TILE_SIZE});
-
-					// if (auto cm = characterManager.lock()){
-					// 	std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
-						
-						// for(auto pos = CHARACTER_UNMOVE[mapManager->getLevel()-1].begin();
-						// 	pos != CHARACTER_UNMOVE[mapManager->getLevel()-1].end();
-						// 	pos++
-						// ) mask.insert(*pos);
-						// c->refreshMoveRange(mask);
-
-					// }
-					LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x)+ ", " + std::to_string(c->getAbsolutePos().y));
-				}
-				else{
-					c->setAbsolutePos({-1, -1});
-					c->setVisible(false);
-				}
-			}
-		}
-	}
-	currentUnwaitedCharacters = currentLevelCharacters;
-}
-
 bool PlayerManager::update(){
 	for(auto &c: currentLevelCharacters){
 		if(c->getCurHP()<=0){
@@ -320,12 +297,21 @@ void PlayerManager::findCharacterAttackTarget(std::shared_ptr<Character> charact
 	std::unordered_map<glm::ivec2, int> ar = character->getAttackRange();
 
 	buildCharacterTips(character);
-	if (auto cm = characterManager.lock()){
+	if(character->getClassName() == "Curate"){
 		for(auto &[pos, null]: ar){
-			if(!cm->getPosLevelCharacter(pos))
+			if(!getPosLevelCharacter(pos))
 				ar.erase(pos);
-		}		
+		}	
 	}
+	else{
+		if (auto cm = characterManager.lock()){
+			for(auto &[pos, null]: ar){
+				if(!cm->getPosLevelCharacter(pos))
+					ar.erase(pos);
+			}		
+		}
+	}
+	
 	character->setAttackRange(ar);
 }
 
@@ -362,6 +348,7 @@ std::shared_ptr<Character> PlayerManager::getCharacter(std::string id){
 
 EnemyManager::EnemyManager(std::shared_ptr<MapManager> mm):
 	CharacterManager(mm){
+	isEnemy = true;
 
 	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile(DATA_CHARACTER "class_cost.csv");
 	if(!data) LOG_ERROR("Enemy class cost loading failed!");
@@ -393,104 +380,4 @@ EnemyManager::EnemyManager(std::shared_ptr<MapManager> mm):
 		}
 		tips.push_back(r);
 	}
-}
-
-void EnemyManager::loadCharacter(){
-	std::shared_ptr<std::vector<std::vector<std::string>>> weaponData = Tool::inputFile( DATA_ITEM "weapon_data.csv");
-	std::shared_ptr<std::vector<std::vector<std::string>>> itemData = Tool::inputFile( DATA_ITEM "items_data.csv");
-	std::shared_ptr<std::vector<std::vector<std::string>>> w_data = Tool::inputFile( DATA_CHARACTER "enemy/enemy_starting_items.csv");
-
-	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile( DATA_CHARACTER "enemy/enemy_data.csv");
-	
-	data->erase(data->begin());
-	w_data->erase(w_data->begin());
-	for(std::size_t i = 0; i<data->size(); i++){
-		std::vector<std::string> e = (*data)[i];
-		std::vector<std::string> g(9, "0");
-		std::vector<std::string> w = (*w_data)[i];
-		
-		characters.push_back(std::make_shared<Character>(mapManager, e, g, costTable[e[CHARACTER_INDEX::CLASS]], false)); 
-		characters.back()->setTileAnimation();
-		//build items
-		for(int j=2; j<6; j++){
-			if(w[j]=="0") break;
-			
-			if (w[j] == "Vulnerary")
-			characters.back()->pushItem(std::make_shared<Vulnerary>((*itemData)[ITEM_ROWINDEX::VULNERARY]));
-			else if (w[j] == "Heal")
-				characters.back()->pushItem(std::make_shared<Heal>((*weaponData)[HANDHELD_ROWINDEX::HEAL]));
-			else if (w[j] == "Rapier")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::RAPIER]));
-			else if (w[j] == "Iron Sword")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_SWORD])); 
-			else if (w[j] == "Steel Sword")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_SWORD]));
-			else if (w[j] == "Iron Lance")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_LANCE]));
-			else if (w[j] == "Silver Lance")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::SILVER_LANCE])); 
-			else if (w[j] == "Javelin")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::JAVELIN])); 
-			else if (w[j] == "Iron Bow")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_BOW])); 
-			else if (w[j] == "Steel Bow")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_BOW])); 
-			else if (w[j] == "Bowgun")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::BOWGUN])); 
-			else if (w[j] == "Iron Axe")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_AXE]));
-			else if (w[j] == "Steel Axe")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_AXE]));
-			else if (w[j] == "Hand Axe")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAND_AXE]));
-			else if (w[j] == "Hammer")
-				characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAMMER]));
-		}
-	}
-	
-	LOG_INFO("Enemy loading success.");
-}
-
-void EnemyManager::setInitialLevel(int level){
-	std::shared_ptr<std::vector<std::vector<std::string>>> data = Tool::inputFile( DATA_CHARACTER "enemy/enemy_starting_position.csv");
-
-	currentLevelCharacters.clear();
-	data->erase(data->begin());
-	
-	for(auto &e: *data){
-		for(auto &c: characters){
-			if(c->getName() == e[CHARACTER_INDEX::NAME] && c->getClassName() == e[CHARACTER_INDEX::CLASS]){
-				std::shared_ptr<Character> currentCharacter = nullptr;
-
-				//clone
-				if(c->getAbsolutePos()!=glm::ivec2(0,0)){
-					characters.push_back(c->clone());
-
-					if (e[level*2] != "X"){
-						currentLevelCharacters.push_back(characters.back());
-						characters.back()->setAbsolutePos({std::stoi(e[level*2]) * TILE_SIZE, std::stoi(e[level*2+1]) * TILE_SIZE});
-						LOG_INFO("Set Copy of " + characters.back()->getName() + " Position: " + std::to_string(characters.back()->getAbsolutePos().x)+ ", " + std::to_string(characters.back()->getAbsolutePos().y));
-					}
-					else{
-						characters.back()->setAbsolutePos({-1, -1});
-						characters.back()->setVisible(false);
-					}
-				}
-				
-				//not copy case => set directly
-				else if (e[level*2] != "X"){
-					currentLevelCharacters.push_back(c);
-					c->setAbsolutePos({std::stoi(e[level*2]) * TILE_SIZE, std::stoi(e[level*2+1]) * TILE_SIZE});
-					LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x)+ ", " + std::to_string(c->getAbsolutePos().y));
-				}
-				//not for map1
-				else{
-					c->setAbsolutePos({-1, -1});
-					c->setVisible(false);
-				}
-				break;
-			}
-		}
-	}
-	currentUnwaitedCharacters = currentLevelCharacters;
 }

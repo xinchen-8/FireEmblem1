@@ -35,7 +35,7 @@ class SelectedUI : public UserInterface{ //base on ActUI
 public:
 	SelectedUI(std::vector<std::shared_ptr<Tile>>& tiles);
 	void setVisible(bool visible) override;
-	virtual void load(std::vector<bool> flags);
+	virtual void load(std::vector<bool> flags, bool targetIsPlayer);
 	virtual void update(int listMov);
 
 	std::string getActive(){ return options[selectPoint]; }
@@ -76,7 +76,14 @@ public:
 class WeaponUI : public SelectedUI {
 public:
 	WeaponUI(std::vector<std::shared_ptr<Tile>>& tiles);
-	void loadWeapon(std::vector<std::shared_ptr<Weapon>> weapons);
+	void loadWeapon(std::vector<std::shared_ptr<HandHeldItem>> HHitems);
+};
+
+class ItemUI : public SelectedUI {
+public:
+	ItemUI(std::vector<std::shared_ptr<Tile>>& tiles);
+	void loadItem(std::vector<std::shared_ptr<Item>> items, int handheldIndex);
+	void update(int listMov) override;
 };
 
 class UIManager {
@@ -94,9 +101,13 @@ public:
 	void updateActUI(int listMov) { selectedAct->update(listMov); }
 	void activeActUI();
 
-	void loadWeaponUI(glm::ivec2 targetPos);
+	void loadWeaponUI(glm::ivec2 targetPos, bool isHealSpecialCase);
 	void updateWeaponUI(int listMov) { selectedWeapon->update(listMov);}
 	void actWeaponUI();
+
+	void loadItemUI();
+	void updateItemUI(int listMov) { selectedItem->update(listMov);}
+	void actItemUI();
 
 	void changeVisibleTileInfo();
 	void changeVisibleCharacterInfo();
@@ -114,6 +125,7 @@ private:
 	std::shared_ptr<CharacterInfoUI> characterInfo = nullptr;
 	std::shared_ptr<ActUI> selectedAct = nullptr;
 	std::shared_ptr<WeaponUI> selectedWeapon = nullptr;
+	std::shared_ptr<ItemUI> selectedItem = nullptr;
 };
 
 #endif

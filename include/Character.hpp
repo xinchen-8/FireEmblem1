@@ -46,7 +46,8 @@ public:
 	void setHeadshotAnimation(std::shared_ptr<Util::Animation> a_headshotAnimation){ headshotAnimation = a_headshotAnimation; }
 	void setTileAnimation();
 
-	void pushItem(std::shared_ptr<Item> item);
+	void useVulnerary(int index);
+	bool pushItem(std::shared_ptr<Item> item);
 	void freshItem(int delete_index = -1);
 	void deleteAllItems(){ items = {}; }
 
@@ -78,6 +79,7 @@ public:
 	int getLckGR() const { return LckGR; }
 	int getDefGR() const { return DefGR; }
 	int getResGR() const { return ResGR; }
+	int getHandHeldIndex() const {return handheld_index;}
 	CharacterStatus getStatus() const { return status; }
 	std::vector<std::shared_ptr<Item>> getItems() { return items; }
 
@@ -95,7 +97,7 @@ protected:
 	int gapOfAnimation = 3;
 	//mask: enemy pos and locked tiles of map
 	int handheld_index = 0;
-	std::vector<std::shared_ptr<Item>> items = {};
+	std::vector<std::shared_ptr<Item>> items;
 
 private:
 	std::string name = "";

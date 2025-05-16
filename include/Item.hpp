@@ -28,7 +28,7 @@ protected:
 class Vulnerary : public Item {
 public:
 	Vulnerary(std::vector<std::string> i_list);
-	void use(Character* user, std::shared_ptr<Character> target) override;
+	void use(Character* user, std::shared_ptr<Character> target = nullptr) override;
 	std::shared_ptr<Item> clone() const override { return std::make_shared<Vulnerary>(*this); }
 };
 

@@ -24,7 +24,9 @@ private:
     void movingToSUI(std::shared_ptr<Character> &selectedCharacter);
     
     void SUItoOption();
-    void ATKTargetingToATKWUI(glm::ivec2 target);
+    void TargetingToHUI(glm::ivec2 targetPos);
+    void HealToNormal(std::shared_ptr<Character> &selectedCharacter, std::shared_ptr<Character> &selectPlayer);
+    void ATKTargetingToATKWUI(glm::ivec2 targetPos);
     void ATKToNormal(std::shared_ptr<Character> &selectedCharacter, std::shared_ptr<Character> &selectEnemy);
     void IUIToNormal(std::shared_ptr<Character> &selectedCharacter);
 

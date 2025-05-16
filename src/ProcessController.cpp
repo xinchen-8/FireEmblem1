@@ -31,6 +31,12 @@ void ProcessController::ReturnCase(){
     //act
     else if(status == SelectionStatus::SUI)
         uiManager->activeActUI();
+    //targetong(to player) => HUI(WUI only heal), only have a special case with Curate
+    else if(status == SelectionStatus::Targeting)
+        TargetingToHUI(selectLevelCharacter->getAbsolutePos());
+    //HUI(WUI only heal) => wait, only have a special case with Curate
+    else if(status == SelectionStatus::HUI)
+        HealToNormal(selectedCharacter, selectLevelCharacter);
     //attack targeting => WUI
     else if(status == SelectionStatus::AttackTargeting && selectEnemy)
         ATKTargetingToATKWUI(selectEnemy->getAbsolutePos());
@@ -56,6 +62,7 @@ void ProcessController::MovCase(glm::ivec2 mov){
 void ProcessController::MovCase(int listMov){
     uiManager->updateActUI(listMov);
     uiManager->updateWeaponUI(listMov);
+    uiManager->updateItemUI(listMov);
     //other ui...
 }
 
@@ -76,9 +83,29 @@ void ProcessController::SUItoOption(){
     uiManager->activeActUI();
 }
 
+void ProcessController::TargetingToHUI(glm::ivec2 targetPos){
+    selection->setStatus(SelectionStatus::HUI);
+    uiManager->loadWeaponUI(targetPos, true);
+}
+
+void ProcessController::HealToNormal(
+    std::shared_ptr<Character> &selectedCharacter, 
+    std::shared_ptr<Character> &selectPlayer){
+
+    uiManager->actWeaponUI();
+    selectedCharacter->attack(selectPlayer);
+    selectedCharacter->setStatus(CharacterStatus::Waiting);
+    playerManager->removeUnwaitingCharacter(selectedCharacter);
+    playerManager->clearTips();
+    selection->setStatus(SelectionStatus::Normal);
+
+    uiManager->load();
+    uiManager->update();
+}
+
 void ProcessController::ATKTargetingToATKWUI(glm::ivec2 targetPos){
     selection->setStatus(SelectionStatus::AttackWUI);
-    uiManager->loadWeaponUI(targetPos);
+    uiManager->loadWeaponUI(targetPos, false);
 }
 
 void ProcessController::ATKToNormal(
@@ -97,6 +124,13 @@ void ProcessController::ATKToNormal(
 }
 
 void ProcessController::IUIToNormal(std::shared_ptr<Character> &selectedCharacter){
+    uiManager->actItemUI();
+
     selectedCharacter->setStatus(CharacterStatus::Waiting);
     playerManager->removeUnwaitingCharacter(selectedCharacter);
+    playerManager->clearTips();
+    selection->setStatus(SelectionStatus::Normal);
+
+    uiManager->load();
+    uiManager->update();
 }

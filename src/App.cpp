@@ -81,7 +81,7 @@ void App::Update() {
     }
 
     //go back
-    if (Util::Input::IsKeyDown(Util::Keycode::BACKSPACE)) {
+    else if (Util::Input::IsKeyDown(Util::Keycode::BACKSPACE)) {
         LOG_INFO("Backspace pressed");
         
         // SelectionStatus status = selection->getStatus();
@@ -129,14 +129,17 @@ void App::Update() {
         uiManager->changeVisibleTileInfo();
     }
     //character info UI
-    if (Util::Input::IsKeyDown(Util::Keycode::F2)) {
+    else if (Util::Input::IsKeyDown(Util::Keycode::F2)) {
         LOG_INFO("F2 pressed");
         uiManager->changeVisibleCharacterInfo();
     }
     //player tip 
-    if (Util::Input::IsKeyDown(Util::Keycode::F3)) {
+    else if (Util::Input::IsKeyDown(Util::Keycode::F3)) {
         LOG_INFO("F3 pressed");
         playerManager->changeTipsVisible(selection->getSelectCharacter());
+    }
+    else if(Util::Input::IsKeyDown(Util::Keycode::NUM_0)){
+        playerManager->reloadUnwaitingCharacter();
     }
     //all tip 
     // if (Util::Input::IsKeyDown(Util::Keycode::F3)) {

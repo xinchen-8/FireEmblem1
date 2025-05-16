@@ -6,7 +6,7 @@ Character::Character(
 	std::vector<std::string> g_list,
 	std::shared_ptr<std::unordered_map<std::string, int>> wc,
 	bool isPlayer
-	): mapManager(mm), walkCost(wc), isPlayer(isPlayer) {
+	): mapManager(mm), walkCost(wc), isPlayer(isPlayer), items(4, nullptr) {
 
 	name = n_list[CHARACTER_INDEX::NAME];
 	className = n_list[CHARACTER_INDEX::CLASS];
@@ -260,8 +260,23 @@ void Character::setTileAnimation(){
 	setAnimation();
 }
 
-void Character::pushItem(std::shared_ptr<Item> item){
-	items.push_back(item);
+void Character::useVulnerary(int index){
+	std::shared_ptr<Item> item = items[index];
+	std::shared_ptr<Vulnerary> v = std::dynamic_pointer_cast<Vulnerary>(item);
+	if(v) v->use(this, nullptr);
+}
+
+bool Character::pushItem(std::shared_ptr<Item> item){
+	for (auto& slot : items) {
+		if (!slot) { 
+			slot = item;
+			LOG_INFO("Add "+item->getName()+" Success.");
+			return true;
+		}
+		std::cout<<slot->getName()<<std::endl;
+	}
+	LOG_WARN("Add "+item->getName()+" Unsuccess.");
+	return false;
 }
 
 void Character::freshItem(int delete_index){
@@ -359,8 +374,8 @@ void Character::findAttackScope(){
 	moveRange[absolutePos] = 0;
 
 	std::set<int> scope;
-	
     for (std::shared_ptr<Item>& i : items) {
+		if(!i) continue;
 		std::shared_ptr<HandHeldItem> hhi = std::dynamic_pointer_cast<HandHeldItem>(i);
         for (int& j : hhi->getRng()) scope.insert(j);
     }

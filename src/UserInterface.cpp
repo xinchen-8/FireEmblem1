@@ -1,4 +1,5 @@
 #include "UserInterface.hpp"
+#include "Integration.hpp"
 
 UserInterface::UserInterface(const std::vector<std::shared_ptr<Tile>> &tiles){
 	m_Visible = false;
@@ -88,6 +89,36 @@ std::vector<std::shared_ptr<Util::GameObject>> UserInterface::getChildren() {
 	return children;
 }
 
+ImageUI::ImageUI(){}
+ImageUI::ImageUI(const std::string& filepath) {
+	image = std::make_shared<Util::Image>(filepath);
+}
+
+void ImageUI::setImage(const std::string& filepath) {
+	if (!image) image = std::make_shared<Util::Image>(filepath);
+	else image->SetImage(filepath);
+}
+
+void ImageUI::setRelativePos(glm::ivec2 pos) {
+	m_Transform.translation = pos;
+}
+
+void ImageUI::setVisible(bool visible) {
+	m_Visible = visible;
+}
+
+void ImageUI::setZIndex(int z) {
+	m_ZIndex = z;
+}
+
+void ImageUI::Draw(const Core::Matrices& data) {
+	if (m_Visible && image) image->Draw(data);
+}
+
+std::vector<std::shared_ptr<Util::GameObject>> ImageUI::getChildren() {
+	return {};
+}
+
 TileInfoUI::TileInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
 	UserInterface(tiles){
 	setUISize({ 4, 2 });
@@ -131,11 +162,17 @@ void CharacterInfoUI::update() {
 
 CharacterInfoUIFull::CharacterInfoUIFull(std::vector<std::shared_ptr<Tile>>& tiles) :
 	UserInterface(tiles) {
-	setUISize({ 5, 7 });
+	setUISize({ 5, 8 });
 
 	setRelativePos({
-		+ floor(PTSD_Config::WINDOW_WIDTH / 2) - 5 * TILE_SIZE,
-		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 4 * TILE_SIZE
+		- floor(PTSD_Config::WINDOW_WIDTH / 2) + 1 * TILE_SIZE,
+		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 3 * TILE_SIZE
+	});
+	profile = std::make_shared<ImageUI>();
+	profile->setZIndex(m_ZIndex + 1);
+	profile->setRelativePos({
+		- floor(PTSD_Config::WINDOW_WIDTH / 2) + 1 * TILE_SIZE,
+		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 3 * TILE_SIZE
 	});
 }
 
@@ -154,6 +191,20 @@ void CharacterInfoUIFull::update() {
 		"Wlv " + std::to_string(character->getWlv()) + "  Res " + std::to_string(character->getRes()) + "\n" +
 		"Spd " + std::to_string(character->getSpd()) + "  Mov " + std::to_string(character->getMov());
 	setString(content);
+	std::string profilePath = TILE_PROFILE + character->getName() + "_0.png";
+	profile->setImage(profilePath);
+}
+
+void CharacterInfoUIFull::setVisible(bool visible) {
+    m_Visible = visible;
+	UserInterface::setVisible(visible);
+    if (profile) profile->setVisible(visible);
+}
+
+std::vector<std::shared_ptr<Util::GameObject>> CharacterInfoUIFull::getChildren() {
+    auto children = UserInterface::getChildren();
+    if (profile) children.push_back(profile);
+    return children;
 }
 
 SelectedUI::SelectedUI(std::vector<std::shared_ptr<Tile>>& tiles) : UserInterface(tiles){

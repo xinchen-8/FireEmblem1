@@ -14,6 +14,7 @@
 #define TILE_PLAYER 	ASSETS "tiles/player/"
 #define TILE_SELECTION  ASSETS "tiles/selection/"
 #define TILE_UI 		ASSETS "tiles/user_interface/"
+#define TILE_PROFILE 	ASSETS "tiles/profile/"
 
 #define DATA_CHARACTER 	ASSETS "data/characters/"
 #define DATA_ITEM 	    ASSETS "data/items/"

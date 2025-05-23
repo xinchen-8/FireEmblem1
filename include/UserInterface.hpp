@@ -31,6 +31,21 @@ protected:
 	std::vector<std::shared_ptr<Tile>> tileTable = {};
 };
 
+class ImageUI : public Util::GameObject {
+public:
+	ImageUI();
+    ImageUI(const std::string& filepath);
+    void setImage(const std::string& filepath);
+    void setRelativePos(glm::ivec2 pos);
+    void setVisible(bool visible);
+    void setZIndex(int z);
+    void Draw(const Core::Matrices& data);
+	virtual std::vector<std::shared_ptr<GameObject>> getChildren();
+private:
+    std::shared_ptr<Util::Image> image;
+    int m_ZIndex = 0;
+    bool m_Visible = true;
+};
 
 class TileInfoUI : public UserInterface {
 public:
@@ -55,7 +70,10 @@ public:
 	CharacterInfoUIFull(std::vector<std::shared_ptr<Tile>>& tiles);
 	void load(std::shared_ptr<Character> character);
 	void update() override;
+	void setVisible(bool visible);
+	std::vector<std::shared_ptr<GameObject>> getChildren() override;
 private:
+    std::shared_ptr<ImageUI> profile;
 	std::shared_ptr<Character> character = nullptr;
 };
 

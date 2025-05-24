@@ -97,6 +97,7 @@ ImageUI::ImageUI(const std::string& filepath) {
 void ImageUI::setImage(const std::string& filepath) {
 	if (!image) image = std::make_shared<Util::Image>(filepath);
 	else image->SetImage(filepath);
+	m_Drawable = image;
 }
 
 void ImageUI::setRelativePos(glm::ivec2 pos) {

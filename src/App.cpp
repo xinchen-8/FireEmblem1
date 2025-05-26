@@ -6,7 +6,7 @@
 #include "Util/Logger.hpp"
 #include <iostream>
 
-App::App(){
+App::App() {
     playerManager->setCharaterManager(enemyManager);
     enemyManager->setCharaterManager(playerManager);
     selection->setAbsolutePos(playerManager->getCharacter("Marth")->getAbsolutePos());
@@ -26,67 +26,72 @@ void App::Start() {
 }
 
 void App::Update() {
-    //end
-    if (Util::Input::IsKeyUp(Util::Keycode::ESCAPE) ||
-        Util::Input::IfExit()) {
+    // end
+    if (Util::Input::IsKeyUp(Util::Keycode::ESCAPE) || Util::Input::IfExit()) {
         m_CurrentState = State::END;
     }
 
     // selection move
     if (((Util::Input::IsKeyPressed(Util::Keycode::UP) && delayKeyCounter <= delayKeyCheck) ||
-        (Util::Input::IsKeyDown(Util::Keycode::UP))) && selection->moveJudge(Forword::Up, mapManager->getMapSize())){
-            
-        pc->MovCase({ 0, TILE_SIZE });
+         (Util::Input::IsKeyDown(Util::Keycode::UP))) &&
+        selection->moveJudge(Forword::Up, mapManager->getMapSize()) && accessInput) {
+
+        pc->MovCase({0, TILE_SIZE});
         delayKeyCounter = delayKeyLimit;
     }
-    
-    else if (((Util::Input::IsKeyPressed(Util::Keycode::DOWN) && delayKeyCounter <= delayKeyCheck) ||
-        (Util::Input::IsKeyDown(Util::Keycode::DOWN))) && selection->moveJudge(Forword::Down, mapManager->getMapSize())){
 
-        pc->MovCase({ 0, -TILE_SIZE });
+    else if (((Util::Input::IsKeyPressed(Util::Keycode::DOWN) && delayKeyCounter <= delayKeyCheck) ||
+              (Util::Input::IsKeyDown(Util::Keycode::DOWN))) &&
+             selection->moveJudge(Forword::Down, mapManager->getMapSize()) && accessInput) {
+
+        pc->MovCase({0, -TILE_SIZE});
         delayKeyCounter = delayKeyLimit;
     }
 
     else if (((Util::Input::IsKeyPressed(Util::Keycode::LEFT) && delayKeyCounter <= delayKeyCheck) ||
-        (Util::Input::IsKeyDown(Util::Keycode::LEFT))) && selection->moveJudge(Forword::Left, mapManager->getMapSize())){
+              (Util::Input::IsKeyDown(Util::Keycode::LEFT))) &&
+             selection->moveJudge(Forword::Left, mapManager->getMapSize()) && accessInput) {
 
-        pc->MovCase({ -TILE_SIZE, 0 });
+        pc->MovCase({-TILE_SIZE, 0});
         delayKeyCounter = delayKeyLimit;
     }
 
     else if (((Util::Input::IsKeyPressed(Util::Keycode::RIGHT) && delayKeyCounter <= delayKeyCheck) ||
-        (Util::Input::IsKeyDown(Util::Keycode::RIGHT))) && selection->moveJudge(Forword::Right, mapManager->getMapSize())){
-        
-        pc->MovCase({ TILE_SIZE, 0 });
+              (Util::Input::IsKeyDown(Util::Keycode::RIGHT))) &&
+             selection->moveJudge(Forword::Right, mapManager->getMapSize()) && accessInput) {
+
+        pc->MovCase({TILE_SIZE, 0});
         delayKeyCounter = delayKeyLimit;
     }
-    //selectedAct UI move
-    if (((Util::Input::IsKeyPressed(Util::Keycode::UP) && delayKeyCounter <= delayKeyCheck) || 
-        (Util::Input::IsKeyDown(Util::Keycode::UP)))){
+    // selectedAct UI move
+    if (((Util::Input::IsKeyPressed(Util::Keycode::UP) && delayKeyCounter <= delayKeyCheck) ||
+         (Util::Input::IsKeyDown(Util::Keycode::UP))) &&
+        accessInput) {
 
         pc->MovCase(-1);
         delayKeyCounter = delayKeyLimit;
     }
 
-    else if (((Util::Input::IsKeyPressed(Util::Keycode::DOWN) && delayKeyCounter <= delayKeyCheck) || 
-    (Util::Input::IsKeyDown(Util::Keycode::DOWN)))){
+    else if (((Util::Input::IsKeyPressed(Util::Keycode::DOWN) && delayKeyCounter <= delayKeyCheck) ||
+              (Util::Input::IsKeyDown(Util::Keycode::DOWN))) &&
+             accessInput) {
 
         pc->MovCase(1);
         delayKeyCounter = delayKeyLimit;
     }
-    //select character method
-    if (Util::Input::IsKeyDown(Util::Keycode::RETURN)) {
+    // select character method
+    if (Util::Input::IsKeyDown(Util::Keycode::RETURN) && accessInput) {
         LOG_INFO("Enter pressed");
         pc->ReturnCase();
     }
 
-    //go back
-    else if (Util::Input::IsKeyDown(Util::Keycode::BACKSPACE)) {
+    // go back
+    else if (Util::Input::IsKeyDown(Util::Keycode::BACKSPACE) && accessInput) {
         LOG_INFO("Backspace pressed");
-        
+
         // SelectionStatus status = selection->getStatus();
         // std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
-        
+
         // //select attacked target => back to UI
         // if(status == SelectionStatus::Targeting){
         //     selection->setStatus(SelectionStatus::SUI);
@@ -97,12 +102,12 @@ void App::Update() {
         // //select walk (UI) => back to select character
         // if(status == SelectionStatus::SUI){
         //     if(!selectedCharacter) LOG_DEBUG("No character selectedAct");
-            
+
         //     selectedCharacter->setAbsolutePos(selection->getOriginalSelectionPos());
         //     selectedCharacter->setForword(Forword::Down);
         //     selectedCharacter->setStatus(CharacterStatus::Moving);
         //     selectedCharacter->clearWalkPath();
-            
+
         //     selection->setMoveLimit(playerManager->selectCharacter(selectedCharacter));
         //     selection->setStatus(SelectionStatus::Moving);
         //     selection->setAbsolutePos(selection->getOriginalSelectionPos());
@@ -122,47 +127,44 @@ void App::Update() {
         // }
     }
 
-    //info UI
-    if (Util::Input::IsKeyDown(Util::Keycode::F1)) {
+    // info UI
+    if (Util::Input::IsKeyDown(Util::Keycode::F1) && accessInput) {
         LOG_INFO("F1 pressed");
 
         uiManager->changeVisibleTileInfo();
     }
-    //character info UI
-    else if (Util::Input::IsKeyDown(Util::Keycode::F2)) {
+    // character info UI
+    else if (Util::Input::IsKeyDown(Util::Keycode::F2) && accessInput) {
         LOG_INFO("F2 pressed");
         uiManager->changeVisibleCharacterInfo();
     }
-    //player tip 
-    else if (Util::Input::IsKeyDown(Util::Keycode::F3)) {
+    // player tip
+    else if (Util::Input::IsKeyDown(Util::Keycode::F3) && accessInput) {
         LOG_INFO("F3 pressed");
         playerManager->changeTipsVisible(selection->getSelectCharacter());
-    }
-    else if(Util::Input::IsKeyDown(Util::Keycode::NUM_0)){
+    } else if (Util::Input::IsKeyDown(Util::Keycode::NUM_0)) {
         playerManager->reloadUnwaitingCharacter();
     }
-    //all tip 
-    // if (Util::Input::IsKeyDown(Util::Keycode::F3)) {
-    //     LOG_INFO("F3 pressed");
 
-    //     playerManager->buildCharacterTips();
-    // }
-
-    //update
+    // update
     camera->update();
-    if(playerManager->update() && selection->getStatus()==SelectionStatus::Walking){
+
+    if (playerManager->update() && selection->getStatus() == SelectionStatus::Walking) {
         uiManager->loadActUI();
         selection->setStatus(SelectionStatus::SUI);
     }
     enemyManager->update();
-    if (!--delayKeyCounter) delayKeyCounter = delayKeyLimit;
+    accessInput = uiManager->updateBattleUI();
 
-    //next turn
-    if(playerManager->isNoMovableCharacter()) playerManager->reloadUnwaitingCharacter();
+    if (!--delayKeyCounter)
+        delayKeyCounter = delayKeyLimit;
+
+    // next turn
+    if (playerManager->isNoMovableCharacter())
+        playerManager->reloadUnwaitingCharacter();
     // std::cout << std::to_string(static_cast<int>(selection->getStatus())) << std::endl;
 }
 
 void App::End() { // NOLINT(this method will mutate members in the future)
     LOG_TRACE("End");
 }
-

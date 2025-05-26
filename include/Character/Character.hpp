@@ -53,10 +53,11 @@ public:
 
 	void setHP(int hp);
 	bool attacked(int power, int crt, int acc, bool isMagical=false); //return isAvoid;
-	void attack(std::shared_ptr<Character> target);
+	bool attack(std::shared_ptr<Character> target);
 
 	std::shared_ptr<HandHeldItem> getCurrentHandHeldItem();
 
+	bool isEnemy() const { return !isPlayer; }
 	std::string getName() const { return name; }
 	std::string getClassName() const { return className; }
 	int getLevel() const { return Lv; }

@@ -6,8 +6,8 @@
 #include "config.hpp"
 #include "Selection.hpp"
 #include "Tile.hpp"
-#include "UserInterface.hpp"
-#include "CharacterManager.hpp"
+#include "UserInterface/UIManager.hpp"
+#include "Character/CharacterManager.hpp"
 
 class Camera {
 

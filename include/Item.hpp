@@ -2,14 +2,14 @@
 #define ITEM_HPP
 
 #include "Integration.hpp"
-#include "Character.hpp"
+#include "Character/Character.hpp"
 
 class Character;
 
 class Item {
 public:
 	Item(std::string name, int uses, int worth, std::string note);
-	virtual void use(Character* user, std::shared_ptr<Character> target) { uses--; }
+	virtual bool use(Character* user, std::shared_ptr<Character> target) { return false; }
 
 	std::string getName() { return name; }
 	int getUses() { return uses; }
@@ -28,7 +28,7 @@ protected:
 class Vulnerary : public Item {
 public:
 	Vulnerary(std::vector<std::string> i_list);
-	void use(Character* user, std::shared_ptr<Character> target = nullptr) override;
+	bool use(Character* user, std::shared_ptr<Character> target = nullptr) override;
 	std::shared_ptr<Item> clone() const override { return std::make_shared<Vulnerary>(*this); }
 };
 
@@ -36,6 +36,7 @@ class HandHeldItem : public Item {
 public:
 	HandHeldItem(std::vector<std::string> w_list);
 	
+	std::string getClassName() { return className; }
 	int getMt() { return mt; }
 	int getWt() { return wt; }
 	int getHit() { return hit; }
@@ -45,6 +46,7 @@ public:
 
 protected:
 	std::vector<std::string> against = {};
+	std::string className = "";
 	int mt = 0;
 	int wt = 0;
 	int hit = 0;
@@ -56,7 +58,7 @@ protected:
 class Weapon : public HandHeldItem{
 public:
 	Weapon(std::vector<std::string> w_list);
-	void use(Character* user, std::shared_ptr<Character> target) override;
+	bool use(Character* user, std::shared_ptr<Character> target) override;
 	bool isAgainst(std::string className);
 	std::shared_ptr<Item> clone() const override { return std::make_shared<Weapon>(*this); }
 };
@@ -64,7 +66,7 @@ public:
 class Heal : public HandHeldItem {
 public:
 	Heal(std::vector<std::string> w_list);
-	void use(Character* user, std::shared_ptr<Character> target) override;
+	bool use(Character* user, std::shared_ptr<Character> target) override;
 	std::shared_ptr<Item> clone() const override { return std::make_shared<Heal>(*this); }
 };
 

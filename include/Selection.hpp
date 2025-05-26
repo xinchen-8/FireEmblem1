@@ -5,7 +5,7 @@
 #include "Util/Animation.hpp"
 #include "Integration.hpp"
 #include "Tile.hpp"
-#include "CharacterManager.hpp"
+#include "Character/CharacterManager.hpp"
 
 class Character;
 

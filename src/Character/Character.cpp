@@ -1,4 +1,4 @@
-#include "Character.hpp"
+#include "Character/Character.hpp"
 
 Character::Character(
 	std::shared_ptr<MapManager> mm,
@@ -297,24 +297,7 @@ void Character::setHP(int hp) {
 	else if(hp > 0) Hp_Current = hp;
 }
 
-void Character::attack(std::shared_ptr<Character> target){
-	std::shared_ptr<Item> item = getCurrentHandHeldItem();
-
-	if(!item){
-		LOG_ERROR(name + " have no handheld weapon.");
-		return;
-	}
-	std::shared_ptr<HandHeldItem> handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(item);	
-	handHeldItem->use(this, target);
-}
-
-std::shared_ptr<HandHeldItem> Character::getCurrentHandHeldItem(){
-	if(!items[handheld_index]) freshItem();
-	else return  std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
-	return nullptr;
-}
-
-bool Character::attacked(int power, int crt, int acc, bool isMagical){ // return isAvoid
+bool Character::attacked(int power, int crt, int acc, bool isMagical){ // return isnotAvoid
 
 	if(isMagical){
 		// not yet (character1, 2 have no magical attack)
@@ -327,16 +310,28 @@ bool Character::attacked(int power, int crt, int acc, bool isMagical){ // return
 			power *= ((rand() % 100) < crt)? 3 : 1;
 			Hp_Current -= power;
 			LOG_INFO(name + "was attacked: HP-" + std::to_string(power));
+			Hp_Current = (Hp_Current<0)? 0: Hp_Current;
+			return true;
 		}
-		else return true;
+		else return false;
+	}
+}
 
-		if(Hp_Current<=0){ // died not yet
-			LOG_INFO(name + ": HP = "+ std::to_string(Hp_Current));
-			absolutePos = {-TILE_SIZE, -TILE_SIZE};
-			setVisible(false);
-		}
+bool Character::attack(std::shared_ptr<Character> target){
+	std::shared_ptr<Item> item = getCurrentHandHeldItem();
+
+	if(!item){
+		LOG_ERROR(name + " have no handheld weapon.");
 		return false;
 	}
+	std::shared_ptr<HandHeldItem> handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(item);	
+	return handHeldItem->use(this, target);
+}
+
+std::shared_ptr<HandHeldItem> Character::getCurrentHandHeldItem(){
+	if(!items[handheld_index]) freshItem();
+	else return  std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
+	return nullptr;
 }
 
 void Character::findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask){

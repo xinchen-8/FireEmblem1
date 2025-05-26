@@ -11,10 +11,11 @@ Vulnerary::Vulnerary(std::vector<std::string> i_list) :
 
 }
 
-void Vulnerary::use(Character* user, std::shared_ptr<Character> target){
+bool Vulnerary::use(Character* user, std::shared_ptr<Character> target){
     user->setHP(user->getCurHP()+10);
     uses--;
     LOG_INFO("Vulerary Used Successfully.");
+    return true;
 }
 
 HandHeldItem::HandHeldItem(std::vector<std::string> w_list): 
@@ -22,6 +23,7 @@ HandHeldItem::HandHeldItem(std::vector<std::string> w_list):
         std::stoi(w_list[HANDHELD_INDEX::WORTH]), w_list[HANDHELD_INDEX::NOTE]){
         
     // std::cout<<name<<std::endl;
+    className = w_list[HANDHELD_INDEX::CLASS];
     mt = std::stoi(w_list[HANDHELD_INDEX::MT]);
     wt = std::stoi(w_list[HANDHELD_INDEX::WT]);
     hit = std::stoi(w_list[HANDHELD_INDEX::HIT]);    
@@ -48,11 +50,15 @@ Weapon::Weapon(std::vector<std::string> w_list): HandHeldItem(w_list){
         against = { "Knight", "General" };
 }
 
-void Weapon::use(Character* user, std::shared_ptr<Character> target){
+bool Weapon::use(Character* user, std::shared_ptr<Character> target){
     int power = user->getStr() + mt * (isAgainst(target->getClassName())? 3 : 1);
 	int critical = (user->getSkl() + user->getLck()) / 2 + crt;
 	int accuracy = hit + user->getSkl();
-    if(target->attacked(power, critical, accuracy)) uses--;
+    if(target->attacked(power, critical, accuracy)){
+        uses--;
+        return true;
+    }
+    return false;
 }
 
 bool Weapon::isAgainst(std::string className){
@@ -66,8 +72,9 @@ Heal::Heal(std::vector<std::string> w_list) : HandHeldItem(w_list) {
 
 }
 
-void Heal::use(Character* user, std::shared_ptr<Character> target) {
+bool Heal::use(Character* user, std::shared_ptr<Character> target) {
     int reg = target->getCurHP();
     target->setHP(reg+10);
     LOG_INFO(target->getName()+" HP+10: " + std::to_string(reg) + " -> " + std::to_string(target->getCurHP()));
+    return true;
 }

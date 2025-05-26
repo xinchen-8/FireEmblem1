@@ -31,21 +31,21 @@ protected:
 	std::vector<std::shared_ptr<Tile>> tileTable = {};
 };
 
-class ImageUI : public Util::GameObject {
-public:
-	ImageUI();
-    ImageUI(const std::string& filepath);
-    void setImage(const std::string& filepath);
-    void setRelativePos(glm::ivec2 pos);
-    void setVisible(bool visible);
-    void setZIndex(int z);
-    void Draw(const Core::Matrices& data);
-	virtual std::vector<std::shared_ptr<GameObject>> getChildren();
-private:
-    std::shared_ptr<Util::Image> image;
-    int m_ZIndex = 0;
-    bool m_Visible = true;
-};
+// class ImageUI : public Util::GameObject {
+// public:
+// 	ImageUI();
+//     ImageUI(const std::string& filepath);
+//     void setImage(const std::string& filepath);
+//     void setRelativePos(glm::ivec2 pos);
+//     void setVisible(bool visible);
+//     void setZIndex(int z);
+//     void Draw(const Core::Matrices& data);
+// 	virtual std::vector<std::shared_ptr<GameObject>> getChildren();
+// private:
+//     std::shared_ptr<Util::Image> image;
+//     int m_ZIndex = 0;
+//     bool m_Visible = true;
+// };
 
 class TileInfoUI : public UserInterface {
 public:
@@ -56,14 +56,14 @@ private:
 	std::shared_ptr<Tile> tile = nullptr;
 };
 
-class CharacterInfoUI : public UserInterface {
-public:
-	CharacterInfoUI(std::vector<std::shared_ptr<Tile>>& tiles);
-	void load(std::shared_ptr<Character> character);
-	void update() override;
-private:
-	std::shared_ptr<Character> character = nullptr;
-};
+// class CharacterInfoUI : public UserInterface {
+// public:
+// 	CharacterInfoUI(std::vector<std::shared_ptr<Tile>>& tiles);
+// 	void load(std::shared_ptr<Character> character);
+// 	void update() override;
+// private:
+// 	std::shared_ptr<Character> character = nullptr;
+// };
 
 class CharacterInfoUIFull : public UserInterface {
 public:
@@ -73,7 +73,8 @@ public:
 	void setVisible(bool visible);
 	std::vector<std::shared_ptr<GameObject>> getChildren() override;
 private:
-    std::shared_ptr<ImageUI> profile;
+    // std::shared_ptr<ImageUI> profile;
+	std::shared_ptr<Util::GameObject> profile = nullptr;
 	std::shared_ptr<Character> character = nullptr;
 };
 
@@ -109,7 +110,7 @@ public:
 
 	void activeSelectedUI();
 	void changeVisibleTileInfo();
-	void changeVisibleCharacterInfo();
+	// void changeVisibleCharacterInfo();
 	void changeVisibleCharacterInfoFull();
 	
 	std::vector<std::shared_ptr<Util::GameObject>> getChildren();
@@ -122,7 +123,7 @@ private:
 	
 	std::vector<std::shared_ptr<Tile>> tiles = {};
 	std::shared_ptr<TileInfoUI> tileInfo = nullptr;
-	std::shared_ptr<CharacterInfoUI> characterInfo = nullptr;
+	// std::shared_ptr<CharacterInfoUI> characterInfo = nullptr;
 	std::shared_ptr<CharacterInfoUIFull> characterInfoFull = nullptr;
 	std::shared_ptr<SelectedUI> selected = nullptr;
 	

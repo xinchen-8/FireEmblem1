@@ -1,5 +1,9 @@
 #include "UserInterface.hpp"
 #include "Integration.hpp"
+#include "Util/Logger.hpp"
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 UserInterface::UserInterface(const std::vector<std::shared_ptr<Tile>> &tiles){
 	m_Visible = false;
@@ -89,36 +93,46 @@ std::vector<std::shared_ptr<Util::GameObject>> UserInterface::getChildren() {
 	return children;
 }
 
-ImageUI::ImageUI(){}
-ImageUI::ImageUI(const std::string& filepath) {
-	image = std::make_shared<Util::Image>(filepath);
-}
+// ImageUI::ImageUI(){}
+// ImageUI::ImageUI(const std::string& filepath) {
+// 	image = std::make_shared<Util::Image>(filepath);
+// }
 
-void ImageUI::setImage(const std::string& filepath) {
-	if (!image) image = std::make_shared<Util::Image>(filepath);
-	else image->SetImage(filepath);
-	m_Drawable = image;
-}
+// void ImageUI::setImage(const std::string& filepath) {
+// 	if (!image) image = std::make_shared<Util::Image>(filepath);
+// 	else image->SetImage(filepath);
+// 	m_Drawable = image;
+// }
 
-void ImageUI::setRelativePos(glm::ivec2 pos) {
-	m_Transform.translation = pos;
-}
+// void ImageUI::setRelativePos(glm::ivec2 pos) {
+// 	m_Transform.translation = pos;
+// }
 
-void ImageUI::setVisible(bool visible) {
-	m_Visible = visible;
-}
+// void ImageUI::setVisible(bool visible) {
+// 	m_Visible = visible;
+// }
 
-void ImageUI::setZIndex(int z) {
-	m_ZIndex = z;
-}
+// void ImageUI::setZIndex(int z) {
+// 	m_ZIndex = z;
+// }
 
-void ImageUI::Draw(const Core::Matrices& data) {
-	if (m_Visible && image) image->Draw(data);
-}
+// void ImageUI::Draw(const Core::Matrices& parent)
+// {
+//     if (!m_Visible || !image) return;
 
-std::vector<std::shared_ptr<Util::GameObject>> ImageUI::getChildren() {
-	return {};
-}
+//     Core::Matrices self = parent;
+//     self.m_Model = self.m_Model *
+//         glm::translate(glm::mat4(1.0f), glm::vec3(m_Transform.translation, m_ZIndex));
+//     self.m_Model = self.m_Model *
+//         glm::scale(glm::mat4(1.0f), glm::vec3(m_Transform.scale, 1.0f));
+
+//     image->Draw(self);
+// }
+
+
+// std::vector<std::shared_ptr<Util::GameObject>> ImageUI::getChildren() {
+// 	return {};
+// }
 
 TileInfoUI::TileInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
 	UserInterface(tiles){
@@ -139,27 +153,27 @@ void TileInfoUI::update(){
 	// setAbsolutePos({ TILE_SIZE, TILE_SIZE });
 }
 
-CharacterInfoUI::CharacterInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
-	UserInterface(tiles) {
-	setUISize({ 5, 3 });
+// CharacterInfoUI::CharacterInfoUI(std::vector<std::shared_ptr<Tile>>& tiles) :
+// 	UserInterface(tiles) {
+// 	setUISize({ 5, 3 });
 
-	setRelativePos({
-		+ floor(PTSD_Config::WINDOW_WIDTH / 2) - 5 * TILE_SIZE,
-		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 1 * TILE_SIZE
-	});
-}
+// 	setRelativePos({
+// 		+ floor(PTSD_Config::WINDOW_WIDTH / 2) - 5 * TILE_SIZE,
+// 		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 1 * TILE_SIZE
+// 	});
+// }
 
-void CharacterInfoUI::load(std::shared_ptr<Character> character) {
-	if (character) this->character = character;
-}
+// void CharacterInfoUI::load(std::shared_ptr<Character> character) {
+// 	if (character) this->character = character;
+// }
 
-void CharacterInfoUI::update() {
-    std::string content=
-		character->getName() + "\n" +
-		character->getClassName() + "\n" +
-		"HP " + std::to_string(character->getCurHP()) + "/" + std::to_string(character->getHpLimit()) + "\n"; //first getHP() will be replaced by getCurHP()
-    setString(content);
-}
+// void CharacterInfoUI::update() {
+//     std::string content=
+// 		character->getName() + "\n" +
+// 		character->getClassName() + "\n" +
+// 		"HP " + std::to_string(character->getCurHP()) + "/" + std::to_string(character->getHpLimit()) + "\n"; //first getHP() will be replaced by getCurHP()
+//     setString(content);
+// }
 
 CharacterInfoUIFull::CharacterInfoUIFull(std::vector<std::shared_ptr<Tile>>& tiles) :
 	UserInterface(tiles) {
@@ -169,12 +183,16 @@ CharacterInfoUIFull::CharacterInfoUIFull(std::vector<std::shared_ptr<Tile>>& til
 		- floor(PTSD_Config::WINDOW_WIDTH / 2) + 1 * TILE_SIZE,
 		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 3 * TILE_SIZE
 	});
-	profile = std::make_shared<ImageUI>();
-	profile->setZIndex(m_ZIndex + 1);
-	profile->setRelativePos({
-		- floor(PTSD_Config::WINDOW_WIDTH / 2) + 1 * TILE_SIZE,
-		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 3 * TILE_SIZE
+	// profile = std::make_shared<ImageUI>();
+	// profile->setZIndex(m_ZIndex + 1);
+	profile = std::make_shared<Tile>(*tiles[4], glm::ivec2(0, 0));
+	std::string profilePath = TILE_UI "text4.png";
+	profile->m_Transform.translation = glm::vec2({
+		- floor(PTSD_Config::WINDOW_WIDTH / 2) + 2 * TILE_SIZE,
+		- floor(PTSD_Config::WINDOW_HEIGHT / 2) + 9 * TILE_SIZE
 	});
+	//load a default profile image
+	profile->SetZIndex(m_ZIndex + 1);
 }
 
 void CharacterInfoUIFull::load(std::shared_ptr<Character> character) {
@@ -192,14 +210,21 @@ void CharacterInfoUIFull::update() {
 		"Wlv " + std::to_string(character->getWlv()) + "  Res " + std::to_string(character->getRes()) + "\n" +
 		"Spd " + std::to_string(character->getSpd()) + "  Mov " + std::to_string(character->getMov());
 	setString(content);
+	// std::string profilePath = TILE_UI "text4.png";
 	std::string profilePath = TILE_PROFILE + character->getName() + "_0.png";
-	profile->setImage(profilePath);
+	// acording to the character name, load the profile image
+	if (fs::exists(profilePath)) {}
+	else profilePath = TILE_UI "text4.png";
+	LOG_INFO("Load Profile Image: " + profilePath);
+	profile->SetDrawable(std::make_shared<Util::Image>(profilePath));
+	profile->m_Transform.scale = { 3.f, 3.f };
 }
 
 void CharacterInfoUIFull::setVisible(bool visible) {
     m_Visible = visible;
 	UserInterface::setVisible(visible);
-    if (profile) profile->setVisible(visible);
+    // if (profile) profile->setVisible(visible);
+	if (profile) profile->SetVisible(visible);
 }
 
 std::vector<std::shared_ptr<Util::GameObject>> CharacterInfoUIFull::getChildren() {
@@ -287,12 +312,12 @@ UIManager::UIManager(
 	}
 
 	tileInfo = std::make_shared<TileInfoUI>(tiles);
-	characterInfo = std::make_shared<CharacterInfoUI>(tiles);
+	// characterInfo = std::make_shared<CharacterInfoUI>(tiles);
 	characterInfoFull = std::make_shared<CharacterInfoUIFull>(tiles);
 	selected = std::make_shared<SelectedUI>(tiles);
 	load();
 	tileInfo->setVisible(true);
-	characterInfo->setVisible(true);
+	// characterInfo->setVisible(true);
 	characterInfoFull->setVisible(true);
 }
 
@@ -303,22 +328,22 @@ void UIManager::load() {
 	auto c = playerManager->getPosLevelCharacter(selection->getAbsolutePos());
 	auto e = enemyManager->getPosLevelCharacter(selection->getAbsolutePos());
 	if(c){
-		characterInfo->load(c);
+		// characterInfo->load(c);
 		characterInfoFull->load(c);
 	}
 	else if(e){
-		characterInfo->load(e);
+		// characterInfo->load(e);
 		characterInfoFull->load(e);
 	}
 	else if(s && selection->getStatus()==SelectionStatus::Moving){
-		characterInfo->load(s);
+		// characterInfo->load(s);
 		characterInfoFull->load(s);
 	}
 }
 
 void UIManager::update() {
 	tileInfo->update();
-	characterInfo->update();
+	// characterInfo->update();
 	characterInfoFull->update();
 }
 
@@ -370,9 +395,9 @@ void UIManager::changeVisibleTileInfo() {
 	tileInfo->setVisible(!tileInfo->getVisible());
 }
 
-void UIManager::changeVisibleCharacterInfo() {
-	characterInfo->setVisible(!characterInfo->getVisible());
-}
+// void UIManager::changeVisibleCharacterInfo() {
+// 	characterInfo->setVisible(!characterInfo->getVisible());
+// }
 
 void UIManager::changeVisibleCharacterInfoFull() {
 	characterInfoFull->setVisible(!characterInfoFull->getVisible());
@@ -381,14 +406,14 @@ void UIManager::changeVisibleCharacterInfoFull() {
 std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
 	std::vector<std::shared_ptr<Util::GameObject>> children = {};
 	std::vector<std::shared_ptr<Util::GameObject>> reg = tileInfo->getChildren();
-	std::vector<std::shared_ptr<Util::GameObject>> c = characterInfo->getChildren();
+	// std::vector<std::shared_ptr<Util::GameObject>> c = characterInfo->getChildren();
 	std::vector<std::shared_ptr<Util::GameObject>> cf = characterInfoFull->getChildren();
 	std::vector<std::shared_ptr<Util::GameObject>> s = selected->getChildren();
 
 	for (auto &e : reg) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(tileInfo);
-	for (auto &e : c) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
-	children.push_back(characterInfo);
+	// for (auto &e : c) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
+	// children.push_back(characterInfo);
 	for (auto &e : cf) children.push_back(std::static_pointer_cast<Util::GameObject>(e));
 	children.push_back(characterInfoFull);
 	for (auto &e : s) children.push_back(std::static_pointer_cast<Util::GameObject>(e));

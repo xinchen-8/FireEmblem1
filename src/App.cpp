@@ -128,15 +128,15 @@ void App::Update() {
 
         uiManager->changeVisibleTileInfo();
     }
-    //character info UI
-    if (Util::Input::IsKeyDown(Util::Keycode::F2)) {
-        LOG_INFO("F2 pressed");
-        uiManager->changeVisibleCharacterInfo();
-    }
+    // //character info UI
+    // if (Util::Input::IsKeyDown(Util::Keycode::F2)) {
+    //     LOG_INFO("F2 pressed");
+    //     uiManager->changeVisibleCharacterInfo();
+    // }
 
     //character info UI full
-    if (Util::Input::IsKeyDown(Util::Keycode::F3)) {
-        LOG_INFO("F3 pressed");
+    if (Util::Input::IsKeyDown(Util::Keycode::F2)) {
+        LOG_INFO("F2 pressed");
         uiManager->changeVisibleCharacterInfoFull();
     }
 

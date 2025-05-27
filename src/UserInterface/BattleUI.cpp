@@ -23,7 +23,7 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
     canCounterAttack = true;
     canFollowUpAttack = true;
 
-    // before update, need to find their attack scope
+    attackedCharacter->findAttackScope();
     auto range = attackedCharacter->getAttackRange();
     if (range.find(attacker->getAbsolutePos()) == range.end()) {
         LOG_INFO("Attacked Character's attack range doesn't contain Attacker's position!");

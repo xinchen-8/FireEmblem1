@@ -105,8 +105,6 @@ void ProcessController::ATKToNormal(std::shared_ptr<Character> &selectedCharacte
                                     std::shared_ptr<Character> &selectEnemy) {
     uiManager->actWeaponUI();
     uiManager->loadBattleUI(selectedCharacter, selectEnemy);
-    selectedCharacter->findAttackScope();
-    selectEnemy->findAttackScope();
 }
 
 void ProcessController::IUIToNormal(std::shared_ptr<Character> &selectedCharacter) {

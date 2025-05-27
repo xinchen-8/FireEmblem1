@@ -14,6 +14,7 @@
 #define TILE_PLAYER ASSETS "tiles/player/"
 #define TILE_SELECTION ASSETS "tiles/selection/"
 #define TILE_UI ASSETS "tiles/user_interface/"
+#define TILE_PROFILE ASSETS "tiles/profile/"
 
 #define BATTLE_PLAYER ASSETS "battle/player/"
 #define BATTLE_ENEMY ASSETS "battle/enemy/"

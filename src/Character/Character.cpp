@@ -43,9 +43,6 @@ Character::Character(
 	//axe
 	if(className=="Fighter" || className=="Pirate")
 		usableHandHeldItem.push_back(HandHeldItemType::Axe);
-
-	if(className=="Archer" || className=="Fighter" || className=="Pirate")
-		gapOfAnimation = 2;
 	
 	m_ZIndex = 3;
 }

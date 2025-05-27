@@ -136,7 +136,7 @@ void App::Update() {
     // character info UI
     else if (Util::Input::IsKeyDown(Util::Keycode::F2) && accessInput) {
         LOG_INFO("F2 pressed");
-        uiManager->changeVisibleCharacterInfo();
+        uiManager->changeVisibleCharacterInfoFull();
     }
     // player tip
     else if (Util::Input::IsKeyDown(Util::Keycode::F3) && accessInput) {

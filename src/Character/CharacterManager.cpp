@@ -89,18 +89,10 @@ void CharacterManager::setInitialLevel(int level) {
             if (c->getName() == e[0]) {
                 if (e[level * 2 - 1] != "X") {
                     currentLevelCharacters.push_back(c);
-                    c->setAbsolutePos({std::stoi(e[level * 2 - 1]) * TILE_SIZE, std::stoi(e[level * 2]) * TILE_SIZE});
 
-                    // if (auto cm = characterManager.lock()){
-                    // 	std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
-
-                    // for(auto pos = CHARACTER_UNMOVE[mapManager->getLevel()-1].begin();
-                    // 	pos != CHARACTER_UNMOVE[mapManager->getLevel()-1].end();
-                    // 	pos++
-                    // ) mask.insert(*pos);
-                    // c->refreshMoveRange(mask);
-
-                    // }
+                    glm::ivec2 reg_pos = {std::stoi(e[level * 2 - 1]) * TILE_SIZE, std::stoi(e[level * 2]) * TILE_SIZE};
+                    c->setAbsolutePos(reg_pos);
+                    c->setAvoid(mapManager->getPosTile(reg_pos)->getAvoid());
                     LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x) + ", " +
                              std::to_string(c->getAbsolutePos().y));
                 } else {
@@ -249,6 +241,7 @@ bool PlayerManager::update() {
         if (c->walkDirectly()) {
             findCharacterAttackTarget(c);
             c->SetZIndex(3);
+            c->setAvoid(mapManager->getPosTile(c->getAbsolutePos())->getAvoid());
             return true; // the trigger about character is arrived
         }
     }

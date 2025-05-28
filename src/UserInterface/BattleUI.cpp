@@ -12,23 +12,88 @@ BattleUI::BattleUI(std::vector<std::shared_ptr<Tile>> &tiles) : UserInterface(ti
     }
     SetZIndex(10);
 
-    std::string content = "HIT\nCRT\nAVOID\n";
-    attackedDetailList->SetDrawable(
-        std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, content, Util::Color(255, 255, 255), false));
-    attackedDetailList->m_Transform.translation = {-400, -100};
+    std::string content = "  HIT\n  CRT\nAVOID\n";
+
+    attackedHpPoint->m_Transform.scale = {0.8, 1.0};
+    attackedHpPoint->m_Transform.translation = {130, -50};
+    attackedHpPoint->SetVisible(false);
+    attackedHpPoint->SetZIndex(11);
+
+    auto aDLD = std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, content, Util::Color(255, 255, 255), false);
+    attackedDetailList->SetDrawable(aDLD);
+    attackedDetailList->SetPivot({-aDLD->GetSize().x / 2, 0});
+    attackedDetailList->m_Transform.translation = {130, -250};
     attackedDetailList->SetVisible(false);
     attackedDetailList->SetZIndex(11);
 
-    attackerDetailList->SetDrawable(
-        std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, content, Util::Color(255, 255, 255), false));
-    attackerDetailList->m_Transform.translation = {400, -100};
+    attackedDetailPoint->m_Transform.scale = {0.3, 1.0};
+    attackedDetailPoint->m_Transform.translation = {230, -250};
+    attackedDetailPoint->SetVisible(false);
+    attackedDetailPoint->SetZIndex(11);
+
+    attackerHpPoint->m_Transform.scale = {0.8, 1.0};
+    attackerHpPoint->m_Transform.translation = {-450, -50};
+    attackerHpPoint->SetVisible(false);
+    attackerHpPoint->SetZIndex(11);
+
+    auto rDLD = std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, content, Util::Color(255, 255, 255), false);
+    attackerDetailList->SetDrawable(rDLD);
+    attackerDetailList->SetPivot({-rDLD->GetSize().x / 2, 0});
+
+    attackerDetailList->m_Transform.translation = {-450, -250};
     attackerDetailList->SetVisible(false);
     attackerDetailList->SetZIndex(11);
+
+    attackerDetailPoint->m_Transform.scale = {0.3, 1.0};
+    attackerDetailPoint->m_Transform.translation = {-350, -250};
+    attackerDetailPoint->SetVisible(false);
+    attackerDetailPoint->SetZIndex(11);
 }
 
 void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Character> attacked) {
     attackerCharacter = attacker;
     attackedCharacter = attacked;
+    refreshHpPoint();
+
+    std::string content = "";
+    int num = attacker->getCurrentHandHeldItem()->getHit();
+    for (int i = 0; i < 20; i++)
+        content += (i < num / 5) ? "■" : "□";
+    content += "\n";
+
+    num = attacker->getCurrentHandHeldItem()->getCrt();
+    for (int i = 0; i < 20; i++)
+        content += (i < num / 5) ? "■" : "□";
+    content += "\n";
+
+    num = attacker->getAvoid();
+    for (int i = 0; i < 20; i++)
+        content += (i < num / 5) ? "■" : "□";
+    content += "\n";
+
+    std::string content2 = "";
+    int num2 = attacked->getCurrentHandHeldItem()->getHit();
+    for (int i = 0; i < 20; i++)
+        content2 += (i < num2 / 5) ? "■" : "□";
+    content2 += "\n";
+
+    num2 = attacked->getCurrentHandHeldItem()->getCrt();
+    for (int i = 0; i < 20; i++)
+        content2 += (i < num2 / 5) ? "■" : "□";
+    content2 += "\n";
+
+    num2 = attacked->getAvoid();
+    for (int i = 0; i < 20; i++)
+        content2 += (i < num2 / 5) ? "■" : "□";
+    content2 += "\n";
+
+    auto rDPD = std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, content, Util::Color(0, 255, 0), false);
+    attackerDetailPoint->SetDrawable(rDPD);
+    attackerDetailPoint->SetPivot({-rDPD->GetSize().x / 2, 0});
+
+    auto dDPD = std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, content2, Util::Color(0, 255, 0), false);
+    attackedDetailPoint->SetDrawable(dDPD);
+    attackedDetailPoint->SetPivot({-dDPD->GetSize().x / 2, 0});
 
     std::shared_ptr<Weapon> atk_weapon = std::dynamic_pointer_cast<Weapon>(attacker->getCurrentHandHeldItem());
     std::shared_ptr<Weapon> weapon = std::dynamic_pointer_cast<Weapon>(attacked->getCurrentHandHeldItem());
@@ -69,9 +134,16 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
                                                  : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png");
     attackedGO->SetDrawable(attackedD);
 
-    if (attackerCharacter->getSpd() - attackedCharacter->getSpd() > 5)
+    int atkrSpd = attackerCharacter->getSpd();
+    int atkdSpd = attackedCharacter->getSpd();
+    int atkrW = attackerCharacter->getStr() - attackerCharacter->getCurrentHandHeldItem()->getMt();
+    int atkdW = attackerCharacter->getStr() - attackerCharacter->getCurrentHandHeldItem()->getMt();
+    atkrSpd -= (atkrW > 0) ? atkrW : 0;
+    atkdSpd -= (atkdW > 0) ? atkdW : 0;
+
+    if (atkrW - atkdW >= 5)
         followUpType = followType::Attacker;
-    else if (canCounterAttack && (attackedCharacter->getSpd() - attackerCharacter->getSpd() > 5))
+    else if (canCounterAttack && (atkdW - atkrW >= 5))
         followUpType = followType::Attacked;
     else
         canFollowUpAttack = false;
@@ -86,8 +158,7 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
     attackedGO->SetZIndex(10);
     attackedGO->SetPivot({0, -attackedD->GetSize().y / 2});
 
-    SetPivot({0, 0});
-    m_Transform.translation = {-250, -250};
+    m_Transform.translation = {-150, 200};
     m_Transform.scale = {1.5, 1.5};
     setVisible(true);
 }
@@ -130,6 +201,7 @@ void BattleUI::update() {
                     ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackedImg + ".png")
                     : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackedImg + ".png"));
             regHP -= attackedCharacter->getCurHP();
+            refreshHpPoint();
             setString(std::to_string(regHP) + " damage!");
             LOG_INFO(std::to_string(regHP) + " damage!");
         } else {
@@ -141,14 +213,15 @@ void BattleUI::update() {
     }
 
     case 35:
-        attackedGO->m_Transform.translation = glm::ivec2(400, 0);
-        attackedGO->SetDrawable((!attackedCharacter->isEnemy())
-                                    ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
-                                    : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png"));
         if (attackedCharacter->getCurHP() == 0) {
             isFinish = true;
             setString(attackedCharacter->getName() + " was defeated!");
             LOG_INFO(attackedCharacter->getName() + " was defeated!");
+        } else {
+            attackedGO->m_Transform.translation = glm::ivec2(400, 0);
+            attackedGO->SetDrawable((!attackedCharacter->isEnemy())
+                                        ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
+                                        : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png"));
         }
         break;
     case 45:
@@ -183,6 +256,7 @@ void BattleUI::update() {
                     ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackerImg + ".png")
                     : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackerImg + ".png"));
             regHP -= attackerCharacter->getCurHP();
+            refreshHpPoint();
             setString(std::to_string(regHP) + " damage!");
             LOG_INFO(std::to_string(regHP) + " damage!");
         } else {
@@ -194,14 +268,15 @@ void BattleUI::update() {
     }
 
     case 91:
-        attackerGO->m_Transform.translation = glm::ivec2(-400, 0);
-        attackerGO->SetDrawable((!attackerCharacter->isEnemy())
-                                    ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png")
-                                    : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png"));
         if (attackerCharacter->getCurHP() == 0) {
             isFinish = true;
             setString(attackerCharacter->getName() + " was defeated!");
             LOG_INFO(attackerCharacter->getName() + " was defeated!");
+        } else {
+            attackerGO->m_Transform.translation = glm::ivec2(-400, 0);
+            attackerGO->SetDrawable((!attackerCharacter->isEnemy())
+                                        ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png")
+                                        : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png"));
         }
         break;
 
@@ -243,6 +318,7 @@ void BattleUI::update() {
                         ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackedImg + ".png")
                         : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackedImg + ".png"));
                 regHP -= attackedCharacter->getCurHP();
+                refreshHpPoint();
                 setString(std::to_string(regHP) + " damage!");
                 LOG_INFO(std::to_string(regHP) + " damage!");
             } else {
@@ -258,6 +334,7 @@ void BattleUI::update() {
                         ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackerImg + ".png")
                         : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackerImg + ".png"));
                 regHP -= attackerCharacter->getCurHP();
+                refreshHpPoint();
                 setString(std::to_string(regHP) + " damage!");
                 LOG_INFO(std::to_string(regHP) + " damage!");
             } else {
@@ -271,24 +348,26 @@ void BattleUI::update() {
 
     case 157: {
         if (followUpType == followType::Attacker) {
-            attackedGO->m_Transform.translation = glm::ivec2(400, 0);
-            attackedGO->SetDrawable((!attackedCharacter->isEnemy())
-                                        ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
-                                        : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png"));
             if (attackedCharacter->getCurHP() == 0) {
                 isFinish = true;
                 setString(attackedCharacter->getName() + " was defeated!");
                 LOG_INFO(attackedCharacter->getName() + " was defeated!");
+            } else {
+                attackedGO->m_Transform.translation = glm::ivec2(400, 0);
+                attackedGO->SetDrawable((!attackedCharacter->isEnemy())
+                                            ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
+                                            : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png"));
             }
         } else {
-            attackerGO->m_Transform.translation = glm::ivec2(-400, 0);
-            attackerGO->SetDrawable((!attackerCharacter->isEnemy())
-                                        ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png")
-                                        : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png"));
             if (attackerCharacter->getCurHP() == 0) {
                 isFinish = true;
                 setString(attackerCharacter->getName() + " was defeated!");
                 LOG_INFO(attackerCharacter->getName() + " was defeated!");
+            } else {
+                attackerGO->m_Transform.translation = glm::ivec2(-400, 0);
+                attackerGO->SetDrawable((!attackerCharacter->isEnemy())
+                                            ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png")
+                                            : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png"));
             }
         }
         break;
@@ -312,6 +391,32 @@ void BattleUI::update() {
     }
 }
 
+void BattleUI::refreshHpPoint() {
+    std::string hpC = "";
+    int hpLimit = attackerCharacter->getHpLimit();
+    int hpCurrent = attackerCharacter->getCurHP();
+    for (int i = 0; i < hpLimit; i++) {
+        hpC += (i < hpCurrent) ? "■" : "□";
+        if (i % 10 == 0 && i != 0)
+            hpC += "\n";
+    }
+    auto HPPD = std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, hpC, Util::Color(0, 50, 255), false);
+    attackerHpPoint->SetDrawable(HPPD);
+    attackerHpPoint->SetPivot({-HPPD->GetSize().x / 2, 0});
+
+    std::string hpC2 = "";
+    int hpLimit2 = attackedCharacter->getHpLimit();
+    int hpCurrent2 = attackedCharacter->getCurHP();
+    for (int i = 0; i < hpLimit2; i++) {
+        hpC2 += (i < hpCurrent2) ? "■" : "□";
+        if (i % 10 == 0 && i != 0)
+            hpC2 += "\n";
+    }
+    auto HPPD2 = std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, hpC2, Util::Color(0, 50, 255), false);
+    attackedHpPoint->SetDrawable(HPPD2);
+    attackedHpPoint->SetPivot({-HPPD2->GetSize().x / 2, 0});
+}
+
 void BattleUI::setVisible(bool visible) {
     m_Visible = visible;
     for (auto &row : form) {
@@ -321,8 +426,12 @@ void BattleUI::setVisible(bool visible) {
     }
     attackerGO->SetVisible(visible);
     attackedGO->SetVisible(visible);
+    attackerHpPoint->SetVisible(visible);
+    attackedHpPoint->SetVisible(visible);
     attackerDetailList->SetVisible(visible);
+    attackerDetailPoint->SetVisible(visible);
     attackedDetailList->SetVisible(visible);
+    attackedDetailPoint->SetVisible(visible);
 }
 
 std::vector<std::shared_ptr<Util::GameObject>> BattleUI::getChildren() {
@@ -334,8 +443,12 @@ std::vector<std::shared_ptr<Util::GameObject>> BattleUI::getChildren() {
     }
     children.push_back(attackerGO);
     children.push_back(attackedGO);
+    children.push_back(attackerHpPoint);
+    children.push_back(attackedHpPoint);
     children.push_back(attackerDetailList);
+    children.push_back(attackerDetailPoint);
     children.push_back(attackedDetailList);
+    children.push_back(attackedDetailPoint);
     return children;
 }
 

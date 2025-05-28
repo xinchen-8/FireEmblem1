@@ -12,8 +12,8 @@ int main(int, char **) {
 
     std::srand(static_cast<unsigned>(std::time(0))); // initial random seed
 
-    const int targetFPS = 60;
-    const int frameDelay = 1000 / targetFPS; // 每幀應該花費的時間 (毫秒)
+    const int targetFPS = 40;
+    const int frameDelay = 1000 / targetFPS;
 
     while (!context->GetExit()) {
         auto frameStart = std::chrono::high_resolution_clock::now();

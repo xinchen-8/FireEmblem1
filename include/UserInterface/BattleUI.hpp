@@ -22,10 +22,12 @@ class BattleUI : public UserInterface {
 
     std::shared_ptr<Character> attackerCharacter = nullptr;
     std::shared_ptr<Util::GameObject> attackerGO = std::make_shared<Util::GameObject>();
+    std::shared_ptr<Util::GameObject> attackerDetailList = std::make_shared<Util::GameObject>();
     std::string attackerImg = "";
 
     std::shared_ptr<Character> attackedCharacter = nullptr;
     std::shared_ptr<Util::GameObject> attackedGO = std::make_shared<Util::GameObject>();
+    std::shared_ptr<Util::GameObject> attackedDetailList = std::make_shared<Util::GameObject>();
     std::string attackedImg = "";
 };
 

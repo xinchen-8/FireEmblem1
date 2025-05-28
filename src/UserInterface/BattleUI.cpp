@@ -11,6 +11,19 @@ BattleUI::BattleUI(std::vector<std::shared_ptr<Tile>> &tiles) : UserInterface(ti
         }
     }
     SetZIndex(10);
+
+    std::string content = "HIT\nCRT\nAVOID\n";
+    attackedDetailList->SetDrawable(
+        std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, content, Util::Color(255, 255, 255), false));
+    attackedDetailList->m_Transform.translation = {-400, -100};
+    attackedDetailList->SetVisible(false);
+    attackedDetailList->SetZIndex(11);
+
+    attackerDetailList->SetDrawable(
+        std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, content, Util::Color(255, 255, 255), false));
+    attackerDetailList->m_Transform.translation = {400, -100};
+    attackerDetailList->SetVisible(false);
+    attackerDetailList->SetZIndex(11);
 }
 
 void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Character> attacked) {
@@ -308,6 +321,8 @@ void BattleUI::setVisible(bool visible) {
     }
     attackerGO->SetVisible(visible);
     attackedGO->SetVisible(visible);
+    attackerDetailList->SetVisible(visible);
+    attackedDetailList->SetVisible(visible);
 }
 
 std::vector<std::shared_ptr<Util::GameObject>> BattleUI::getChildren() {
@@ -319,6 +334,8 @@ std::vector<std::shared_ptr<Util::GameObject>> BattleUI::getChildren() {
     }
     children.push_back(attackerGO);
     children.push_back(attackedGO);
+    children.push_back(attackerDetailList);
+    children.push_back(attackedDetailList);
     return children;
 }
 

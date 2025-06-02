@@ -7,7 +7,9 @@ ProcessController::ProcessController(std::shared_ptr<MapManager> mapManager,
     : mapManager(mapManager), playerManager(playerManager), enemyManager(enemyManager), selection(selection),
       uiManager(uiManager) {}
 
-void ProcessController::ReturnCase() {
+bool ProcessController::ReturnCase() {
+    if (uiManager->closeLoadUI())
+        return false;
 
     std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
     std::shared_ptr<Character> selectMovableCharacter =
@@ -28,7 +30,7 @@ void ProcessController::ReturnCase() {
         SUItoOption();
     // act
     else if (status == SelectionStatus::SUI)
-        uiManager->activeActUI();
+        return uiManager->activeActUI();
     // targetong(to player) => HUI(WUI only heal), only have a special case with Curate
     else if (status == SelectionStatus::Targeting)
         TargetingToHUI(selectLevelCharacter->getAbsolutePos());
@@ -44,6 +46,7 @@ void ProcessController::ReturnCase() {
     // item UI => wait
     else if (status == SelectionStatus::ITEMIUI)
         IUIToNormal(selectedCharacter);
+    return false;
 }
 
 void ProcessController::BackCase() {}

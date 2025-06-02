@@ -1,28 +1,25 @@
 #ifndef PROCESSCONTROLLER_HPP
 #define PROCESSCONTROLLER_HPP
 
+#include "Character/CharacterManager.hpp"
 #include "Selection.hpp"
 #include "Tile.hpp"
 #include "UserInterface/UIManager.hpp"
-#include "Character/CharacterManager.hpp"
 
-class ProcessController{
-public:
-    ProcessController(
-        std::shared_ptr<MapManager> mapManager,
-        std::shared_ptr<PlayerManager> playerManager,
-        std::shared_ptr<EnemyManager> enemyManager,
-        std::shared_ptr<Selection> selection,
-        std::shared_ptr<UIManager> uiManager
-    );
-    void ReturnCase();
+class ProcessController {
+  public:
+    ProcessController(std::shared_ptr<MapManager> mapManager, std::shared_ptr<PlayerManager> playerManager,
+                      std::shared_ptr<EnemyManager> enemyManager, std::shared_ptr<Selection> selection,
+                      std::shared_ptr<UIManager> uiManager);
+    bool ReturnCase();
     void BackCase();
     void MovCase(glm::ivec2 mov);
     void MovCase(int listMov);
-private:
+
+  private:
     void normalToMoving(std::shared_ptr<Character> &selectCharacter);
     void movingToSUI(std::shared_ptr<Character> &selectedCharacter);
-    
+
     void SUItoOption();
     void TargetingToHUI(glm::ivec2 targetPos);
     void HealToNormal(std::shared_ptr<Character> &selectedCharacter, std::shared_ptr<Character> &selectPlayer);

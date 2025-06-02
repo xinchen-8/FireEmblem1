@@ -2,6 +2,7 @@
 #define UIMANAGER_HPP
 #include "UserInterface/BattleUI.hpp"
 #include "UserInterface/InfoUI.hpp"
+#include "UserInterface/LoadUI.hpp"
 #include "UserInterface/SelectedUI.hpp"
 #include "UserInterface/UserInterface.hpp"
 
@@ -12,9 +13,11 @@ class UIManager {
     void load();
     void update();
 
+    bool closeLoadUI();
+
     void loadActUI();
     void updateActUI(int listMov) { selectedAct->update(listMov); }
-    void activeActUI();
+    bool activeActUI(); // return isNextLevel;
 
     void loadWeaponUI(glm::ivec2 targetPos, bool isHealSpecialCase);
     void updateWeaponUI(int listMov) { selectedWeapon->update(listMov); }
@@ -41,6 +44,7 @@ class UIManager {
     std::shared_ptr<EnemyManager> enemyManager = nullptr;
 
     std::vector<std::shared_ptr<Tile>> tiles = {};
+    std::shared_ptr<LoadUI> loadLevel = nullptr;
     std::shared_ptr<TileInfoUI> tileInfo = nullptr;
     // std::shared_ptr<CharacterInfoUI> characterInfo = nullptr;
     std::shared_ptr<CharacterInfoUIFull> characterInfoFull = nullptr;

@@ -9,6 +9,8 @@
 
 #define ASSETS "assets/" // ../../../assets for vs
 
+#define COVERPATH ASSETS "ref/cover/"
+
 #define TILE_ENEMY ASSETS "tiles/enemy/"
 #define TILE_MAP ASSETS "tiles/map/"
 #define TILE_PLAYER ASSETS "tiles/player/"
@@ -53,7 +55,8 @@ enum class SelectionStatus {
     AttackTargeting,
     AttackWUI,
     BattleUI,
-    ITEMIUI
+    ITEMIUI,
+    loadUI
 };
 
 enum class CharacterStatus { Normal, Moving, Waiting };

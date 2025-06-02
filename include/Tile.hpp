@@ -55,10 +55,13 @@ class MapManager {
     void stopAnimations();
     void setAbsolutePos(glm::ivec2 a_pos) { absolutePos = a_pos; }
 
+    bool nextLevel(glm::ivec2 marthPosition) { return marthPosition == endPosition; }
+
     glm::ivec2 getTileAbsolutePos(glm::ivec2 pos);
     glm::ivec2 getMapSize() const { return glm::ivec2(map[0].size() * TILE_SIZE, map.size() * TILE_SIZE); }
     glm::ivec2 getMapTileSize() const { return glm::ivec2(map[0].size(), map.size()); }
     glm::ivec2 getAbsolutePos() const { return absolutePos; }
+    std::unordered_set<glm::ivec2> getAbsoluteCantMovPosition() { return cantMovPosition; }
     int getLevel() const { return level; }
     std::shared_ptr<Tile> getPosTile(glm::ivec2 a_pos);
     std::shared_ptr<Tile> getTile(std::string id);
@@ -67,6 +70,8 @@ class MapManager {
   private:
     int level = 0;
     glm::ivec2 tileNum = {0, 0};
+    glm::ivec2 endPosition = {0, 0};
+    std::unordered_set<glm::ivec2> cantMovPosition = {};
     glm::ivec2 absolutePos = {0, 0}; // main point of camera is down left corner of map
     std::unordered_map<std::string, std::shared_ptr<Tile>> tileTable;
     std::vector<std::vector<std::shared_ptr<Tile>>> map = {};

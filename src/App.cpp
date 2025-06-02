@@ -7,15 +7,20 @@
 #include <iostream>
 
 App::App() {
+
+    mapManager = std::make_shared<MapManager>(currentLevel);     // not rebuild
+    playerManager = std::make_shared<PlayerManager>(mapManager); // not rebuild
+    enemyManager = std::make_shared<EnemyManager>(mapManager);   // rebuild
     playerManager->setCharaterManager(enemyManager);
     enemyManager->setCharaterManager(playerManager);
+
+    selection = std::make_shared<Selection>();                                                   // not rebuild
+    uiManager = std::make_shared<UIManager>(selection, mapManager, playerManager, enemyManager); // rebuild
+    camera->set(playerManager, enemyManager, mapManager, uiManager, selection);                  // rebuild
+    pc = std::make_shared<ProcessController>(mapManager, playerManager, enemyManager, selection, uiManager); // rebuild
+
     selection->setAbsolutePos(playerManager->getCharacter("Marth")->getAbsolutePos());
     camera->resetCameraAbsolutePos();
-
-    // playerManager->refreshAllCharacterMoveRange();
-    // LOG_INFO("Player Move Manager Refresh Success.");
-    // enemyManager->refreshAllCharacterMoveRange();
-    // LOG_INFO("Enemy Move Manager Refresh Success.");
 }
 
 void App::Start() {
@@ -82,7 +87,21 @@ void App::Update() {
     // select character method
     if (Util::Input::IsKeyDown(Util::Keycode::RETURN) && accessInput) {
         LOG_INFO("Enter pressed");
-        pc->ReturnCase();
+        if (pc->ReturnCase()) {
+            mapManager->loadMap(++currentLevel);
+            playerManager->setInitialLevel(currentLevel);
+            enemyManager->setInitialLevel(currentLevel);
+            // playerManager->setCharaterManager(enemyManager);
+            // enemyManager->setCharaterManager(playerManager);
+
+            // selection = std::make_shared<Selection>();
+            uiManager = std::make_shared<UIManager>(selection, mapManager, playerManager, enemyManager); // rebuild
+            camera = std::make_shared<Camera>();                                                         // rebuild
+            camera->set(playerManager, enemyManager, mapManager, uiManager, selection);                  // rebuild
+            pc = std::make_shared<ProcessController>(mapManager, playerManager, enemyManager, selection, uiManager);
+            selection->setAbsolutePos(playerManager->getCharacter("Marth")->getAbsolutePos());
+            camera->resetCameraAbsolutePos();
+        }
     }
 
     // go back

@@ -290,15 +290,18 @@ bool Character::pushItem(std::shared_ptr<Item> item) {
     return false;
 }
 
-void Character::freshItem(int delete_index) {
-    if (delete_index != -1)
-        items.erase(items.begin() + delete_index);
-    for (int i = 0; i < items.size(); i++) {
-        std::shared_ptr<HandHeldItem> handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(items[i]);
+void Character::freshItem() {
+    std::shared_ptr<HandHeldItem> handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
+    if (handHeldItem != nullptr) {
+        if (handHeldItem->getUses() <= 0)
+            items.erase(items.begin() + handheld_index);
+        for (int i = 0; i < items.size(); i++) {
+            std::shared_ptr<HandHeldItem> handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(items[i]);
 
-        if (handHeldItem) {
-            handheld_index = i;
-            return;
+            if (handHeldItem != nullptr) {
+                handheld_index = i;
+                return;
+            }
         }
     }
 }

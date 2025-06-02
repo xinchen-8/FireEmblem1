@@ -10,6 +10,7 @@ UIManager::UIManager(std::shared_ptr<Selection> s, std::shared_ptr<MapManager> t
         tiles[i]->SetZIndex(6);
     }
 
+    loadLevel = std::make_shared<LoadUI>(tiles);
     tileInfo = std::make_shared<TileInfoUI>(tiles);
     // characterInfo = std::make_shared<CharacterInfoUI>(tiles);
     characterInfoFull = std::make_shared<CharacterInfoUIFull>(tiles);
@@ -17,6 +18,8 @@ UIManager::UIManager(std::shared_ptr<Selection> s, std::shared_ptr<MapManager> t
     selectedWeapon = std::make_shared<WeaponUI>(tiles);
     selectedItem = std::make_shared<ItemUI>(tiles);
     battle = std::make_shared<BattleUI>(tiles);
+
+    loadLevel->load(mapManager->getLevel());
     load();
     tileInfo->setVisible(true);
     // characterInfo->setVisible(true);
@@ -47,11 +50,27 @@ void UIManager::update() {
     characterInfoFull->update();
 }
 
+bool UIManager::closeLoadUI() {
+    if (loadLevel->getVisible() && !loadLevel->getGameOver()) {
+        loadLevel->setVisible(false);
+        selection->setStatus(SelectionStatus::Normal);
+        return true;
+    }
+    return false;
+}
+
 void UIManager::loadActUI() {
     // if(selectedAct->getVisible()) return;
 
     std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
     std::vector<bool> flags = {};
+
+    flags.push_back(selectedCharacter->getName() == "Marth" &&
+                    mapManager->nextLevel(selectedCharacter->getAbsolutePos())); //"Next"
+
+    flags.push_back(false); //"Visit"
+    flags.push_back(false); //"Talk"
+
     flags.push_back(selectedCharacter->getAttackRange().size() != 0); //"Attack"
     flags.push_back(true);                                            //"Item"
     flags.push_back(true);                                            //"Wait"
@@ -61,11 +80,14 @@ void UIManager::loadActUI() {
     selectedAct->setVisible(true);
 }
 
-void UIManager::activeActUI() {
+bool UIManager::activeActUI() {
     std::string act = selectedAct->getActive();
     std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
 
-    if (act == "Attack" && selectedCharacter) {
+    if (act == "Next") {
+        selection->setStatus(SelectionStatus::loadUI);
+        return loadLevel->load(mapManager->getLevel() + 1);
+    } else if (act == "Attack" && selectedCharacter) {
         LOG_INFO("Select Attack Option");
         selection->setStatus(SelectionStatus::AttackTargeting);
 
@@ -97,6 +119,7 @@ void UIManager::activeActUI() {
     } else
         LOG_ERROR("NO Act With: " + act);
     selectedAct->setVisible(false);
+    return false;
 }
 
 void UIManager::loadWeaponUI(glm::ivec2 targetPos, bool isHealSpecialCase) {
@@ -205,6 +228,7 @@ std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
     std::vector<std::shared_ptr<Util::GameObject>> w = selectedWeapon->getChildren();
     std::vector<std::shared_ptr<Util::GameObject>> i = selectedItem->getChildren();
     std::vector<std::shared_ptr<Util::GameObject>> b = battle->getChildren();
+    std::vector<std::shared_ptr<Util::GameObject>> ll = loadLevel->getChildren();
 
     for (auto &e : reg)
         children.push_back(std::static_pointer_cast<Util::GameObject>(e));
@@ -226,5 +250,8 @@ std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
     for (auto &e : b)
         children.push_back(std::static_pointer_cast<Util::GameObject>(e));
     children.push_back(battle);
+    for (auto &e : ll)
+        children.push_back(std::static_pointer_cast<Util::GameObject>(e));
+    children.push_back(loadLevel);
     return children;
 }

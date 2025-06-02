@@ -6,6 +6,7 @@
 #include <thread> // sleep_for()
 
 int main(int, char **) {
+
     auto context = Core::Context::GetInstance();
     context->SetWindowIcon("assets/ref/textures/FE1.png");
     App app;
@@ -43,6 +44,5 @@ int main(int, char **) {
                     .count()));
         }
     }
-
     return 0;
 }

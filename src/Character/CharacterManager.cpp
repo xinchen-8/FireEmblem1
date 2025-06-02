@@ -89,6 +89,7 @@ void CharacterManager::setInitialLevel(int level) {
             if (c->getName() == e[0]) {
                 if (e[level * 2 - 1] != "X") {
                     currentLevelCharacters.push_back(c);
+                    c->setVisible(true);
 
                     glm::ivec2 reg_pos = {std::stoi(e[level * 2 - 1]) * TILE_SIZE, std::stoi(e[level * 2]) * TILE_SIZE};
                     c->setAbsolutePos(reg_pos);
@@ -263,8 +264,8 @@ std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(std::shared_p
     if (auto cm = characterManager.lock()) {
         std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
 
-        for (auto pos = CHARACTER_UNMOVE[mapManager->getLevel() - 1].begin();
-             pos != CHARACTER_UNMOVE[mapManager->getLevel() - 1].end(); pos++)
+        std::unordered_set<glm::ivec2> reg = mapManager->getAbsoluteCantMovPosition();
+        for (auto pos = reg.begin(); pos != reg.end(); pos++)
             mask.insert(*pos);
         character->refreshMoveRange(mask);
     }

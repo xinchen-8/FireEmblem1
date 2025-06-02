@@ -43,7 +43,7 @@ class Character : public CameraGameObject {
 
     void useVulnerary(int index);
     bool pushItem(std::shared_ptr<Item> item);
-    void freshItem(int delete_index = -1);
+    void freshItem();
     void deleteAllItems() { items = {}; }
 
     void setHP(int hp);

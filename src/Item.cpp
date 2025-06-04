@@ -44,6 +44,8 @@ Weapon::Weapon(std::vector<std::string> w_list) : HandHeldItem(w_list) {
         against = {"Cavalier", "Knight", "Paladin", "General"};
     else if (name == "Hammer")
         against = {"Knight", "General"};
+    else if (name == "Steel Bow" || name == "Iron Bow")
+        against = {"PegasusKnight"};
 }
 
 bool Weapon::use(Character *user, std::shared_ptr<Character> target) {

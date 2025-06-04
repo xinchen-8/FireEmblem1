@@ -16,6 +16,8 @@ class UIManager {
     bool closeLoadUI();
 
     void loadActUI();
+    void GameOver() { loadLevel->load(-1); }
+
     void updateActUI(int listMov) { selectedAct->update(listMov); }
     bool activeActUI(); // return isNextLevel;
 

@@ -34,7 +34,17 @@ LoadUI::LoadUI(std::vector<std::shared_ptr<Tile>> &tiles) : UserInterface(tiles)
 }
 
 bool LoadUI::load(int level) {
-    if (level > 2) {
+    if (level == -1) { // Marth is dead
+        setString("Game Over");
+        tip->SetDrawable(std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, "Press ESC to leave.",
+                                                      Util::Color(255, 255, 255), false));
+        titlePic->SetDrawable(std::make_shared<Util::Image>(COVERPATH "gameover0.png"));
+        sword->SetDrawable(std::make_shared<Util::Image>(COVERPATH "gameover.png"));
+
+        gameOver = true;
+        setVisible(true);
+        return false;
+    } else if (level > 2) {
         setString("You Finish!");
         tip->SetDrawable(std::make_shared<Util::Text>(FONTPATH, FONT_SIZE, "Press ESC to leave.",
                                                       Util::Color(255, 255, 255), false));

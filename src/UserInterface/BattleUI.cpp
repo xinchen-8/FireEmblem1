@@ -66,7 +66,7 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
         content += (i < num / 5) ? "■" : "□";
     content += "\n";
 
-    num = attacker->getAvoid();
+    num = attacker->getSpd() + attacker->getAvoid(); // acc - (Avoid + Spd)
     for (int i = 0; i < 20; i++)
         content += (i < num / 5) ? "■" : "□";
     content += "\n";
@@ -82,7 +82,7 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
         content2 += (i < num2 / 5) ? "■" : "□";
     content2 += "\n";
 
-    num2 = attacked->getAvoid();
+    num2 = attacked->getSpd() + attacked->getAvoid();
     for (int i = 0; i < 20; i++)
         content2 += (i < num2 / 5) ? "■" : "□";
     content2 += "\n";
@@ -141,9 +141,9 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
     atkrSpd -= (atkrW > 0) ? atkrW : 0;
     atkdSpd -= (atkdW > 0) ? atkdW : 0;
 
-    if (atkrW - atkdW >= 5)
+    if (atkrSpd > atkdSpd)
         followUpType = followType::Attacker;
-    else if (canCounterAttack && (atkdW - atkrW >= 5))
+    else if (canCounterAttack && (atkdSpd > atkrSpd))
         followUpType = followType::Attacked;
     else
         canFollowUpAttack = false;

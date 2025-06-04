@@ -8,16 +8,16 @@
 
 App::App() {
 
-    mapManager = std::make_shared<MapManager>(currentLevel);     // not rebuild
-    playerManager = std::make_shared<PlayerManager>(mapManager); // not rebuild
-    enemyManager = std::make_shared<EnemyManager>(mapManager);   // rebuild
+    mapManager = std::make_shared<MapManager>(currentLevel);
+    playerManager = std::make_shared<PlayerManager>(mapManager);
+    enemyManager = std::make_shared<EnemyManager>(mapManager);
     playerManager->setCharaterManager(enemyManager);
     enemyManager->setCharaterManager(playerManager);
 
-    selection = std::make_shared<Selection>();                                                   // not rebuild
-    uiManager = std::make_shared<UIManager>(selection, mapManager, playerManager, enemyManager); // rebuild
-    camera->set(playerManager, enemyManager, mapManager, uiManager, selection);                  // rebuild
-    pc = std::make_shared<ProcessController>(mapManager, playerManager, enemyManager, selection, uiManager); // rebuild
+    selection = std::make_shared<Selection>();
+    uiManager = std::make_shared<UIManager>(selection, mapManager, playerManager, enemyManager);
+    camera->set(playerManager, enemyManager, mapManager, uiManager, selection);
+    pc = std::make_shared<ProcessController>(mapManager, playerManager, enemyManager, selection, uiManager);
 
     selection->setAbsolutePos(playerManager->getCharacter("Marth")->getAbsolutePos());
     camera->resetCameraAbsolutePos();
@@ -167,6 +167,11 @@ void App::Update() {
 
     // update
     camera->update();
+
+    if (playerManager->getCharacter("Marth")->getCurHP() == 0) {
+        LOG_INFO("Marth is dead, game over!");
+        uiManager->GameOver();
+    }
 
     if (playerManager->update() && selection->getStatus() == SelectionStatus::Walking) {
         uiManager->loadActUI();

@@ -89,12 +89,7 @@ void ProcessController::HealToNormal(std::shared_ptr<Character> &selectedCharact
                                      std::shared_ptr<Character> &selectPlayer) {
 
     uiManager->actWeaponUI();
-    selectedCharacter->attack(selectPlayer);
-    selectedCharacter->setStatus(CharacterStatus::Waiting);
-    playerManager->removeUnwaitingCharacter(selectedCharacter);
-    playerManager->clearTips();
-    selection->setStatus(SelectionStatus::Normal);
-
+    uiManager->loadBattleUI(selectedCharacter, selectPlayer);
     uiManager->load();
     uiManager->update();
 }
@@ -108,6 +103,8 @@ void ProcessController::ATKToNormal(std::shared_ptr<Character> &selectedCharacte
                                     std::shared_ptr<Character> &selectEnemy) {
     uiManager->actWeaponUI();
     uiManager->loadBattleUI(selectedCharacter, selectEnemy);
+    uiManager->load();
+    uiManager->update();
 }
 
 void ProcessController::IUIToNormal(std::shared_ptr<Character> &selectedCharacter) {

@@ -32,6 +32,7 @@ void UIManager::load() {
     auto s = selection->getSelectCharacter();
     auto c = playerManager->getPosLevelCharacter(selection->getAbsolutePos());
     auto e = enemyManager->getPosLevelCharacter(selection->getAbsolutePos());
+
     if (c) {
         // characterInfo->load(c);
         characterInfoFull->load(c);
@@ -68,15 +69,18 @@ void UIManager::loadActUI() {
     flags.push_back(selectedCharacter->getName() == "Marth" &&
                     mapManager->nextLevel(selectedCharacter->getAbsolutePos())); //"Next"
 
-    flags.push_back(false); //"Visit"
+    flags.push_back((selectedCharacter->getName() == "Marth") && mapManager->getLevel() == 1 &&
+                    !playerManager->getCharacter("Wrys")->getVisible() &&
+                    playerManager->getCharacter("Wrys")->getAbsolutePos() - glm::ivec2{0, TILE_SIZE} ==
+                        selectedCharacter->getAbsolutePos()); //"Visit"
+
     flags.push_back(false); //"Talk"
 
     flags.push_back(selectedCharacter->getAttackRange().size() != 0); //"Attack"
     flags.push_back(true);                                            //"Item"
     flags.push_back(true);                                            //"Wait"
     //"Trade" not yet
-
-    selectedAct->load(flags, (selectedCharacter->getClassName() == "Curate"));
+    selectedAct->load(flags, (selectedCharacter->getCurrentHandHeldItem()->getName() == "Heal"));
     selectedAct->setVisible(true);
 }
 
@@ -87,6 +91,7 @@ bool UIManager::activeActUI() {
     if (act == "Next") {
         selection->setStatus(SelectionStatus::loadUI);
         return loadLevel->load(mapManager->getLevel() + 1);
+
     } else if (act == "Attack" && selectedCharacter) {
         LOG_INFO("Select Attack Option");
         selection->setStatus(SelectionStatus::AttackTargeting);
@@ -96,6 +101,7 @@ bool UIManager::activeActUI() {
             LOG_ERROR("NO ENEMY...");
         selection->setMoveLimit(selectedCharacter->getAttackRange());
         selection->setAbsolutePos(selection->getLimitRange().begin()->first);
+
     } else if (act == "Target" && selectedCharacter) {
         LOG_INFO("Select Target Option");
         selection->setStatus(SelectionStatus::Targeting);
@@ -105,17 +111,32 @@ bool UIManager::activeActUI() {
             LOG_ERROR("NO PLAYER...");
         selection->setMoveLimit(selectedCharacter->getAttackRange());
         selection->setAbsolutePos(selection->getLimitRange().begin()->first);
+
+    } else if (act == "Visit" && selectedCharacter) {
+        LOG_INFO("Select Visit Option");
+        playerManager->WryTrigger();
+        selection->setStatus(SelectionStatus::Normal);
+
+        selectedCharacter->setStatus(CharacterStatus::Waiting);
+        playerManager->removeUnwaitingCharacter(selectedCharacter);
+        playerManager->clearTips();
+
+    } else if (act == "Talk") {
+        LOG_INFO("Select Talk Option");
+
     } else if (act == "Item" && selectedCharacter) {
         LOG_INFO("Select Item Option");
         selection->setStatus(SelectionStatus::ITEMIUI);
         loadItemUI();
         selectedItem->setVisible(true);
+
     } else if (act == "Wait" && selectedCharacter) {
         LOG_INFO("Select Wait Option");
         selection->setStatus(SelectionStatus::Normal);
         selectedCharacter->setStatus(CharacterStatus::Waiting);
         playerManager->removeUnwaitingCharacter(selectedCharacter);
         playerManager->clearTips();
+
     } else
         LOG_ERROR("NO Act With: " + act);
     selectedAct->setVisible(false);

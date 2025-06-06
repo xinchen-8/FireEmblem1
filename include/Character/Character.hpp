@@ -35,7 +35,6 @@ class Character : public CameraGameObject {
     void setForword(Forword forword) { this->forword = forword; }
     void setHandHeldItemWithIndex(int index);
 
-    void setVisible(bool visible) { m_Visible = visible; }
     void setHeadshotAnimation(std::shared_ptr<Util::Animation> a_headshotAnimation) {
         headshotAnimation = a_headshotAnimation;
     }
@@ -78,6 +77,7 @@ class Character : public CameraGameObject {
     int getResGR() const { return ResGR; }
     int getAvoid() const { return Avoid; }
     int getHandHeldIndex() const { return handheld_index; }
+    bool getVisible() const { return m_Visible; }
     CharacterStatus getStatus() const { return status; }
     std::vector<std::shared_ptr<Item>> getItems() { return items; }
 
@@ -86,6 +86,7 @@ class Character : public CameraGameObject {
     std::queue<glm::ivec2> getWalkPath() { return walkPath; }
 
     void findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask);
+    void findHandHeldScope();
     void findAttackScope();
     void findAttackRange(); // for personal attack scope
     void setAttackRange(std::unordered_map<glm::ivec2, int> ar) { attackRange = ar; }

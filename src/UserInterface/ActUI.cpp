@@ -10,7 +10,7 @@ ActUI::ActUI(std::vector<std::shared_ptr<Tile>> &tiles) : SelectedUI(tiles) {
 }
 
 void ActUI::load(std::vector<bool> flags, bool targetIsPlayer) {
-    options[2] = (targetIsPlayer) ? "Target" : "Attack";
+    options[3] = (targetIsPlayer) ? "Target" : "Attack";
 
     if (flags.size() == option_flags.size()) {
         option_flags = flags;

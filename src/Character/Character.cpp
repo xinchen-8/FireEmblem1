@@ -389,6 +389,65 @@ void Character::findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm:
     findMoveRange(new_mov, a_pos + glm::ivec2(0, -TILE_SIZE), mask);
 }
 
+void Character::findHandHeldScope() {
+    moveRange.clear();
+    attackRange.clear();
+    moveRange[absolutePos] = 0;
+
+    std::set<int> scope;
+
+    std::shared_ptr<HandHeldItem> hhi = getCurrentHandHeldItem();
+    if (hhi == nullptr) {
+        LOG_ERROR("No Hand Held Item found for " + name);
+        return;
+    }
+    for (int &j : hhi->getRng())
+        scope.insert(j);
+
+    if (scope.empty())
+        return;
+
+    glm::ivec2 dirs[] = {{TILE_SIZE, 0}, {-TILE_SIZE, 0}, {0, TILE_SIZE}, {0, -TILE_SIZE}};
+
+    std::queue<std::pair<glm::ivec2, int>> q;
+    std::unordered_set<glm::ivec2> visited;
+
+    for (const auto &pos : moveRange) {
+        for (const auto &dir : dirs) {
+            glm::ivec2 next = pos.first + dir;
+            if (mapManager->getPosTile(next)) {
+                q.push({next, 1});
+            }
+        }
+    }
+
+    while (!q.empty()) {
+        auto [pos, steps] = q.front();
+        q.pop();
+
+        if (visited.find(pos) != visited.end())
+            continue;
+        if (moveRange.find(pos) != moveRange.end())
+            continue;
+
+        visited.insert(pos);
+
+        if (scope.count(steps)) {
+            attackRange[pos] = steps;
+            // std::cout << "RED(" << pos.x << ", " << pos.y << ")" << std::endl;
+        }
+
+        if (*scope.rbegin() > steps) {
+            for (const auto &dir : dirs) {
+                glm::ivec2 next = pos + dir;
+                if (mapManager->getPosTile(next)) {
+                    q.push({next, steps + 1});
+                }
+            }
+        }
+    }
+}
+
 void Character::findAttackScope() {
     moveRange.clear();
     attackRange.clear();

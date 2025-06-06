@@ -21,13 +21,13 @@ App::App() {
 
     selection->setAbsolutePos(playerManager->getCharacter("Marth")->getAbsolutePos());
     camera->resetCameraAbsolutePos();
+    uiManager->load();
+    uiManager->update();
 }
 
 void App::Start() {
     LOG_TRACE("Start");
     m_CurrentState = State::UPDATE;
-    uiManager->load();
-    uiManager->update();
 }
 
 void App::Update() {
@@ -101,6 +101,8 @@ void App::Update() {
             pc = std::make_shared<ProcessController>(mapManager, playerManager, enemyManager, selection, uiManager);
             selection->setAbsolutePos(playerManager->getCharacter("Marth")->getAbsolutePos());
             camera->resetCameraAbsolutePos();
+            uiManager->load();
+            uiManager->update();
         }
     }
 

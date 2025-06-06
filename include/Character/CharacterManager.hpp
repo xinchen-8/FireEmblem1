@@ -22,6 +22,7 @@ class CharacterManager {
     void setCharaterManager(std::weak_ptr<CharacterManager> cm) { characterManager = cm; }
     bool isNoMovableCharacter();
 
+    std::shared_ptr<Character> getCharacter(std::string id);
     std::shared_ptr<Character> getPosMovableCharacter(glm::ivec2 a_pos);
     std::shared_ptr<Character> getPosLevelCharacter(glm::ivec2 a_pos);
     std::unordered_set<glm::ivec2> getCharacterPos();
@@ -56,7 +57,9 @@ class PlayerManager : public CharacterManager {
 
     std::unordered_map<glm::ivec2, int> selectCharacter(std::shared_ptr<Character> character);
     void findCharacterAttackTarget(std::shared_ptr<Character> character);
-    std::shared_ptr<Character> getCharacter(std::string id);
+
+    // special case
+    void WryTrigger();
 };
 
 class EnemyManager : public CharacterManager {

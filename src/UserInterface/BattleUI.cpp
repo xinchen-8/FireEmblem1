@@ -95,20 +95,23 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
     attackedDetailPoint->SetDrawable(dDPD);
     attackedDetailPoint->SetPivot({-dDPD->GetSize().x / 2, 0});
 
-    std::shared_ptr<Weapon> atk_weapon = std::dynamic_pointer_cast<Weapon>(attacker->getCurrentHandHeldItem());
+    std::shared_ptr<HandHeldItem> atk_hhi = attacker->getCurrentHandHeldItem();
+    // std::shared_ptr<Weapon> atk_weapon = std::dynamic_pointer_cast<Weapon>(attacker->getCurrentHandHeldItem());
     std::shared_ptr<Weapon> weapon = std::dynamic_pointer_cast<Weapon>(attacked->getCurrentHandHeldItem());
 
     canCounterAttack = true;
     canFollowUpAttack = true;
 
-    attackedCharacter->findAttackScope();
+    std::cout << attacked->getCurrentHandHeldItem()->getName() << std::endl;
+    attackedCharacter->findHandHeldScope();
+
     auto range = attackedCharacter->getAttackRange();
     if (range.find(attacker->getAbsolutePos()) == range.end()) {
         LOG_INFO("Attacked Character's attack range doesn't contain Attacker's position!");
         canCounterAttack = false;
     }
 
-    if (!atk_weapon) {
+    if (!atk_hhi) {
         LOG_ERROR("Attacker doesn't use Weapon!");
         return;
     }
@@ -121,7 +124,7 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
     } else
         reg = weapon->getClassName();
 
-    attackerImg = attacker->getClassName() + "_" + atk_weapon->getClassName();
+    attackerImg = attacker->getClassName() + "_" + atk_hhi->getClassName();
     attackedImg = attacked->getClassName() + "_" + reg;
 
     std::shared_ptr<Util::Image> attackerD = (!attackerCharacter->isEnemy())
@@ -173,158 +176,32 @@ void BattleUI::update() {
     glm::ivec2 ATKRPosition = glm::ivec2(-400, 0);
     glm::ivec2 Step = glm::ivec2(5, 0);
 
-    if (isFinish && (frame == 57 || frame == 113 || frame == 123 || frame == 181)) {
-        attackerCharacter = nullptr;
-        attackedCharacter = nullptr;
-        isFinish = false;
-        finishTrigger = true;
-        setVisible(false);
-        frame = 0;
-        return;
-    }
-
-    frame++;
-    switch (frame) {
-    // attack
-    case 2:
-        setString(attackerCharacter->getName() + " attacks!");
-        LOG_INFO(attackerCharacter->getName() + " attacks!");
-        break;
-    case 12:
-    case 13:
-    case 14:
-    case 15:
-        attackerGO->m_Transform.translation += Step;
-        break;
-
-    case 25: {
-        int regHP = attackedCharacter->getCurHP();
-        if (attackerCharacter->attack(attackedCharacter)) {
-            attackedGO->SetDrawable(
-                (!attackedCharacter->isEnemy())
-                    ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackedImg + ".png")
-                    : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackedImg + ".png"));
-            regHP -= attackedCharacter->getCurHP();
-            refreshHpPoint();
-            setString(std::to_string(regHP) + " damage!");
-            LOG_INFO(std::to_string(regHP) + " damage!");
-        } else {
-            attackedGO->m_Transform.translation += glm::ivec2(15, 0);
-            setString(attackedCharacter->getName() + " dodges!");
-            LOG_INFO(attackedCharacter->getName() + " dodges!");
+    if (attackedCharacter->isEnemy() != attackerCharacter->isEnemy()) {
+        if (isFinish && (frame == 57 || frame == 113 || frame == 123 || frame == 181)) {
+            attackerCharacter = nullptr;
+            attackedCharacter = nullptr;
+            isFinish = false;
+            finishTrigger = true;
+            setVisible(false);
+            frame = 0;
+            return;
         }
-        break;
-    }
 
-    case 35:
-        if (attackedCharacter->getCurHP() == 0) {
-            setString(attackedCharacter->getName() + " was defeated!");
-            LOG_INFO(attackedCharacter->getName() + " was defeated!");
-        } else {
-            attackedGO->m_Transform.translation = ATKDPosition;
-            attackedGO->SetDrawable((!attackedCharacter->isEnemy())
-                                        ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
-                                        : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png"));
-        }
-        break;
-
-    case 45:
-        if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0) {
-            setString(attackerCharacter->getName() + "'s weapon broke!");
-            LOG_INFO(attackerCharacter->getName() + "'s weapon broke!");
-        }
-    case 46:
-    case 47:
-    case 48:
-        attackerGO->m_Transform.translation -= Step;
-        break;
-
-    case 49:
-        if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0 || attackedCharacter->getCurHP() == 0)
-            isFinish = true;
-        if (!canCounterAttack)
-            frame = 105;
-        break;
-
-    // counterattack
-    case 58:
-        setString(attackedCharacter->getName() + " counterattacks!");
-        LOG_INFO(attackedCharacter->getName() + " counterattacks!");
-        break;
-    case 68:
-    case 69:
-    case 70:
-    case 71:
-        attackedGO->m_Transform.translation -= Step;
-        break;
-
-    case 81: {
-        int regHP = attackerCharacter->getCurHP();
-        if (attackedCharacter->attack(attackerCharacter)) {
-            attackerGO->SetDrawable(
-                (!attackerCharacter->isEnemy())
-                    ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackerImg + ".png")
-                    : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackerImg + ".png"));
-            regHP -= attackerCharacter->getCurHP();
-            refreshHpPoint();
-            setString(std::to_string(regHP) + " damage!");
-            LOG_INFO(std::to_string(regHP) + " damage!");
-        } else {
+        frame++;
+        switch (frame) {
+        // attack
+        case 2:
+            setString(attackerCharacter->getName() + " attacks!");
+            LOG_INFO(attackerCharacter->getName() + " attacks!");
+            break;
+        case 12:
+        case 13:
+        case 14:
+        case 15:
             attackerGO->m_Transform.translation += Step;
-            setString(attackerCharacter->getName() + " dodges!");
-            LOG_INFO(attackerCharacter->getName() + " dodges!");
-        }
-        break;
-    }
+            break;
 
-    case 91:
-        if (attackerCharacter->getCurHP() == 0) {
-            setString(attackerCharacter->getName() + " was defeated!");
-            LOG_INFO(attackerCharacter->getName() + " was defeated!");
-        } else {
-            attackerGO->m_Transform.translation = ATKRPosition;
-            attackerGO->SetDrawable((!attackerCharacter->isEnemy())
-                                        ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png")
-                                        : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png"));
-        }
-        break;
-
-    case 101:
-        if (attackedCharacter->getCurrentHandHeldItem()->getUses() == 0) {
-            setString(attackedCharacter->getName() + "'s weapon broke!");
-            LOG_INFO(attackedCharacter->getName() + "'s weapon broke!");
-        }
-    case 102:
-    case 103:
-    case 104:
-        attackedGO->m_Transform.translation += Step;
-        break;
-
-    // follow up
-    case 114:
-        if (attackerCharacter->getCurHP() == 0 || attackedCharacter->getCurrentHandHeldItem()->getUses() == 0 ||
-            !canFollowUpAttack)
-            isFinish = true;
-        break;
-
-    case 124:
-        setString((followUpType == followType::Attacker) ? attackerCharacter->getName() + " follows up!"
-                                                         : attackedCharacter->getName() + " follows up!");
-        LOG_INFO((followUpType == followType::Attacker) ? attackerCharacter->getName() + " follows up!"
-                                                        : attackedCharacter->getName() + " follows up!");
-        break;
-    case 134:
-    case 135:
-    case 136:
-    case 137:
-        if (followUpType == followType::Attacker)
-            attackerGO->m_Transform.translation += Step;
-        else
-            attackedGO->m_Transform.translation -= Step;
-        break;
-
-    case 147: {
-        if (followUpType == followType::Attacker) {
+        case 25: {
             int regHP = attackedCharacter->getCurHP();
             if (attackerCharacter->attack(attackedCharacter)) {
                 attackedGO->SetDrawable(
@@ -336,11 +213,56 @@ void BattleUI::update() {
                 setString(std::to_string(regHP) + " damage!");
                 LOG_INFO(std::to_string(regHP) + " damage!");
             } else {
-                attackedGO->m_Transform.translation += Step;
+                attackedGO->m_Transform.translation += glm::ivec2(15, 0);
                 setString(attackedCharacter->getName() + " dodges!");
                 LOG_INFO(attackedCharacter->getName() + " dodges!");
             }
-        } else {
+            break;
+        }
+
+        case 35:
+            if (attackedCharacter->getCurHP() == 0) {
+                setString(attackedCharacter->getName() + " was defeated!");
+                LOG_INFO(attackedCharacter->getName() + " was defeated!");
+            } else {
+                attackedGO->m_Transform.translation = ATKDPosition;
+                attackedGO->SetDrawable((!attackedCharacter->isEnemy())
+                                            ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
+                                            : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png"));
+            }
+            break;
+
+        case 45:
+            if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0) {
+                setString(attackerCharacter->getName() + "'s weapon broke!");
+                LOG_INFO(attackerCharacter->getName() + "'s weapon broke!");
+            }
+        case 46:
+        case 47:
+        case 48:
+            attackerGO->m_Transform.translation -= Step;
+            break;
+
+        case 49:
+            if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0 || attackedCharacter->getCurHP() == 0)
+                isFinish = true;
+            if (!canCounterAttack)
+                frame = 105;
+            break;
+
+        // counterattack
+        case 58:
+            setString(attackedCharacter->getName() + " counterattacks!");
+            LOG_INFO(attackedCharacter->getName() + " counterattacks!");
+            break;
+        case 68:
+        case 69:
+        case 70:
+        case 71:
+            attackedGO->m_Transform.translation -= Step;
+            break;
+
+        case 81: {
             int regHP = attackerCharacter->getCurHP();
             if (attackedCharacter->attack(attackerCharacter)) {
                 attackerGO->SetDrawable(
@@ -352,66 +274,181 @@ void BattleUI::update() {
                 setString(std::to_string(regHP) + " damage!");
                 LOG_INFO(std::to_string(regHP) + " damage!");
             } else {
-                attackerGO->m_Transform.translation -= Step;
+                attackerGO->m_Transform.translation += Step;
                 setString(attackerCharacter->getName() + " dodges!");
                 LOG_INFO(attackerCharacter->getName() + " dodges!");
             }
+            break;
         }
-        break;
-    }
 
-    case 157: {
-        if (followUpType == followType::Attacker) {
-            if (attackedCharacter->getCurHP() == 0) {
-                setString(attackedCharacter->getName() + " was defeated!");
-                LOG_INFO(attackedCharacter->getName() + " was defeated!");
-            } else {
-                attackedGO->m_Transform.translation = glm::ivec2(400, 0);
-                attackedGO->SetDrawable((!attackedCharacter->isEnemy())
-                                            ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
-                                            : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png"));
-            }
-        } else {
+        case 91:
             if (attackerCharacter->getCurHP() == 0) {
                 setString(attackerCharacter->getName() + " was defeated!");
                 LOG_INFO(attackerCharacter->getName() + " was defeated!");
             } else {
-                attackerGO->m_Transform.translation = glm::ivec2(-400, 0);
+                attackerGO->m_Transform.translation = ATKRPosition;
                 attackerGO->SetDrawable((!attackerCharacter->isEnemy())
                                             ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png")
                                             : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png"));
             }
-        }
-        break;
-    }
+            break;
 
-    case 167:
-        if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0) {
-            setString(attackerCharacter->getName() + "'s weapon broke!");
-            LOG_INFO(attackerCharacter->getName() + "'s weapon broke!");
-        } else if (attackedCharacter->getCurHP() == 0) {
-            setString(attackedCharacter->getName() + "'s weapon broke!");
-            LOG_INFO(attackedCharacter->getName() + "'s weapon broke!");
-        }
-    case 168:
-    case 169:
-    case 170:
-        if (followUpType == followType::Attacker)
-            attackerGO->m_Transform.translation -= Step;
-        else
+        case 101:
+            if (attackedCharacter->getCurrentHandHeldItem()->getUses() == 0) {
+                setString(attackedCharacter->getName() + "'s weapon broke!");
+                LOG_INFO(attackedCharacter->getName() + "'s weapon broke!");
+            }
+        case 102:
+        case 103:
+        case 104:
             attackedGO->m_Transform.translation += Step;
-        break;
+            break;
 
-    case 180:
-        isFinish = true;
-        break;
-    default:
-        break;
+        // follow up
+        case 114:
+            if (attackerCharacter->getCurHP() == 0 || attackedCharacter->getCurrentHandHeldItem()->getUses() == 0 ||
+                !canFollowUpAttack)
+                isFinish = true;
+            break;
+
+        case 124:
+            setString((followUpType == followType::Attacker) ? attackerCharacter->getName() + " follows up!"
+                                                             : attackedCharacter->getName() + " follows up!");
+            LOG_INFO((followUpType == followType::Attacker) ? attackerCharacter->getName() + " follows up!"
+                                                            : attackedCharacter->getName() + " follows up!");
+            break;
+        case 134:
+        case 135:
+        case 136:
+        case 137:
+            if (followUpType == followType::Attacker)
+                attackerGO->m_Transform.translation += Step;
+            else
+                attackedGO->m_Transform.translation -= Step;
+            break;
+
+        case 147: {
+            if (followUpType == followType::Attacker) {
+                int regHP = attackedCharacter->getCurHP();
+                if (attackerCharacter->attack(attackedCharacter)) {
+                    attackedGO->SetDrawable(
+                        (!attackedCharacter->isEnemy())
+                            ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackedImg + ".png")
+                            : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackedImg + ".png"));
+                    regHP -= attackedCharacter->getCurHP();
+                    refreshHpPoint();
+                    setString(std::to_string(regHP) + " damage!");
+                    LOG_INFO(std::to_string(regHP) + " damage!");
+                } else {
+                    attackedGO->m_Transform.translation += Step;
+                    setString(attackedCharacter->getName() + " dodges!");
+                    LOG_INFO(attackedCharacter->getName() + " dodges!");
+                }
+            } else {
+                int regHP = attackerCharacter->getCurHP();
+                if (attackedCharacter->attack(attackerCharacter)) {
+                    attackerGO->SetDrawable(
+                        (!attackerCharacter->isEnemy())
+                            ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackerImg + ".png")
+                            : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackerImg + ".png"));
+                    regHP -= attackerCharacter->getCurHP();
+                    refreshHpPoint();
+                    setString(std::to_string(regHP) + " damage!");
+                    LOG_INFO(std::to_string(regHP) + " damage!");
+                } else {
+                    attackerGO->m_Transform.translation -= Step;
+                    setString(attackerCharacter->getName() + " dodges!");
+                    LOG_INFO(attackerCharacter->getName() + " dodges!");
+                }
+            }
+            break;
+        }
+
+        case 157: {
+            if (followUpType == followType::Attacker) {
+                if (attackedCharacter->getCurHP() == 0) {
+                    setString(attackedCharacter->getName() + " was defeated!");
+                    LOG_INFO(attackedCharacter->getName() + " was defeated!");
+                } else {
+                    attackedGO->m_Transform.translation = glm::ivec2(400, 0);
+                    attackedGO->SetDrawable((!attackedCharacter->isEnemy())
+                                                ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
+                                                : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png"));
+                }
+            } else {
+                if (attackerCharacter->getCurHP() == 0) {
+                    setString(attackerCharacter->getName() + " was defeated!");
+                    LOG_INFO(attackerCharacter->getName() + " was defeated!");
+                } else {
+                    attackerGO->m_Transform.translation = glm::ivec2(-400, 0);
+                    attackerGO->SetDrawable((!attackerCharacter->isEnemy())
+                                                ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png")
+                                                : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png"));
+                }
+            }
+            break;
+        }
+
+        case 167:
+            if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0) {
+                setString(attackerCharacter->getName() + "'s weapon broke!");
+                LOG_INFO(attackerCharacter->getName() + "'s weapon broke!");
+            } else if (attackedCharacter->getCurHP() == 0) {
+                setString(attackedCharacter->getName() + "'s weapon broke!");
+                LOG_INFO(attackedCharacter->getName() + "'s weapon broke!");
+            }
+        case 168:
+        case 169:
+        case 170:
+            if (followUpType == followType::Attacker)
+                attackerGO->m_Transform.translation -= Step;
+            else
+                attackedGO->m_Transform.translation += Step;
+            break;
+
+        case 180:
+            isFinish = true;
+            break;
+        default:
+            break;
+        }
+    } else {
+        if (frame == 35) {
+            attackerCharacter = nullptr;
+            attackedCharacter = nullptr;
+            isFinish = false;
+            finishTrigger = true;
+            setVisible(false);
+            frame = 0;
+            return;
+        }
+
+        frame++;
+        switch (frame) {
+        case 2:
+            setString(attackerCharacter->getName() + " uses Heal!");
+            LOG_INFO(attackerCharacter->getName() + " uses Heal!");
+            break;
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+            attackerGO->m_Transform.translation += Step;
+            break;
+
+        case 25: {
+            int regHP = attackedCharacter->getCurHP();
+            if (attackerCharacter->attack(attackedCharacter)) {
+                regHP = attackedCharacter->getCurHP() - regHP;
+                refreshHpPoint();
+                setString(attackedCharacter->getName() + "'s HP is restored by " + std::to_string(regHP) + ".");
+                LOG_INFO(attackedCharacter->getName() + "'s HP is restored by " + std::to_string(regHP) + ".");
+            }
+        }
+            attackerCharacter->freshItem();
+        }
     }
-    attackerCharacter->freshItem();
-    attackedCharacter->freshItem();
 }
-
 void BattleUI::refreshHpPoint() {
     std::string hpC = "";
     int hpLimit = attackerCharacter->getHpLimit();

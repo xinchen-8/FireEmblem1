@@ -52,6 +52,21 @@ void CharacterManager::loadCharacter() {
 }
 
 void CharacterManager::setInitialLevel(int level) {
+    clearTips();
+
+    // special case
+    std::shared_ptr<Character> sc = getCharacter("Wrys");
+    if (sc == nullptr) {
+        LOG_ERROR("Wrys not found in CharacterManager::setInitialLevel");
+    } else {
+        if (level == 2 && !sc->getVisible()) {
+            auto it3 = std::find(characters.begin(), characters.end(), sc);
+            if (it3 != characters.end()) {
+                characters.erase(it3);
+                LOG_INFO("Remove " + sc->getName() + " From CharacterManager.");
+            }
+        }
+    }
     std::shared_ptr<std::vector<std::vector<std::string>>> data = nullptr;
     if (!isEnemy)
         data = Tool::inputFile(DATA_CHARACTER "players/player_starting_position.csv");
@@ -66,22 +81,28 @@ void CharacterManager::setInitialLevel(int level) {
 
             if (c->getName() == e[0]) {
                 if (e[level * 2 - 1] != "X") {
+
                     currentLevelCharacters.push_back(c);
-                    c->setVisible(true);
+                    c->SetVisible(true);
+
+                    // special case
+                    if (c->getName() == "Wrys" && level == 1)
+                        c->SetVisible(false);
 
                     glm::ivec2 reg_pos = {std::stoi(e[level * 2 - 1]) * TILE_SIZE, std::stoi(e[level * 2]) * TILE_SIZE};
                     c->setAbsolutePos(reg_pos);
+
                     c->setAvoid(mapManager->getPosTile(reg_pos)->getAvoid());
                     LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x) + ", " +
                              std::to_string(c->getAbsolutePos().y));
                 } else {
-                    c->setAbsolutePos({-1, -1});
-                    c->setVisible(false);
+                    c->setAbsolutePos({-2, -2});
+                    c->SetVisible(false);
                 }
             }
         }
     }
-    currentUnwaitedCharacters = currentLevelCharacters;
+    reloadUnwaitingCharacter();
 }
 
 void CharacterManager::removeUnwaitingCharacter(std::shared_ptr<Character> c) {
@@ -95,8 +116,10 @@ void CharacterManager::removeUnwaitingCharacter(std::shared_ptr<Character> c) {
 void CharacterManager::reloadUnwaitingCharacter() {
     currentUnwaitedCharacters.clear();
     for (auto &c : currentLevelCharacters) {
-        c->setStatus(CharacterStatus::Normal);
-        currentUnwaitedCharacters.push_back(c);
+        if (c->getVisible()) {
+            c->setStatus(CharacterStatus::Normal);
+            currentUnwaitedCharacters.push_back(c);
+        }
     }
 }
 
@@ -110,6 +133,14 @@ void CharacterManager::clearTips() {
 
 bool CharacterManager::isNoMovableCharacter() { return currentUnwaitedCharacters.size() == 0; }
 
+std::shared_ptr<Character> CharacterManager::getCharacter(std::string id) {
+    for (std::shared_ptr<Character> &c : characters) {
+        if (c->getName() == id)
+            return c;
+    }
+    return nullptr;
+}
+
 std::shared_ptr<Character> CharacterManager::getPosMovableCharacter(glm::ivec2 a_pos) {
     for (std::shared_ptr<Character> &c : currentUnwaitedCharacters) {
 
@@ -121,8 +152,7 @@ std::shared_ptr<Character> CharacterManager::getPosMovableCharacter(glm::ivec2 a
 
 std::shared_ptr<Character> CharacterManager::getPosLevelCharacter(glm::ivec2 a_pos) {
     for (std::shared_ptr<Character> &c : currentLevelCharacters) {
-
-        if (c->getAbsolutePos() == a_pos)
+        if (c->getAbsolutePos() == a_pos && c->getVisible())
             return c;
     }
     return nullptr;
@@ -198,7 +228,7 @@ PlayerManager::PlayerManager(std::shared_ptr<MapManager> mm) : CharacterManager(
 bool PlayerManager::update() {
     for (auto &c : currentLevelCharacters) {
         if (c->getCurHP() <= 0) {
-            c->setVisible(false);
+            c->SetVisible(false);
             c->setAbsolutePos({-2, -2});
 
             auto it = std::find(currentUnwaitedCharacters.begin(), currentUnwaitedCharacters.end(), c);
@@ -211,6 +241,12 @@ bool PlayerManager::update() {
             if (it2 != currentLevelCharacters.end()) {
                 currentLevelCharacters.erase(it2);
                 LOG_INFO("Remove " + c->getName() + " From LevelCharacterVector.");
+                break;
+            }
+            auto it3 = std::find(characters.begin(), characters.end(), c);
+            if (it3 != characters.end()) {
+                characters.erase(it3);
+                LOG_INFO("Remove " + c->getName() + " From CharacterVector.");
                 break;
             }
         }
@@ -243,8 +279,11 @@ std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(std::shared_p
         std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
 
         std::unordered_set<glm::ivec2> reg = mapManager->getAbsoluteCantMovPosition();
-        for (auto pos = reg.begin(); pos != reg.end(); pos++)
+        for (auto pos = reg.begin(); pos != reg.end(); pos++) {
+            if (*pos == character->getAbsolutePos())
+                continue;
             mask.insert(*pos);
+        }
         character->refreshMoveRange(mask);
     }
     buildCharacterTips(character);
@@ -297,12 +336,10 @@ void PlayerManager::buildCharacterTips(std::shared_ptr<Character> character) {
     }
 }
 
-std::shared_ptr<Character> PlayerManager::getCharacter(std::string id) {
-    for (std::shared_ptr<Character> &c : characters) {
-        if (c->getName() == id)
-            return c;
-    }
-    return nullptr;
+void PlayerManager::WryTrigger() {
+    auto c = getCharacter("Wrys");
+    c->SetVisible(true);
+    currentUnwaitedCharacters.push_back(c);
 }
 
 EnemyManager::EnemyManager(std::shared_ptr<MapManager> mm) : CharacterManager(mm) {
@@ -345,7 +382,7 @@ EnemyManager::EnemyManager(std::shared_ptr<MapManager> mm) : CharacterManager(mm
 bool EnemyManager::update() {
     for (auto &c : currentLevelCharacters) {
         if (c->getCurHP() <= 0) {
-            c->setVisible(false);
+            c->SetVisible(false);
             c->setAbsolutePos({-2, -2});
 
             auto it = std::find(currentUnwaitedCharacters.begin(), currentUnwaitedCharacters.end(), c);

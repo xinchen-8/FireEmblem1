@@ -1,10 +1,14 @@
 #ifndef UIMANAGER_HPP
 #define UIMANAGER_HPP
+#include "UserInterface/ActUI.hpp"
 #include "UserInterface/BattleUI.hpp"
-#include "UserInterface/InfoUI.hpp"
+#include "UserInterface/CharacterInfoUI.hpp"
+#include "UserInterface/ItemUI.hpp"
 #include "UserInterface/LoadUI.hpp"
 #include "UserInterface/SelectedUI.hpp"
+#include "UserInterface/TileInfoUI.hpp"
 #include "UserInterface/UserInterface.hpp"
+#include "UserInterface/WeaponUI.hpp"
 
 class UIManager {
   public:

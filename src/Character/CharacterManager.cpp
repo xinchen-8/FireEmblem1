@@ -40,33 +40,11 @@ void CharacterManager::loadCharacter() {
             if (w[j] == "Vulnerary")
                 characters.back()->pushItem(std::make_shared<Vulnerary>((*itemData)[ITEM_ROWINDEX::VULNERARY]));
             else if (w[j] == "Heal")
-                characters.back()->pushItem(std::make_shared<Heal>((*weaponData)[HANDHELD_ROWINDEX::HEAL]));
-            else if (w[j] == "Rapier")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::RAPIER]));
-            else if (w[j] == "Iron Sword")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_SWORD]));
-            else if (w[j] == "Steel Sword")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_SWORD]));
-            else if (w[j] == "Iron Lance")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_LANCE]));
-            else if (w[j] == "Silver Lance")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::SILVER_LANCE]));
-            else if (w[j] == "Javelin")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::JAVELIN]));
-            else if (w[j] == "Iron Bow")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_BOW]));
-            else if (w[j] == "Steel Bow")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_BOW]));
-            else if (w[j] == "Bowgun")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::BOWGUN]));
-            else if (w[j] == "Iron Axe")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::IRON_AXE]));
-            else if (w[j] == "Steel Axe")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::STEEL_AXE]));
-            else if (w[j] == "Hand Axe")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAND_AXE]));
-            else if (w[j] == "Hammer")
-                characters.back()->pushItem(std::make_shared<Weapon>((*weaponData)[HANDHELD_ROWINDEX::HAMMER]));
+                characters.back()->pushItem(std::make_shared<Heal>(weaponData->at(HANDHELD_ROWINDEX.at("Heal"))));
+            else {
+                auto &weapon = weaponData->at(HANDHELD_ROWINDEX.at(w[j]));
+                characters.back()->pushItem(std::make_shared<Weapon>(weapon));
+            }
         }
     }
 

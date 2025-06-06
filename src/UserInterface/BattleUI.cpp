@@ -169,6 +169,10 @@ void BattleUI::update() {
     static int frame = 0;
     static bool isFinish = false;
 
+    glm::ivec2 ATKDPosition = glm::ivec2(400, 0);
+    glm::ivec2 ATKRPosition = glm::ivec2(-400, 0);
+    glm::ivec2 Step = glm::ivec2(5, 0);
+
     if (isFinish && (frame == 57 || frame == 113 || frame == 123 || frame == 181)) {
         attackerCharacter = nullptr;
         attackedCharacter = nullptr;
@@ -190,7 +194,7 @@ void BattleUI::update() {
     case 13:
     case 14:
     case 15:
-        attackerGO->m_Transform.translation += glm::ivec2(5, 0);
+        attackerGO->m_Transform.translation += Step;
         break;
 
     case 25: {
@@ -214,24 +218,30 @@ void BattleUI::update() {
 
     case 35:
         if (attackedCharacter->getCurHP() == 0) {
-            isFinish = true;
             setString(attackedCharacter->getName() + " was defeated!");
             LOG_INFO(attackedCharacter->getName() + " was defeated!");
         } else {
-            attackedGO->m_Transform.translation = glm::ivec2(400, 0);
+            attackedGO->m_Transform.translation = ATKDPosition;
             attackedGO->SetDrawable((!attackedCharacter->isEnemy())
                                         ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
                                         : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png"));
         }
         break;
+
     case 45:
+        if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0) {
+            setString(attackerCharacter->getName() + "'s weapon broke!");
+            LOG_INFO(attackerCharacter->getName() + "'s weapon broke!");
+        }
     case 46:
     case 47:
     case 48:
-        attackerGO->m_Transform.translation -= glm::ivec2(5, 0);
+        attackerGO->m_Transform.translation -= Step;
         break;
 
     case 49:
+        if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0 || attackedCharacter->getCurHP() == 0)
+            isFinish = true;
         if (!canCounterAttack)
             frame = 105;
         break;
@@ -245,7 +255,7 @@ void BattleUI::update() {
     case 69:
     case 70:
     case 71:
-        attackedGO->m_Transform.translation -= glm::ivec2(5, 0);
+        attackedGO->m_Transform.translation -= Step;
         break;
 
     case 81: {
@@ -260,7 +270,7 @@ void BattleUI::update() {
             setString(std::to_string(regHP) + " damage!");
             LOG_INFO(std::to_string(regHP) + " damage!");
         } else {
-            attackerGO->m_Transform.translation -= glm::ivec2(-5, 0);
+            attackerGO->m_Transform.translation += Step;
             setString(attackerCharacter->getName() + " dodges!");
             LOG_INFO(attackerCharacter->getName() + " dodges!");
         }
@@ -269,11 +279,10 @@ void BattleUI::update() {
 
     case 91:
         if (attackerCharacter->getCurHP() == 0) {
-            isFinish = true;
             setString(attackerCharacter->getName() + " was defeated!");
             LOG_INFO(attackerCharacter->getName() + " was defeated!");
         } else {
-            attackerGO->m_Transform.translation = glm::ivec2(-400, 0);
+            attackerGO->m_Transform.translation = ATKRPosition;
             attackerGO->SetDrawable((!attackerCharacter->isEnemy())
                                         ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png")
                                         : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png"));
@@ -281,15 +290,20 @@ void BattleUI::update() {
         break;
 
     case 101:
+        if (attackedCharacter->getCurrentHandHeldItem()->getUses() == 0) {
+            setString(attackedCharacter->getName() + "'s weapon broke!");
+            LOG_INFO(attackedCharacter->getName() + "'s weapon broke!");
+        }
     case 102:
     case 103:
     case 104:
-        attackedGO->m_Transform.translation += glm::ivec2(5, 0);
+        attackedGO->m_Transform.translation += Step;
         break;
 
     // follow up
     case 114:
-        if (!canFollowUpAttack)
+        if (attackerCharacter->getCurHP() == 0 || attackedCharacter->getCurrentHandHeldItem()->getUses() == 0 ||
+            !canFollowUpAttack)
             isFinish = true;
         break;
 
@@ -304,9 +318,9 @@ void BattleUI::update() {
     case 136:
     case 137:
         if (followUpType == followType::Attacker)
-            attackerGO->m_Transform.translation += glm::ivec2(5, 0);
+            attackerGO->m_Transform.translation += Step;
         else
-            attackedGO->m_Transform.translation -= glm::ivec2(5, 0);
+            attackedGO->m_Transform.translation -= Step;
         break;
 
     case 147: {
@@ -322,7 +336,7 @@ void BattleUI::update() {
                 setString(std::to_string(regHP) + " damage!");
                 LOG_INFO(std::to_string(regHP) + " damage!");
             } else {
-                attackedGO->m_Transform.translation += glm::ivec2(5, 0);
+                attackedGO->m_Transform.translation += Step;
                 setString(attackedCharacter->getName() + " dodges!");
                 LOG_INFO(attackedCharacter->getName() + " dodges!");
             }
@@ -338,7 +352,7 @@ void BattleUI::update() {
                 setString(std::to_string(regHP) + " damage!");
                 LOG_INFO(std::to_string(regHP) + " damage!");
             } else {
-                attackerGO->m_Transform.translation -= glm::ivec2(5, 0);
+                attackerGO->m_Transform.translation -= Step;
                 setString(attackerCharacter->getName() + " dodges!");
                 LOG_INFO(attackerCharacter->getName() + " dodges!");
             }
@@ -349,7 +363,6 @@ void BattleUI::update() {
     case 157: {
         if (followUpType == followType::Attacker) {
             if (attackedCharacter->getCurHP() == 0) {
-                isFinish = true;
                 setString(attackedCharacter->getName() + " was defeated!");
                 LOG_INFO(attackedCharacter->getName() + " was defeated!");
             } else {
@@ -360,7 +373,6 @@ void BattleUI::update() {
             }
         } else {
             if (attackerCharacter->getCurHP() == 0) {
-                isFinish = true;
                 setString(attackerCharacter->getName() + " was defeated!");
                 LOG_INFO(attackerCharacter->getName() + " was defeated!");
             } else {
@@ -374,13 +386,20 @@ void BattleUI::update() {
     }
 
     case 167:
+        if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0) {
+            setString(attackerCharacter->getName() + "'s weapon broke!");
+            LOG_INFO(attackerCharacter->getName() + "'s weapon broke!");
+        } else if (attackedCharacter->getCurHP() == 0) {
+            setString(attackedCharacter->getName() + "'s weapon broke!");
+            LOG_INFO(attackedCharacter->getName() + "'s weapon broke!");
+        }
     case 168:
     case 169:
     case 170:
         if (followUpType == followType::Attacker)
-            attackerGO->m_Transform.translation -= glm::ivec2(5, 0);
+            attackerGO->m_Transform.translation -= Step;
         else
-            attackedGO->m_Transform.translation += glm::ivec2(5, 0);
+            attackedGO->m_Transform.translation += Step;
         break;
 
     case 180:
@@ -389,6 +408,8 @@ void BattleUI::update() {
     default:
         break;
     }
+    attackerCharacter->freshItem();
+    attackedCharacter->freshItem();
 }
 
 void BattleUI::refreshHpPoint() {

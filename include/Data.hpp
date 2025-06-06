@@ -70,22 +70,10 @@ struct ITEM_ROWINDEX {
     static constexpr int VULNERARY = 1;
 };
 
-struct HANDHELD_ROWINDEX {
-    static constexpr int RAPIER = 1;
-    static constexpr int IRON_SWORD = 2;
-    static constexpr int STEEL_SWORD = 3;
-    static constexpr int IRON_LANCE = 4;
-    static constexpr int SILVER_LANCE = 5;
-    static constexpr int JAVELIN = 6;
-    static constexpr int IRON_BOW = 7;
-    static constexpr int STEEL_BOW = 8;
-    static constexpr int BOWGUN = 9;
-    static constexpr int HEAL = 10;
-    static constexpr int IRON_AXE = 11;
-    static constexpr int STEEL_AXE = 12;
-    static constexpr int HAND_AXE = 13;
-    static constexpr int HAMMER = 14;
-};
+const std::unordered_map<std::string, int> HANDHELD_ROWINDEX = {
+    {"Rapier", 1},    {"Iron Sword", 2}, {"Steel Sword", 3}, {"Iron Lance", 4}, {"Silver Lance", 5},
+    {"Javelin", 6},   {"Iron Bow", 7},   {"Steel Bow", 8},   {"Bowgun", 9},     {"Heal", 10},
+    {"Iron Axe", 11}, {"Steel Axe", 12}, {"Hand Axe", 13},   {"Hammer", 14},    {"Test", 15}};
 
 // // For tiles of map that do not display animation
 // const std::vector<std::unordered_set<glm::ivec2>> TILE_MASK = {

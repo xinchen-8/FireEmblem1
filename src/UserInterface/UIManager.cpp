@@ -74,7 +74,11 @@ void UIManager::loadActUI() {
                     playerManager->getCharacter("Wrys")->getAbsolutePos() - glm::ivec2{0, TILE_SIZE} ==
                         selectedCharacter->getAbsolutePos()); //"Visit"
 
-    flags.push_back(false); //"Talk"
+    auto darros = playerManager->getCharacter("Darros");
+    auto castor = playerManager->getCharacter("Castor");
+    flags.push_back(
+        (playerManager->isNearEnemy("Marth", "Darros") && darros->getCurHP() == darros->getHpLimit()) ||
+        (playerManager->isNearEnemy("Caeda", "Castor") && castor->getCurHP() == castor->getHpLimit())); //"Talk"
 
     flags.push_back(selectedCharacter->getAttackRange().size() != 0); //"Attack"
     flags.push_back(true);                                            //"Item"
@@ -121,8 +125,21 @@ bool UIManager::activeActUI() {
         playerManager->removeUnwaitingCharacter(selectedCharacter);
         playerManager->clearTips();
 
-    } else if (act == "Talk") {
+    } else if (act == "Talk" && selectedCharacter) {
         LOG_INFO("Select Talk Option");
+        if (playerManager->isNearEnemy("Marth", "Darros"))
+            playerManager->TalkTrigger("Darros");
+
+        else if (playerManager->isNearEnemy("Caeda", "Castor"))
+            playerManager->TalkTrigger("Castor");
+
+        else
+            LOG_ERROR("NO TALK TARGET...");
+
+        selection->setStatus(SelectionStatus::Normal);
+        selectedCharacter->setStatus(CharacterStatus::Waiting);
+        playerManager->removeUnwaitingCharacter(selectedCharacter);
+        playerManager->clearTips();
 
     } else if (act == "Item" && selectedCharacter) {
         LOG_INFO("Select Item Option");

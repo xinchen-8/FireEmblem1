@@ -13,6 +13,7 @@ class CharacterManager {
 
     // void refreshAllCharacterMoveRange();
     // void buildCharacterTips(); //Overload
+    void characterIsDead(std::shared_ptr<Character> c);
     void removeUnwaitingCharacter(std::shared_ptr<Character> c);
     void reloadUnwaitingCharacter();
     void clearTips();
@@ -59,7 +60,9 @@ class PlayerManager : public CharacterManager {
     void findCharacterAttackTarget(std::shared_ptr<Character> character);
 
     // special case
+    bool isNearEnemy(std::string name1, std::string name2);
     void WryTrigger();
+    void TalkTrigger(std::string name);
 };
 
 class EnemyManager : public CharacterManager {

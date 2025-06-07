@@ -105,6 +105,27 @@ void CharacterManager::setInitialLevel(int level) {
     reloadUnwaitingCharacter();
 }
 
+void CharacterManager::characterIsDead(std::shared_ptr<Character> c) {
+    c->SetVisible(false);
+    c->setAbsolutePos({-2, -2});
+
+    auto it = std::find(currentUnwaitedCharacters.begin(), currentUnwaitedCharacters.end(), c);
+    if (it != currentUnwaitedCharacters.end()) {
+        currentUnwaitedCharacters.erase(it);
+        LOG_INFO("Remove " + c->getName() + " From UnwaitedCharacterVector.");
+    }
+    auto it2 = std::find(currentLevelCharacters.begin(), currentLevelCharacters.end(), c);
+    if (it2 != currentLevelCharacters.end()) {
+        currentLevelCharacters.erase(it2);
+        LOG_INFO("Remove " + c->getName() + " From LevelCharacterVector.");
+    }
+    auto it3 = std::find(characters.begin(), characters.end(), c);
+    if (it3 != characters.end()) {
+        characters.erase(it3);
+        LOG_INFO("Remove " + c->getName() + " From CharacterVector.");
+    }
+}
+
 void CharacterManager::removeUnwaitingCharacter(std::shared_ptr<Character> c) {
     auto it = std::find(currentUnwaitedCharacters.begin(), currentUnwaitedCharacters.end(), c);
     if (it != currentUnwaitedCharacters.end()) {
@@ -228,27 +249,8 @@ PlayerManager::PlayerManager(std::shared_ptr<MapManager> mm) : CharacterManager(
 bool PlayerManager::update() {
     for (auto &c : currentLevelCharacters) {
         if (c->getCurHP() <= 0) {
-            c->SetVisible(false);
-            c->setAbsolutePos({-2, -2});
-
-            auto it = std::find(currentUnwaitedCharacters.begin(), currentUnwaitedCharacters.end(), c);
-            if (it != currentUnwaitedCharacters.end()) {
-                currentUnwaitedCharacters.erase(it);
-                LOG_INFO("Remove " + c->getName() + " From UnwaitedCharacterVector.");
-                break;
-            }
-            auto it2 = std::find(currentLevelCharacters.begin(), currentLevelCharacters.end(), c);
-            if (it2 != currentLevelCharacters.end()) {
-                currentLevelCharacters.erase(it2);
-                LOG_INFO("Remove " + c->getName() + " From LevelCharacterVector.");
-                break;
-            }
-            auto it3 = std::find(characters.begin(), characters.end(), c);
-            if (it3 != characters.end()) {
-                characters.erase(it3);
-                LOG_INFO("Remove " + c->getName() + " From CharacterVector.");
-                break;
-            }
+            characterIsDead(c);
+            break;
         }
     }
 
@@ -336,10 +338,37 @@ void PlayerManager::buildCharacterTips(std::shared_ptr<Character> character) {
     }
 }
 
+bool PlayerManager::isNearEnemy(std::string name1, std::string name2) {
+    auto c1 = getCharacter(name1);
+    auto c2 = characterManager.lock()->getCharacter(name2);
+    if (!c1 || !c2)
+        return false;
+
+    auto diff = c1->getAbsolutePos() - c2->getAbsolutePos();
+    return abs(diff.x) + abs(diff.y) <= TILE_SIZE;
+}
+
 void PlayerManager::WryTrigger() {
     auto c = getCharacter("Wrys");
     c->SetVisible(true);
     currentUnwaitedCharacters.push_back(c);
+}
+
+void PlayerManager::TalkTrigger(std::string name) {
+    auto c1 = getCharacter(name);
+    auto c2 = characterManager.lock()->getCharacter(name);
+
+    if (!c1 || !c2) {
+        LOG_ERROR("Character " + name + " not found in PlayerManager::TalkTrigger");
+        return;
+    }
+    c1->setAbsolutePos(c2->getAbsolutePos());
+    characterManager.lock()->characterIsDead(c2);
+    c1->setStatus(CharacterStatus::Normal);
+    c1->setAvoid(mapManager->getPosTile(c1->getAbsolutePos())->getAvoid());
+    c1->SetVisible(true);
+    currentLevelCharacters.push_back(c1);
+    currentUnwaitedCharacters.push_back(c1);
 }
 
 EnemyManager::EnemyManager(std::shared_ptr<MapManager> mm) : CharacterManager(mm) {

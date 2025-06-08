@@ -198,7 +198,7 @@ void ItemInfoUI::update() {
 
     auto vulnerary = std::dynamic_pointer_cast<Vulnerary>(item);
     if (vulnerary) {
-        content += "Heal 10\n";  // Vulnerary固定治療10點
+        content += "Heal 10\n\n\n";  // Vulnerary固定治療10點
     }
 
     content += "uses " + std::to_string(item->getUses()) + "\n" +

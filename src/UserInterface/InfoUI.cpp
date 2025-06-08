@@ -109,7 +109,7 @@ ItemInfoUI::ItemInfoUI(std::vector<std::shared_ptr<Tile>> &tiles) : UserInterfac
 void ItemInfoUI::load(std::shared_ptr<Item> item) {
     if (item) {
         this->item = item;
-        this->character = nullptr;  // 重置角色指針
+        this->character = nullptr;
     }
 }
 
@@ -143,34 +143,34 @@ void ItemInfoUI::nextItem() {
             currentItemIndex = nextIndex;
             item = items[nextIndex];
             LOG_INFO("Switched to item: " + item->getName());
-            update();  // 強制更新顯示
+            update();
             return;
         }
     }
     LOG_INFO("No next item found");
 }
 
-void ItemInfoUI::prevItem() {
-    if (!character) {
-        LOG_INFO("No character loaded in ItemInfoUI");
-        return;
-    }
+// void ItemInfoUI::prevItem() {
+//     if (!character) {
+//         LOG_INFO("No character loaded in ItemInfoUI");
+//         return;
+//     }
     
-    auto items = character->getItems();
-    LOG_INFO("Current item index: " + std::to_string(currentItemIndex));
-    for (int i = 1; i <= items.size(); i++) {
-        int prevIndex = (currentItemIndex - i + items.size()) % items.size();
-        LOG_INFO("Checking prev index: " + std::to_string(prevIndex));
-        if (items[prevIndex] != nullptr) {
-            currentItemIndex = prevIndex;
-            item = items[prevIndex];
-            LOG_INFO("Switched to item: " + item->getName());
-            update();  // 強制更新顯示
-            return;
-        }
-    }
-    LOG_INFO("No previous item found");
-}
+//     auto items = character->getItems();
+//     LOG_INFO("Current item index: " + std::to_string(currentItemIndex));
+//     for (int i = 1; i <= items.size(); i++) {
+//         int prevIndex = (currentItemIndex - i + items.size()) % items.size();
+//         LOG_INFO("Checking prev index: " + std::to_string(prevIndex));
+//         if (items[prevIndex] != nullptr) {
+//             currentItemIndex = prevIndex;
+//             item = items[prevIndex];
+//             LOG_INFO("Switched to item: " + item->getName());
+//             update();
+//             return;
+//         }
+//     }
+//     LOG_INFO("No previous item found");
+// }
 
 void ItemInfoUI::setItemIndex(int index) {
     if (!character) return;
@@ -198,7 +198,7 @@ void ItemInfoUI::update() {
 
     auto vulnerary = std::dynamic_pointer_cast<Vulnerary>(item);
     if (vulnerary) {
-        content += "Heal 10\n";  // Vulnerary 固定治療 10 點
+        content += "Heal 10\n";  // Vulnerary固定治療10點
     }
 
     content += "uses " + std::to_string(item->getUses()) + "\n" +

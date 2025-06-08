@@ -35,7 +35,7 @@ class UIManager {
     
     // 新增物品切換控制
     void nextItemInfo() { itemInfo->nextItem(); }
-    void prevItemInfo() { itemInfo->prevItem(); }
+    // void prevItemInfo() { itemInfo->prevItem(); }
     void setItemInfoIndex(int index) { itemInfo->setItemIndex(index); }
     std::shared_ptr<ItemInfoUI> getItemInfo() { return itemInfo; }
 

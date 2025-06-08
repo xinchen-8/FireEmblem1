@@ -143,13 +143,13 @@ void App::Update() {
         LOG_INFO("F3 pressed");
         uiManager->changeVisibleItemInfo();
     }
-    // 物品切換控制
+    // item change
+    // else if (Util::Input::IsKeyDown(Util::Keycode::Q) && accessInput && uiManager->getItemInfo()->getVisible()) {
+    //     LOG_INFO("Q pressed - Previous item");
+    //     uiManager->prevItemInfo();
+    // }
     else if (Util::Input::IsKeyDown(Util::Keycode::Q) && accessInput && uiManager->getItemInfo()->getVisible()) {
-        LOG_INFO("Q pressed - Previous item");
-        uiManager->prevItemInfo();
-    }
-    else if (Util::Input::IsKeyDown(Util::Keycode::E) && accessInput && uiManager->getItemInfo()->getVisible()) {
-        LOG_INFO("E pressed - Next item");
+        LOG_INFO("Q pressed - Next item");
         uiManager->nextItemInfo();
     }
     // player tip

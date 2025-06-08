@@ -44,7 +44,7 @@ class ItemInfoUI : public UserInterface {
     void setVisible(bool visible);
     std::vector<std::shared_ptr<GameObject>> getChildren() override;
     void nextItem();  // 切換到下一個物品
-    void prevItem();  // 切換到上一個物品
+    // void prevItem();  // 切換到上一個物品
     void setItemIndex(int index);  // 設定當前物品索引
 
   private:

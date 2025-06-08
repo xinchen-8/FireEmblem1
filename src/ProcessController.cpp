@@ -122,7 +122,12 @@ void ProcessController::IUIToNormal(std::shared_ptr<Character> &selectedCharacte
 bool ProcessController::enemyTurn(bool accessInput) {
     if (!accessInput)
         return false;
-
+    if (enemyManager->getCurrentUnwaitedCharacters().size() == 0) {
+        enemyManager->reloadUnwaitingCharacter();
+        camera->setTraceObject(nullptr);
+        camera->resetCameraAbsolutePos();
+        return true; // finished
+    }
     static int frame = 0;
     static std::vector<std::shared_ptr<Character>> playerOfRange = {};
     static std::shared_ptr<Character> TargetPlayer = nullptr;
@@ -224,9 +229,10 @@ bool ProcessController::enemyTurn(bool accessInput) {
                     break;
                 }
             }
-            if (c->getWalkPath().empty())
-                LOG_ERROR("EnemyManager::enemyTurn: No valid path found for attack.");
-            else
+            if (c->getWalkPath().empty()) {
+                LOG_INFO("EnemyManager::enemyTurn: No valid path found for attack.");
+                TargetPlayer = nullptr;
+            } else
                 break;
         }
 
@@ -269,13 +275,6 @@ bool ProcessController::enemyTurn(bool accessInput) {
         frame = 0;
         break;
     }
-    }
-
-    if (enemyManager->getCurrentUnwaitedCharacters().size() == 0) {
-        enemyManager->reloadUnwaitingCharacter();
-        camera->setTraceObject(nullptr);
-        camera->resetCameraAbsolutePos();
-        return true; // finished
     }
     return false; // not finished
 }

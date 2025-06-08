@@ -388,7 +388,7 @@ void BattleUI::update() {
         }
 
         case 167:
-            if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0) {
+            if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0 && followUpType == followType::Attacker) {
                 setString(attackerCharacter->getName() + "'s weapon broke!");
                 LOG_INFO(attackerCharacter->getName() + "'s weapon broke!");
             } else if (attackedCharacter->getCurHP() == 0) {

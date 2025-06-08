@@ -161,12 +161,15 @@ void App::Update() {
     else if (Util::Input::IsKeyDown(Util::Keycode::F3) && accessInput) {
         LOG_INFO("F3 pressed");
         playerManager->changeTipsVisible(selection->getSelectCharacter());
+        // next turn
     } else if (Util::Input::IsKeyDown(Util::Keycode::NUM_0) && selection->getStatus() == SelectionStatus::Normal) {
         for (auto &c : playerManager->getCurrentUnwaitedCharacters()) {
             playerManager->removeUnwaitingCharacter(c);
             c->setStatus(CharacterStatus::Waiting);
         }
-    }
+        // cheating
+    } else if (Util::Input::IsKeyDown(Util::Keycode::NUM_1))
+        cheating = !cheating;
 
     // update
     camera->update();
@@ -176,12 +179,6 @@ void App::Update() {
         uiManager->GameOver();
         return;
     }
-
-    if (playerManager->update() && selection->getStatus() == SelectionStatus::Walking) {
-        uiManager->loadActUI();
-        selection->setStatus(SelectionStatus::SUI);
-    }
-    enemyManager->update();
     accessInput = uiManager->updateBattleUI();
 
     if (!--delayKeyCounter)
@@ -189,12 +186,25 @@ void App::Update() {
 
     // next turn
     if (playerManager->isNoMovableCharacter()) {
+        if (cheating) {
+            playerManager->reloadUnwaitingCharacter();
+            enemyManager->reloadUnwaitingCharacter();
+            selection->setStatus(SelectionStatus::Normal);
+            return;
+        }
         selection->setStatus(SelectionStatus::EnemyMoving);
         if (pc->enemyTurn(accessInput)) {
             playerManager->reloadUnwaitingCharacter();
             selection->setStatus(SelectionStatus::Normal);
         }
     }
+    if (playerManager->update() && selection->getStatus() == SelectionStatus::Walking) {
+        uiManager->loadActUI();
+        selection->setStatus(SelectionStatus::SUI);
+    }
+
+    enemyManager->update();
+
     // std::cout << std::to_string(static_cast<int>(selection->getStatus())) << std::endl;
 }
 

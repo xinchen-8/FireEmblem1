@@ -23,13 +23,10 @@ class App {
     void Update();
     void End(); // NOLINT(readability-convert-member-functions-to-static)
 
-    friend class ProcessController;
-
   private:
     // void ValidTask();
     int currentLevel = 1;
-
-  private:
+    bool cheating = false;
     State m_CurrentState = State::START;
 
     bool accessInput = true;

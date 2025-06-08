@@ -163,16 +163,20 @@ void App::Update() {
     else if (Util::Input::IsKeyDown(Util::Keycode::F3) && accessInput) {
         LOG_INFO("F3 pressed");
         playerManager->changeTipsVisible(selection->getSelectCharacter());
-    } else if (Util::Input::IsKeyDown(Util::Keycode::NUM_0)) {
-        playerManager->reloadUnwaitingCharacter();
+    } else if (Util::Input::IsKeyDown(Util::Keycode::NUM_0) && selection->getStatus() == SelectionStatus::Normal) {
+        for (auto &c : playerManager->getCurrentUnwaitedCharacters()) {
+            playerManager->removeUnwaitingCharacter(c);
+            c->setStatus(CharacterStatus::Waiting);
+        }
     }
 
     // update
     camera->update();
 
-    if (playerManager->getCharacter("Marth")->getCurHP() == 0) {
+    if (playerManager->getCharacter("Marth") == nullptr) {
         LOG_INFO("Marth is dead, game over!");
         uiManager->GameOver();
+        return;
     }
 
     if (playerManager->update() && selection->getStatus() == SelectionStatus::Walking) {
@@ -186,8 +190,13 @@ void App::Update() {
         delayKeyCounter = delayKeyLimit;
 
     // next turn
-    if (playerManager->isNoMovableCharacter())
-        playerManager->reloadUnwaitingCharacter();
+    if (playerManager->isNoMovableCharacter()) {
+        selection->setStatus(SelectionStatus::EnemyMoving);
+        if (pc->enemyTurn(accessInput)) {
+            playerManager->reloadUnwaitingCharacter();
+            selection->setStatus(SelectionStatus::Normal);
+        }
+    }
     // std::cout << std::to_string(static_cast<int>(selection->getStatus())) << std::endl;
 }
 

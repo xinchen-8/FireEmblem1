@@ -84,6 +84,7 @@ class Character : public CameraGameObject {
     std::unordered_map<glm::ivec2, int> getMoveRange() { return moveRange; }
     std::unordered_map<glm::ivec2, int> getAttackRange() { return attackRange; }
     std::queue<glm::ivec2> getWalkPath() { return walkPath; }
+    std::unordered_map<std::string, int> getWalkCost() { return *walkCost; }
 
     void findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask);
     void findHandHeldScope();

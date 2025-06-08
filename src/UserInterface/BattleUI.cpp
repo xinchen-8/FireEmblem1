@@ -178,8 +178,6 @@ void BattleUI::update() {
 
     if (attackedCharacter->isEnemy() != attackerCharacter->isEnemy()) {
         if (isFinish && (frame == 57 || frame == 113 || frame == 123 || frame == 181)) {
-            attackerCharacter = nullptr;
-            attackedCharacter = nullptr;
             isFinish = false;
             finishTrigger = true;
             setVisible(false);

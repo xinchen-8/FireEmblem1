@@ -6,6 +6,13 @@
 #include "Tile.hpp"
 #include "UserInterface/UIManager.hpp"
 
+struct A_Node {
+    glm::ivec2 pos;
+    int gCost, hCost, fCost;
+
+    bool operator>(const A_Node &other) const { return fCost > other.fCost; }
+};
+
 class ProcessController {
   public:
     ProcessController(std::shared_ptr<MapManager> mapManager, std::shared_ptr<PlayerManager> playerManager,
@@ -15,6 +22,8 @@ class ProcessController {
     void BackCase();
     void MovCase(glm::ivec2 mov);
     void MovCase(int listMov);
+
+    bool enemyTurn(bool accessInput);
 
   private:
     void normalToMoving(std::shared_ptr<Character> &selectCharacter);
@@ -26,6 +35,9 @@ class ProcessController {
     void ATKTargetingToATKWUI(glm::ivec2 targetPos);
     void ATKToNormal(std::shared_ptr<Character> &selectedCharacter, std::shared_ptr<Character> &selectEnemy);
     void IUIToNormal(std::shared_ptr<Character> &selectedCharacter);
+
+    int heuristic(const glm::ivec2 &a, const glm::ivec2 &b);
+    std::unordered_map<glm::ivec2, int> findBestPathToMarth(std::shared_ptr<Character> &enemy);
 
     std::shared_ptr<MapManager> mapManager = nullptr;
     std::shared_ptr<PlayerManager> playerManager = nullptr;

@@ -14,6 +14,8 @@ class BattleUI : public UserInterface {
     void setVisible(bool visible) override;
     std::vector<std::shared_ptr<Util::GameObject>> getChildren() override;
     bool isFinish();
+    std::shared_ptr<Character> getAttackerCharacter() const { return attackerCharacter; }
+    std::shared_ptr<Character> getAttackedCharacter() const { return attackedCharacter; }
 
   private:
     bool finishTrigger = false;

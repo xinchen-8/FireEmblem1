@@ -239,11 +239,16 @@ bool UIManager::updateBattleUI() {
     battle->update();
 
     if (battle->isFinish()) {
-        std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
-        selectedCharacter->setStatus(CharacterStatus::Waiting);
-        playerManager->removeUnwaitingCharacter(selectedCharacter);
-        playerManager->clearTips();
-        selection->setStatus(SelectionStatus::Normal);
+        auto c = battle->getAttackerCharacter();
+        if (c->isEnemy()) {
+            enemyManager->removeUnwaitingCharacter(c);
+            c->setStatus(CharacterStatus::Waiting);
+        } else {
+            c->setStatus(CharacterStatus::Waiting);
+            playerManager->removeUnwaitingCharacter(c);
+            playerManager->clearTips();
+            selection->setStatus(SelectionStatus::Normal);
+        }
         return true; // for accessInput
     }
     return !battle->getVisible();

@@ -56,7 +56,8 @@ enum class SelectionStatus {
     AttackWUI,
     BattleUI,
     ITEMIUI,
-    loadUI
+    loadUI,
+    EnemyMoving
 };
 
 enum class CharacterStatus { Normal, Moving, Waiting };

@@ -51,8 +51,7 @@ class PlayerManager : public CharacterManager {
   public:
     // using CharacterManager::buildCharacterTips;
     PlayerManager(std::shared_ptr<MapManager> mm);
-    bool update() override;
-
+    bool update() override; // return isTrigger
     void changeTipsVisible(std::shared_ptr<Character> character = nullptr);
     void buildCharacterTips(std::shared_ptr<Character> character);
 
@@ -69,7 +68,8 @@ class EnemyManager : public CharacterManager {
   public:
     // using CharacterManager::buildCharacterTips;
     EnemyManager(std::shared_ptr<MapManager> mm);
-    bool update() override;
+    bool update() override;           // return isTrigger
+    bool enemyTurn(bool accessInput); // return finished
 };
 
 #endif

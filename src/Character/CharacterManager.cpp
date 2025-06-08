@@ -411,21 +411,8 @@ EnemyManager::EnemyManager(std::shared_ptr<MapManager> mm) : CharacterManager(mm
 bool EnemyManager::update() {
     for (auto &c : currentLevelCharacters) {
         if (c->getCurHP() <= 0) {
-            c->SetVisible(false);
-            c->setAbsolutePos({-2, -2});
-
-            auto it = std::find(currentUnwaitedCharacters.begin(), currentUnwaitedCharacters.end(), c);
-            if (it != currentUnwaitedCharacters.end()) {
-                currentUnwaitedCharacters.erase(it);
-                LOG_INFO("Remove " + c->getName() + " From UnwaitedCharacterVector.");
-                break;
-            }
-            auto it2 = std::find(currentLevelCharacters.begin(), currentLevelCharacters.end(), c);
-            if (it2 != currentLevelCharacters.end()) {
-                currentLevelCharacters.erase(it2);
-                LOG_INFO("Remove " + c->getName() + " From LevelCharacterVector.");
-                break;
-            }
+            characterIsDead(c);
+            break;
         }
     }
 

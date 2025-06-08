@@ -143,6 +143,15 @@ void App::Update() {
         LOG_INFO("F3 pressed");
         uiManager->changeVisibleItemInfo();
     }
+    // 物品切換控制
+    else if (Util::Input::IsKeyDown(Util::Keycode::Q) && accessInput && uiManager->getItemInfo()->getVisible()) {
+        LOG_INFO("Q pressed - Previous item");
+        uiManager->prevItemInfo();
+    }
+    else if (Util::Input::IsKeyDown(Util::Keycode::E) && accessInput && uiManager->getItemInfo()->getVisible()) {
+        LOG_INFO("E pressed - Next item");
+        uiManager->nextItemInfo();
+    }
     // player tip
     else if (Util::Input::IsKeyDown(Util::Keycode::F4) && accessInput) {
         LOG_INFO("F4 pressed");

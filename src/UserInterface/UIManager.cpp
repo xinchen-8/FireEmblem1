@@ -31,18 +31,16 @@ void UIManager::load() {
     auto s = selection->getSelectCharacter();
     auto c = playerManager->getPosLevelCharacter(selection->getAbsolutePos());
     auto e = enemyManager->getPosLevelCharacter(selection->getAbsolutePos());
+    
     if (c) {
-        // characterInfo->load(c);
         characterInfoFull->load(c);
-        itemInfo->load(c->getItems()[c->getHandHeldIndex()]);
+        itemInfo->load(c);
     } else if (e) {
-        // characterInfo->load(e);
         characterInfoFull->load(e);
-        itemInfo->load(e->getItems()[e->getHandHeldIndex()]);
+        itemInfo->load(e);
     } else if (s && selection->getStatus() == SelectionStatus::Moving) {
-        // characterInfo->load(s);
         characterInfoFull->load(s);
-        itemInfo->load(s->getItems()[s->getHandHeldIndex()]);
+        itemInfo->load(s);
     }
 }
 

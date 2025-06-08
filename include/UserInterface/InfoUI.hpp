@@ -34,4 +34,17 @@ class CharacterInfoUIFull : public UserInterface {
     std::shared_ptr<Util::GameObject> profile = nullptr;
     std::shared_ptr<Character> character = nullptr;
 };
+
+class ItemInfoUI : public UserInterface {
+  public:
+    ItemInfoUI(std::vector<std::shared_ptr<Tile>> &tiles);
+    void load(std::shared_ptr<Item> item);
+    void update() override;
+    void setVisible(bool visible);
+    std::vector<std::shared_ptr<GameObject>> getChildren() override;
+
+  private:
+    std::shared_ptr<Item> item = nullptr;
+};
+
 #endif

@@ -98,3 +98,44 @@ std::vector<std::shared_ptr<Util::GameObject>> CharacterInfoUIFull::getChildren(
         children.push_back(profile);
     return children;
 }
+
+ItemInfoUI::ItemInfoUI(std::vector<std::shared_ptr<Tile>> &tiles) : UserInterface(tiles) {
+    setUISize({7, 5});
+
+    setRelativePos({+floor(PTSD_Config::WINDOW_WIDTH / 2) - 7 * TILE_SIZE,
+                    -floor(PTSD_Config::WINDOW_HEIGHT / 2) + 1 * TILE_SIZE});
+}
+
+void ItemInfoUI::load(std::shared_ptr<Item> item) {
+    if (item)
+        this->item = item;
+}
+
+void ItemInfoUI::update() {
+    std::string content = item->getName() + "\n";
+    auto handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(item);
+    if (handHeldItem) {
+        content += "Mt " + std::to_string(handHeldItem->getMt()) + "  Hit " + std::to_string(handHeldItem->getHit()) + "\n" +
+                  "Crt " + std::to_string(handHeldItem->getCrt()) + "  Rng " + std::to_string(handHeldItem->getRng()[0]) + "\n" +
+                  "Wlv " + std::to_string(handHeldItem->getWlv()) + "  Wt " + std::to_string(handHeldItem->getWt()) + "\n";
+    }
+
+    auto vulnerary = std::dynamic_pointer_cast<Vulnerary>(item);
+    if (vulnerary) {
+        content += "Heal 10\n";  // Vulnerary 固定治療 10 點
+    }
+
+    content += "uses " + std::to_string(item->getUses()) + "\n" +
+               "Note: \n" + item->getNote();
+    setString(content);
+}
+
+void ItemInfoUI::setVisible(bool visible) {
+    m_Visible = visible;
+    UserInterface::setVisible(visible);
+}
+
+std::vector<std::shared_ptr<Util::GameObject>> ItemInfoUI::getChildren() {
+    auto children = UserInterface::getChildren();
+    return children;
+}

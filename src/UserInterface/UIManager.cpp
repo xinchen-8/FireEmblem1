@@ -13,6 +13,7 @@ UIManager::UIManager(std::shared_ptr<Selection> s, std::shared_ptr<MapManager> t
     tileInfo = std::make_shared<TileInfoUI>(tiles);
     // characterInfo = std::make_shared<CharacterInfoUI>(tiles);
     characterInfoFull = std::make_shared<CharacterInfoUIFull>(tiles);
+    itemInfo = std::make_shared<ItemInfoUI>(tiles);
     selectedAct = std::make_shared<ActUI>(tiles);
     selectedWeapon = std::make_shared<WeaponUI>(tiles);
     selectedItem = std::make_shared<ItemUI>(tiles);
@@ -21,6 +22,7 @@ UIManager::UIManager(std::shared_ptr<Selection> s, std::shared_ptr<MapManager> t
     tileInfo->setVisible(true);
     // characterInfo->setVisible(true);
     characterInfoFull->setVisible(true);
+    itemInfo->setVisible(true);
 }
 
 void UIManager::load() {
@@ -32,12 +34,15 @@ void UIManager::load() {
     if (c) {
         // characterInfo->load(c);
         characterInfoFull->load(c);
+        itemInfo->load(c->getItems()[c->getHandHeldIndex()]);
     } else if (e) {
         // characterInfo->load(e);
         characterInfoFull->load(e);
+        itemInfo->load(e->getItems()[e->getHandHeldIndex()]);
     } else if (s && selection->getStatus() == SelectionStatus::Moving) {
         // characterInfo->load(s);
         characterInfoFull->load(s);
+        itemInfo->load(s->getItems()[s->getHandHeldIndex()]);
     }
 }
 
@@ -45,6 +50,7 @@ void UIManager::update() {
     tileInfo->update();
     // characterInfo->update();
     characterInfoFull->update();
+    itemInfo->update();
 }
 
 void UIManager::loadActUI() {
@@ -196,11 +202,14 @@ void UIManager::changeVisibleTileInfo() { tileInfo->setVisible(!tileInfo->getVis
 
 void UIManager::changeVisibleCharacterInfoFull() { characterInfoFull->setVisible(!characterInfoFull->getVisible()); }
 
+void UIManager::changeVisibleItemInfo() { itemInfo->setVisible(!itemInfo->getVisible()); }
+
 std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
     std::vector<std::shared_ptr<Util::GameObject>> children = {};
     std::vector<std::shared_ptr<Util::GameObject>> reg = tileInfo->getChildren();
     // std::vector<std::shared_ptr<Util::GameObject>> c = characterInfo->getChildren();
     std::vector<std::shared_ptr<Util::GameObject>> cf = characterInfoFull->getChildren();
+    std::vector<std::shared_ptr<Util::GameObject>> ii = itemInfo->getChildren();
     std::vector<std::shared_ptr<Util::GameObject>> a = selectedAct->getChildren();
     std::vector<std::shared_ptr<Util::GameObject>> w = selectedWeapon->getChildren();
     std::vector<std::shared_ptr<Util::GameObject>> i = selectedItem->getChildren();
@@ -214,6 +223,9 @@ std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
     for (auto &e : cf)
         children.push_back(std::static_pointer_cast<Util::GameObject>(e));
     children.push_back(characterInfoFull);
+    for (auto &e : ii)
+        children.push_back(std::static_pointer_cast<Util::GameObject>(e));
+    children.push_back(itemInfo);
     for (auto &e : a)
         children.push_back(std::static_pointer_cast<Util::GameObject>(e));
     children.push_back(selectedAct);

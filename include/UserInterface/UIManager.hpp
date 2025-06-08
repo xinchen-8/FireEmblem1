@@ -31,6 +31,7 @@ class UIManager {
     void changeVisibleTileInfo();
     // void changeVisibleCharacterInfo();
     void changeVisibleCharacterInfoFull();
+    void changeVisibleItemInfo();
 
     std::vector<std::shared_ptr<Util::GameObject>> getChildren();
 
@@ -44,6 +45,7 @@ class UIManager {
     std::shared_ptr<TileInfoUI> tileInfo = nullptr;
     // std::shared_ptr<CharacterInfoUI> characterInfo = nullptr;
     std::shared_ptr<CharacterInfoUIFull> characterInfoFull = nullptr;
+    std::shared_ptr<ItemInfoUI> itemInfo = nullptr;
     std::shared_ptr<ActUI> selectedAct = nullptr;
     std::shared_ptr<WeaponUI> selectedWeapon = nullptr;
     std::shared_ptr<ItemUI> selectedItem = nullptr;

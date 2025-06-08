@@ -81,6 +81,13 @@ class Character : public CameraGameObject {
     CharacterStatus getStatus() const { return status; }
     std::vector<std::shared_ptr<Item>> getItems() { return items; }
 
+    // Level up related methods
+    void addExp(int exp);
+    bool checkLevelUp();
+    void levelUp();
+    bool isLevelUp() const { return m_IsLevelUp; }
+    void resetLevelUpFlag() { m_IsLevelUp = false; }
+
     std::unordered_map<glm::ivec2, int> getMoveRange() { return moveRange; }
     std::unordered_map<glm::ivec2, int> getAttackRange() { return attackRange; }
     std::queue<glm::ivec2> getWalkPath() { return walkPath; }
@@ -103,6 +110,7 @@ class Character : public CameraGameObject {
     std::string name = "";
     std::string className = "";
     bool isPlayer = true;
+    bool m_IsLevelUp = false;  // Flag to indicate if character just leveled up
 
     Forword forword = Forword::Down;
     CharacterStatus status = CharacterStatus::Normal;

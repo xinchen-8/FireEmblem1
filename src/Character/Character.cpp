@@ -345,6 +345,44 @@ bool Character::attack(std::shared_ptr<Character> target) {
     return handHeldItem->use(this, target);
 }
 
+void Character::addExp(int exp) {
+    Ex += exp;
+    if (checkLevelUp()) {
+        levelUp();
+    }
+}
+
+bool Character::checkLevelUp() {
+    return Ex >= 100;
+}
+
+void Character::levelUp() {
+    if (!checkLevelUp()) return;
+    
+    Lv++;
+    Ex -= 100;
+    m_IsLevelUp = true;
+    
+    // Check each stat growth
+    auto checkGrowth = [](int growthRate) -> bool {
+        return (rand() % 100) < growthRate;
+    };
+    
+    if (checkGrowth(HPGR)) Hp_Limit++;
+    if (checkGrowth(StrGR)) Str++;
+    if (checkGrowth(SklGR)) Skl++;
+    if (checkGrowth(WlvGR)) Wlv++;
+    if (checkGrowth(SpdGR)) Spd++;
+    if (checkGrowth(LckGR)) Lck++;
+    if (checkGrowth(DefGR)) Def++;
+    if (checkGrowth(ResGR)) Res++;
+    
+    // Restore HP when leveling up
+    Hp_Current = Hp_Limit;
+    
+    LOG_INFO(name + " leveled up to " + std::to_string(Lv));
+}
+
 std::shared_ptr<HandHeldItem> Character::getCurrentHandHeldItem() {
     if (!items[handheld_index])
         freshItem();

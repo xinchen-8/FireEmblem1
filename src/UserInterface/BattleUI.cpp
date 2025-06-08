@@ -222,6 +222,9 @@ void BattleUI::update() {
             if (attackedCharacter->getCurHP() == 0) {
                 setString(attackedCharacter->getName() + " was defeated!");
                 LOG_INFO(attackedCharacter->getName() + " was defeated!");
+                if (attackedCharacter->isEnemy() && !attackerCharacter->isEnemy()) {
+                    attackerCharacter->addExp(attackedCharacter->getExp());
+                }
             } else {
                 attackedGO->m_Transform.translation = ATKDPosition;
                 attackedGO->SetDrawable((!attackedCharacter->isEnemy())

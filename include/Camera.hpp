@@ -12,9 +12,9 @@
 class Camera {
 
   public:
-    Camera();
-    void set(std::shared_ptr<PlayerManager> pm, std::shared_ptr<EnemyManager> em, std::shared_ptr<MapManager> tm,
-             std::shared_ptr<UIManager> ui, std::shared_ptr<Selection> s);
+    Camera(std::shared_ptr<PlayerManager> pm, std::shared_ptr<EnemyManager> em, std::shared_ptr<MapManager> tm,
+           std::shared_ptr<UIManager> ui, std::shared_ptr<Selection> s);
+    void setTraceObject(std::shared_ptr<CameraGameObject> cgo);
     void resetCameraAbsolutePos();
     void setChildrenRelativePos();
     void updateRender() { renderer.Update(); }
@@ -27,6 +27,7 @@ class Camera {
     void addChildren(std::vector<std::shared_ptr<Util::GameObject>> children);
 
   private:
+    std::shared_ptr<CameraGameObject> traceObject = nullptr;
     std::vector<std::shared_ptr<CameraGameObject>> children = {};
     std::vector<std::shared_ptr<Util::GameObject>> UIchildren = {};
     std::shared_ptr<PlayerManager> playerManager = nullptr;

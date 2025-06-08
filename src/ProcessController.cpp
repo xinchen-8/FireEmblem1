@@ -3,9 +3,9 @@
 ProcessController::ProcessController(std::shared_ptr<MapManager> mapManager,
                                      std::shared_ptr<PlayerManager> playerManager,
                                      std::shared_ptr<EnemyManager> enemyManager, std::shared_ptr<Selection> selection,
-                                     std::shared_ptr<UIManager> uiManager)
+                                     std::shared_ptr<UIManager> uiManager, std::shared_ptr<Camera> camera)
     : mapManager(mapManager), playerManager(playerManager), enemyManager(enemyManager), selection(selection),
-      uiManager(uiManager) {}
+      uiManager(uiManager), camera(camera) {}
 
 bool ProcessController::ReturnCase() {
     if (uiManager->closeLoadUI())
@@ -129,6 +129,9 @@ bool ProcessController::enemyTurn(bool accessInput) {
     frame++;
 
     std::shared_ptr<Character> c = enemyManager->getCurrentUnwaitedCharacters()[0];
+    camera->setTraceObject(std::dynamic_pointer_cast<CameraGameObject>(c));
+    camera->resetCameraAbsolutePos();
+
     switch (frame) {
     case 1: {
         // 1. if there have a player(players) in attack range or move range
@@ -270,6 +273,8 @@ bool ProcessController::enemyTurn(bool accessInput) {
 
     if (enemyManager->getCurrentUnwaitedCharacters().size() == 0) {
         enemyManager->reloadUnwaitingCharacter();
+        camera->setTraceObject(nullptr);
+        camera->resetCameraAbsolutePos();
         return true; // finished
     }
     return false; // not finished

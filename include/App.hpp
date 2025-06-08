@@ -43,7 +43,7 @@ class App {
 
     std::shared_ptr<Selection> selection = nullptr;
     std::shared_ptr<UIManager> uiManager = nullptr;
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    std::shared_ptr<Camera> camera = nullptr;
     std::shared_ptr<ProcessController> pc = nullptr;
 };
 

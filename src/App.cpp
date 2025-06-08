@@ -7,7 +7,6 @@
 #include <iostream>
 
 App::App() {
-
     mapManager = std::make_shared<MapManager>(currentLevel);
     playerManager = std::make_shared<PlayerManager>(mapManager);
     enemyManager = std::make_shared<EnemyManager>(mapManager);
@@ -16,8 +15,8 @@ App::App() {
 
     selection = std::make_shared<Selection>();
     uiManager = std::make_shared<UIManager>(selection, mapManager, playerManager, enemyManager);
-    camera->set(playerManager, enemyManager, mapManager, uiManager, selection);
-    pc = std::make_shared<ProcessController>(mapManager, playerManager, enemyManager, selection, uiManager);
+    camera = std::make_shared<Camera>(playerManager, enemyManager, mapManager, uiManager, selection);
+    pc = std::make_shared<ProcessController>(mapManager, playerManager, enemyManager, selection, uiManager, camera);
 
     selection->setAbsolutePos(playerManager->getCharacter("Marth")->getAbsolutePos());
     camera->resetCameraAbsolutePos();
@@ -95,10 +94,10 @@ void App::Update() {
             // enemyManager->setCharaterManager(playerManager);
 
             // selection = std::make_shared<Selection>();
-            uiManager = std::make_shared<UIManager>(selection, mapManager, playerManager, enemyManager); // rebuild
-            camera = std::make_shared<Camera>();                                                         // rebuild
-            camera->set(playerManager, enemyManager, mapManager, uiManager, selection);                  // rebuild
-            pc = std::make_shared<ProcessController>(mapManager, playerManager, enemyManager, selection, uiManager);
+            uiManager = std::make_shared<UIManager>(selection, mapManager, playerManager, enemyManager);      // rebuild
+            camera = std::make_shared<Camera>(playerManager, enemyManager, mapManager, uiManager, selection); // rebuild
+            pc = std::make_shared<ProcessController>(mapManager, playerManager, enemyManager, selection, uiManager,
+                                                     camera);
             selection->setAbsolutePos(playerManager->getCharacter("Marth")->getAbsolutePos());
             camera->resetCameraAbsolutePos();
             uiManager->load();
@@ -151,7 +150,6 @@ void App::Update() {
     // info UI
     if (Util::Input::IsKeyDown(Util::Keycode::F1) && accessInput) {
         LOG_INFO("F1 pressed");
-
         uiManager->changeVisibleTileInfo();
     }
     // character info UI

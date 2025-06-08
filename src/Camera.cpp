@@ -1,14 +1,13 @@
 #include "Camera.hpp"
 
-Camera::Camera() {}
-
-void Camera::set(std::shared_ptr<PlayerManager> pm, std::shared_ptr<EnemyManager> em, std::shared_ptr<MapManager> tm,
-                 std::shared_ptr<UIManager> ui, std::shared_ptr<Selection> s) {
+Camera::Camera(std::shared_ptr<PlayerManager> pm, std::shared_ptr<EnemyManager> em, std::shared_ptr<MapManager> tm,
+               std::shared_ptr<UIManager> ui, std::shared_ptr<Selection> s) {
     playerManager = pm;
     enemyManager = em;
     mapManager = tm;
     uiManager = ui;
     selection = s;
+    traceObject = std::dynamic_pointer_cast<CameraGameObject>(selection);
 
     // add children
     std::vector<std::shared_ptr<CameraGameObject>> tiles = mapManager->getChildren();
@@ -30,9 +29,13 @@ void Camera::set(std::shared_ptr<PlayerManager> pm, std::shared_ptr<EnemyManager
     }
 }
 
+void Camera::setTraceObject(std::shared_ptr<CameraGameObject> cgo) {
+    traceObject = (cgo) ? cgo : std::dynamic_pointer_cast<CameraGameObject>(selection);
+}
+
 void Camera::resetCameraAbsolutePos() {
     glm::ivec2 mapSize = mapManager->getMapSize();
-    absolutePos = selection->getAbsolutePos();
+    absolutePos = traceObject->getAbsolutePos();
 
     glm::ivec2 BorderDistance = {round(PTSD_Config::WINDOW_WIDTH / (TILE_SIZE * 2)) * TILE_SIZE,
                                  round(PTSD_Config::WINDOW_HEIGHT / (TILE_SIZE * 2)) * TILE_SIZE};
@@ -57,12 +60,12 @@ void Camera::update() {
     glm::ivec2 BorderDistance = {round(PTSD_Config::WINDOW_WIDTH / (TILE_SIZE * 2)) * TILE_SIZE,
                                  round(PTSD_Config::WINDOW_HEIGHT / (TILE_SIZE * 2)) * TILE_SIZE};
     glm::ivec2 mapSize = mapManager->getMapSize();
-    glm::ivec2 selectionPos = selection->getAbsolutePos();
+    glm::ivec2 targetPos = traceObject->getAbsolutePos();
 
-    if (selectionPos.x >= BorderDistance.x && selectionPos.x <= mapSize.x - BorderDistance.x - TILE_SIZE)
-        absolutePos.x = selectionPos.x;
-    if (selectionPos.y >= BorderDistance.y && selectionPos.y <= mapSize.y - BorderDistance.y - TILE_SIZE)
-        absolutePos.y = selectionPos.y;
+    if (targetPos.x >= BorderDistance.x && targetPos.x <= mapSize.x - BorderDistance.x - TILE_SIZE)
+        absolutePos.x = targetPos.x;
+    if (targetPos.y >= BorderDistance.y && targetPos.y <= mapSize.y - BorderDistance.y - TILE_SIZE)
+        absolutePos.y = targetPos.y;
 
     setChildrenRelativePos();
     renderer.Update();

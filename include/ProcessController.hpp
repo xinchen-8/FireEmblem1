@@ -1,10 +1,12 @@
 #ifndef PROCESSCONTROLLER_HPP
 #define PROCESSCONTROLLER_HPP
 
+#include "Camera.hpp"
 #include "Character/CharacterManager.hpp"
 #include "Selection.hpp"
 #include "Tile.hpp"
 #include "UserInterface/UIManager.hpp"
+
 
 struct A_Node {
     glm::ivec2 pos;
@@ -17,7 +19,7 @@ class ProcessController {
   public:
     ProcessController(std::shared_ptr<MapManager> mapManager, std::shared_ptr<PlayerManager> playerManager,
                       std::shared_ptr<EnemyManager> enemyManager, std::shared_ptr<Selection> selection,
-                      std::shared_ptr<UIManager> uiManager);
+                      std::shared_ptr<UIManager> uiManager, std::shared_ptr<Camera> camera);
     bool ReturnCase();
     void BackCase();
     void MovCase(glm::ivec2 mov);
@@ -44,5 +46,6 @@ class ProcessController {
     std::shared_ptr<EnemyManager> enemyManager = nullptr;
     std::shared_ptr<Selection> selection = nullptr;
     std::shared_ptr<UIManager> uiManager = nullptr;
+    std::shared_ptr<Camera> camera = nullptr;
 };
 #endif

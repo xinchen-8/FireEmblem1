@@ -179,6 +179,7 @@ void App::Update() {
         uiManager->GameOver();
         return;
     }
+
     accessInput = uiManager->updateBattleUI();
 
     if (!--delayKeyCounter)
@@ -186,14 +187,19 @@ void App::Update() {
 
     // next turn
     if (playerManager->isNoMovableCharacter()) {
+
         if (cheating) {
             playerManager->reloadUnwaitingCharacter();
             enemyManager->reloadUnwaitingCharacter();
             selection->setStatus(SelectionStatus::Normal);
+            camera->setTraceObject(nullptr);
+            camera->resetCameraAbsolutePos();
             return;
         }
+
         selection->setStatus(SelectionStatus::EnemyMoving);
         if (pc->enemyTurn(accessInput)) {
+
             playerManager->reloadUnwaitingCharacter();
             selection->setStatus(SelectionStatus::Normal);
         }
@@ -202,9 +208,7 @@ void App::Update() {
         uiManager->loadActUI();
         selection->setStatus(SelectionStatus::SUI);
     }
-
     enemyManager->update();
-
     // std::cout << std::to_string(static_cast<int>(selection->getStatus())) << std::endl;
 }
 

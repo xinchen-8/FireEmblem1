@@ -91,6 +91,7 @@ void CharacterManager::setInitialLevel(int level) {
 
                     glm::ivec2 reg_pos = {std::stoi(e[level * 2 - 1]) * TILE_SIZE, std::stoi(e[level * 2]) * TILE_SIZE};
                     c->setAbsolutePos(reg_pos);
+                    c->setHP(1000);
 
                     c->setAvoid(mapManager->getPosTile(reg_pos)->getAvoid());
                     LOG_INFO("Set " + c->getName() + " Position: " + std::to_string(c->getAbsolutePos().x) + ", " +

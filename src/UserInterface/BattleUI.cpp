@@ -178,6 +178,8 @@ void BattleUI::update() {
 
     if (attackedCharacter->isEnemy() != attackerCharacter->isEnemy()) {
         if (isFinish && (frame == 57 || frame == 113 || frame == 123 || frame == 181)) {
+            attackerCharacter->freshItem();
+            attackedCharacter->freshItem();
             isFinish = false;
             finishTrigger = true;
             setVisible(false);
@@ -286,6 +288,9 @@ void BattleUI::update() {
             if (attackerCharacter->getCurHP() == 0) {
                 setString(attackerCharacter->getName() + " was defeated!");
                 LOG_INFO(attackerCharacter->getName() + " was defeated!");
+                if (!attackedCharacter->isEnemy() && attackerCharacter->isEnemy()) {
+                    attackerCharacter->addExp(attackedCharacter->getExp());
+                }
             } else {
                 attackerGO->m_Transform.translation = ATKRPosition;
                 attackerGO->SetDrawable((!attackerCharacter->isEnemy())
@@ -370,6 +375,9 @@ void BattleUI::update() {
                 if (attackedCharacter->getCurHP() == 0) {
                     setString(attackedCharacter->getName() + " was defeated!");
                     LOG_INFO(attackedCharacter->getName() + " was defeated!");
+                    if (attackedCharacter->isEnemy() && !attackerCharacter->isEnemy()) {
+                        attackerCharacter->addExp(attackedCharacter->getExp());
+                    }
                 } else {
                     attackedGO->m_Transform.translation = glm::ivec2(400, 0);
                     attackedGO->SetDrawable((!attackedCharacter->isEnemy())
@@ -380,6 +388,9 @@ void BattleUI::update() {
                 if (attackerCharacter->getCurHP() == 0) {
                     setString(attackerCharacter->getName() + " was defeated!");
                     LOG_INFO(attackerCharacter->getName() + " was defeated!");
+                    if (!attackedCharacter->isEnemy() && attackerCharacter->isEnemy()) {
+                        attackerCharacter->addExp(attackedCharacter->getExp());
+                    }
                 } else {
                     attackerGO->m_Transform.translation = glm::ivec2(-400, 0);
                     attackerGO->SetDrawable((!attackerCharacter->isEnemy())
@@ -394,7 +405,7 @@ void BattleUI::update() {
             if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0 && followUpType == followType::Attacker) {
                 setString(attackerCharacter->getName() + "'s weapon broke!");
                 LOG_INFO(attackerCharacter->getName() + "'s weapon broke!");
-            } else if (attackedCharacter->getCurHP() == 0) {
+            } else if (attackedCharacter->getCurrentHandHeldItem()->getUses() == 0) {
                 setString(attackedCharacter->getName() + "'s weapon broke!");
                 LOG_INFO(attackedCharacter->getName() + "'s weapon broke!");
             }
@@ -415,8 +426,7 @@ void BattleUI::update() {
         }
     } else {
         if (frame == 35) {
-            attackerCharacter = nullptr;
-            attackedCharacter = nullptr;
+            attackerCharacter->freshItem();
             isFinish = false;
             finishTrigger = true;
             setVisible(false);
@@ -446,7 +456,6 @@ void BattleUI::update() {
                 LOG_INFO(attackedCharacter->getName() + "'s HP is restored by " + std::to_string(regHP) + ".");
             }
         }
-            attackerCharacter->freshItem();
         }
     }
 }

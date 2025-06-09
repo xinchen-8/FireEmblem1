@@ -291,6 +291,7 @@ bool Character::pushItem(std::shared_ptr<Item> item) {
 }
 
 void Character::freshItem() {
+
     std::shared_ptr<HandHeldItem> handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
     if (handHeldItem != nullptr) {
         if (handHeldItem->getUses() <= 0) {
@@ -352,34 +353,39 @@ void Character::addExp(int exp) {
     }
 }
 
-bool Character::checkLevelUp() {
-    return Ex >= 100;
-}
+bool Character::checkLevelUp() { return Ex >= 100; }
 
 void Character::levelUp() {
-    if (!checkLevelUp()) return;
-    
+    if (!checkLevelUp())
+        return;
+
     Lv++;
     Ex -= 100;
     m_IsLevelUp = true;
-    
+
     // Check each stat growth
-    auto checkGrowth = [](int growthRate) -> bool {
-        return (rand() % 100) < growthRate;
-    };
-    
-    if (checkGrowth(HPGR)) Hp_Limit++;
-    if (checkGrowth(StrGR)) Str++;
-    if (checkGrowth(SklGR)) Skl++;
-    if (checkGrowth(WlvGR)) Wlv++;
-    if (checkGrowth(SpdGR)) Spd++;
-    if (checkGrowth(LckGR)) Lck++;
-    if (checkGrowth(DefGR)) Def++;
-    if (checkGrowth(ResGR)) Res++;
-    
+    auto checkGrowth = [](int growthRate) -> bool { return (rand() % 100) < growthRate; };
+
+    if (checkGrowth(HPGR))
+        Hp_Limit++;
+    if (checkGrowth(StrGR))
+        Str++;
+    if (checkGrowth(SklGR))
+        Skl++;
+    if (checkGrowth(WlvGR))
+        Wlv++;
+    if (checkGrowth(SpdGR))
+        Spd++;
+    if (checkGrowth(LckGR))
+        Lck++;
+    if (checkGrowth(DefGR))
+        Def++;
+    if (checkGrowth(ResGR))
+        Res++;
+
     // Restore HP when leveling up
     Hp_Current = Hp_Limit;
-    
+
     LOG_INFO(name + " leveled up to " + std::to_string(Lv));
 }
 

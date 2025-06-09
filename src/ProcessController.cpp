@@ -183,7 +183,7 @@ bool ProcessController::enemyTurn(bool accessInput) {
     case 3: {
         if (TargetPlayer) {
             int atk_rng = c->getCurrentHandHeldItem()->getRng()[0];
-            // BFS
+
             glm::ivec2 dirs[] = {{TILE_SIZE, 0}, {-TILE_SIZE, 0}, {0, TILE_SIZE}, {0, -TILE_SIZE}};
             std::unordered_map<glm::ivec2, int> moveRange;
             moveRange[TargetPlayer->getAbsolutePos()] = 0;

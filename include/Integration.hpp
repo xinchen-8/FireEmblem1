@@ -56,7 +56,6 @@ enum class SelectionStatus {
     AttackWUI,
     BattleUI,
     ITEMIUI,
-    ItemUI_Confirm,
     loadUI,
     EnemyMoving
 };

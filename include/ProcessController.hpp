@@ -36,7 +36,7 @@ class ProcessController {
     void HealToNormal(std::shared_ptr<Character> &selectedCharacter, std::shared_ptr<Character> &selectPlayer);
     void ATKTargetingToATKWUI(glm::ivec2 targetPos);
     void ATKToNormal(std::shared_ptr<Character> &selectedCharacter, std::shared_ptr<Character> &selectEnemy);
-    void IUIToNormal(std::shared_ptr<Character> &selectedCharacter);
+    void IUIToSUI(std::shared_ptr<Character> &selectedCharacter);
 
     int heuristic(const glm::ivec2 &a, const glm::ivec2 &b);
     std::unordered_map<glm::ivec2, int> findBestPathToMarth(std::shared_ptr<Character> &enemy);

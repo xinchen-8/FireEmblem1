@@ -222,6 +222,7 @@ void UIManager::actItemUI(bool hold) {
     std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
     if (!hold) {
         selectedCharacter->removeItem(selectedItem->getSelectPointIndex());
+        loadItemUI();
         return;
     }
 

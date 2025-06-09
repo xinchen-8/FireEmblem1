@@ -313,8 +313,12 @@ void Character::freshItem() {
 }
 
 void Character::removeItem(int index) {
-    if (index < 4)
+    if (index < 4) {
+        auto itemPtr = items[index];
+        std::string what = itemPtr ? itemPtr->getName() : "NULL";
+        LOG_INFO("Remove " + what + " from " + name + "'s bp.");
         items[index] = nullptr;
+    }
 };
 
 void Character::setHP(int hp) {

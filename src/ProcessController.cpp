@@ -43,9 +43,9 @@ bool ProcessController::ReturnCase() {
     // WUI => attack then wait
     else if (status == SelectionStatus::AttackWUI)
         ATKToNormal(selectedCharacter, selectEnemy);
-    // item UI => wait
+    // item UI => SUI
     else if (status == SelectionStatus::ITEMIUI)
-        IUIToNormal(selectedCharacter);
+        IUIToSUI(selectedCharacter);
     return false;
 }
 
@@ -113,16 +113,10 @@ void ProcessController::ATKToNormal(std::shared_ptr<Character> &selectedCharacte
     uiManager->update();
 }
 
-void ProcessController::IUIToNormal(std::shared_ptr<Character> &selectedCharacter) {
+void ProcessController::IUIToSUI(std::shared_ptr<Character> &selectedCharacter) {
     uiManager->actItemUI(true);
-
-    selectedCharacter->setStatus(CharacterStatus::Waiting);
-    playerManager->removeUnwaitingCharacter(selectedCharacter);
-    playerManager->clearTips();
-    selection->setStatus(SelectionStatus::Normal);
-
-    uiManager->load();
-    uiManager->update();
+    selection->setStatus(SelectionStatus::SUI);
+    uiManager->loadActUI();
 }
 
 bool ProcessController::enemyTurn(bool accessInput) {

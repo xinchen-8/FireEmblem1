@@ -83,8 +83,15 @@ void App::Update() {
         pc->MovCase(1);
         delayKeyCounter = delayKeyLimit;
     }
+
+    // delete item
+    if (Util::Input::IsKeyDown(Util::Keycode::SPACE) && accessInput) {
+        LOG_INFO("Space pressed");
+        pc->SpaceCase();
+    }
+
     // select character method
-    if (Util::Input::IsKeyDown(Util::Keycode::RETURN) && accessInput) {
+    else if (Util::Input::IsKeyDown(Util::Keycode::RETURN) && accessInput) {
         LOG_INFO("Enter pressed");
         if (pc->ReturnCase()) {
             mapManager->loadMap(++currentLevel);

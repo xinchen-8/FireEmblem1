@@ -49,6 +49,12 @@ bool ProcessController::ReturnCase() {
     return false;
 }
 
+void ProcessController::SpaceCase() {
+    SelectionStatus status = selection->getStatus();
+    if (status == SelectionStatus::ITEMIUI)
+        uiManager->actItemUI(false);
+}
+
 void ProcessController::BackCase() {}
 
 void ProcessController::MovCase(glm::ivec2 mov) {
@@ -108,7 +114,7 @@ void ProcessController::ATKToNormal(std::shared_ptr<Character> &selectedCharacte
 }
 
 void ProcessController::IUIToNormal(std::shared_ptr<Character> &selectedCharacter) {
-    uiManager->actItemUI();
+    uiManager->actItemUI(true);
 
     selectedCharacter->setStatus(CharacterStatus::Waiting);
     playerManager->removeUnwaitingCharacter(selectedCharacter);

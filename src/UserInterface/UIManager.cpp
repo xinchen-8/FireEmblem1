@@ -87,7 +87,8 @@ void UIManager::loadActUI() {
     flags.push_back(true);                                            //"Item"
     flags.push_back(true);                                            //"Wait"
     //"Trade" not yet
-    selectedAct->load(flags, (selectedCharacter->getCurrentHandHeldItem()->getName() == "Heal"));
+    selectedAct->load(flags, (selectedCharacter->getCurrentHandHeldItem() &&
+                              selectedCharacter->getCurrentHandHeldItem()->getName() == "Heal"));
     selectedAct->setVisible(true);
 }
 
@@ -217,19 +218,22 @@ void UIManager::loadItemUI() {
     selectedItem->setVisible(true);
 }
 
-void UIManager::actItemUI() {
+void UIManager::actItemUI(bool hold) {
     std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
+    if (!hold) {
+        selectedCharacter->removeItem(selectedItem->getSelectPointIndex());
+        return;
+    }
+
     std::shared_ptr<Item> item = selectedCharacter->getItems()[selectedItem->getSelectPointIndex()];
-    std::shared_ptr<HandHeldItem> hhi = std::dynamic_pointer_cast<HandHeldItem>(item);
+    // std::shared_ptr<HandHeldItem> hhi = std::dynamic_pointer_cast<HandHeldItem>(item);
     std::shared_ptr<Vulnerary> vi = std::dynamic_pointer_cast<Vulnerary>(item);
 
-    if (hhi) {
-        selectedCharacter->setHandHeldItemWithIndex(selectedItem->getSelectPointIndex());
-        LOG_INFO("Now " + selectedCharacter->getName() + " Hand Holding the " + hhi->getName() + ". ");
-    } else if (vi) {
+    if (vi) {
         selectedCharacter->useVulnerary(selectedItem->getSelectPointIndex());
-    } else
-        LOG_ERROR("unkown Item Error!");
+    } else {
+        selectedCharacter->setHandHeldItemWithIndex(selectedItem->getSelectPointIndex());
+    }
     selectedItem->setVisible(false);
 }
 

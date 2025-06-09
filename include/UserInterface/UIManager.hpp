@@ -31,7 +31,7 @@ class UIManager {
 
     void loadItemUI();
     void updateItemUI(int listMov) { selectedItem->update(listMov); }
-    void actItemUI();
+    void actItemUI(bool hold); // not hold is remove
 
     void loadBattleUI(std::shared_ptr<Character> attacker, std::shared_ptr<Character> attacked);
     bool updateBattleUI();
@@ -41,7 +41,7 @@ class UIManager {
     // void changeVisibleCharacterInfo();
     void changeVisibleCharacterInfoFull();
     void changeVisibleItemInfo();
-    
+
     // 新增物品切換控制
     void nextItemInfo() { itemInfo->nextItem(); }
     // void prevItemInfo() { itemInfo->prevItem(); }

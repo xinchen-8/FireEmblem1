@@ -299,9 +299,11 @@ void PlayerManager::findCharacterAttackTarget(std::shared_ptr<Character> charact
         return;
     character->resetRange();
     character->findAttackScope();
+
     std::unordered_map<glm::ivec2, int> ar = character->getAttackRange();
 
     buildCharacterTips(character);
+
     if (character->getClassName() == "Curate") {
         for (auto &[pos, null] : ar) {
             if (!getPosLevelCharacter(pos))

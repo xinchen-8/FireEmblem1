@@ -55,13 +55,16 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
     attackedCharacter = attacked;
     refreshHpPoint();
 
+    std::shared_ptr<HandHeldItem> atk_hhi = attacker->getCurrentHandHeldItem();
+    std::shared_ptr<HandHeldItem> atd_hhi = attacked->getCurrentHandHeldItem();
+    // std::shared_ptr<Weapon> atk_weapon = std::dynamic_pointer_cast<Weapon>(attacker->getCurrentHandHeldItem());
     std::string content = "";
-    int num = attacker->getCurrentHandHeldItem()->getHit();
+    int num = atk_hhi->getHit();
     for (int i = 0; i < 20; i++)
         content += (i < num / 5) ? "■" : "□";
     content += "\n";
 
-    num = attacker->getCurrentHandHeldItem()->getCrt();
+    num = atk_hhi->getCrt();
     for (int i = 0; i < 20; i++)
         content += (i < num / 5) ? "■" : "□";
     content += "\n";
@@ -72,12 +75,12 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
     content += "\n";
 
     std::string content2 = "";
-    int num2 = attacked->getCurrentHandHeldItem()->getHit();
+    int num2 = (atd_hhi) ? atd_hhi->getHit() : 0;
     for (int i = 0; i < 20; i++)
         content2 += (i < num2 / 5) ? "■" : "□";
     content2 += "\n";
 
-    num2 = attacked->getCurrentHandHeldItem()->getCrt();
+    num2 = (atd_hhi) ? atd_hhi->getCrt() : 0;
     for (int i = 0; i < 20; i++)
         content2 += (i < num2 / 5) ? "■" : "□";
     content2 += "\n";
@@ -95,16 +98,10 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
     attackedDetailPoint->SetDrawable(dDPD);
     attackedDetailPoint->SetPivot({-dDPD->GetSize().x / 2, 0});
 
-    std::shared_ptr<HandHeldItem> atk_hhi = attacker->getCurrentHandHeldItem();
-    // std::shared_ptr<Weapon> atk_weapon = std::dynamic_pointer_cast<Weapon>(attacker->getCurrentHandHeldItem());
-    std::shared_ptr<Weapon> weapon = std::dynamic_pointer_cast<Weapon>(attacked->getCurrentHandHeldItem());
-
     canCounterAttack = true;
     canFollowUpAttack = true;
 
-    std::cout << attacked->getCurrentHandHeldItem()->getName() << std::endl;
     attackedCharacter->findHandHeldScope();
-
     auto range = attackedCharacter->getAttackRange();
     if (range.find(attacker->getAbsolutePos()) == range.end()) {
         LOG_INFO("Attacked Character's attack range doesn't contain Attacker's position!");
@@ -117,12 +114,12 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
     }
 
     std::string reg = "";
-    if (!weapon) {
+    if (!atd_hhi) {
         LOG_INFO("Attacked isn't hold a weapon.");
         canCounterAttack = false;
         reg = "Default";
     } else
-        reg = weapon->getClassName();
+        reg = atd_hhi->getClassName();
 
     attackerImg = attacker->getClassName() + "_" + atk_hhi->getClassName();
     attackedImg = attacked->getClassName() + "_" + reg;
@@ -312,7 +309,9 @@ void BattleUI::update() {
 
         // follow up
         case 114:
-            if (attackerCharacter->getCurHP() == 0 || attackedCharacter->getCurrentHandHeldItem()->getUses() == 0 ||
+            if (attackerCharacter->getCurHP() == 0 || attackedCharacter->getCurHP() == 0 ||
+                (followUpType == followType::Attacked && attackedCharacter->getCurrentHandHeldItem() &&
+                 attackedCharacter->getCurrentHandHeldItem()->getUses() == 0) ||
                 !canFollowUpAttack)
                 isFinish = true;
             break;
@@ -402,13 +401,16 @@ void BattleUI::update() {
         }
 
         case 167:
-            if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0 && followUpType == followType::Attacker) {
+            if (attackerCharacter->getCurrentHandHeldItem() &&
+                attackerCharacter->getCurrentHandHeldItem()->getUses() == 0 && followUpType == followType::Attacker) {
                 setString(attackerCharacter->getName() + "'s weapon broke!");
                 LOG_INFO(attackerCharacter->getName() + "'s weapon broke!");
-            } else if (attackedCharacter->getCurrentHandHeldItem()->getUses() == 0) {
+            } else if (attackedCharacter->getCurrentHandHeldItem() &&
+                       attackedCharacter->getCurrentHandHeldItem()->getUses() == 0) {
                 setString(attackedCharacter->getName() + "'s weapon broke!");
                 LOG_INFO(attackedCharacter->getName() + "'s weapon broke!");
             }
+
         case 168:
         case 169:
         case 170:

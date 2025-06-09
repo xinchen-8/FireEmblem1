@@ -228,7 +228,10 @@ void Character::setStatus(CharacterStatus status) {
 void Character::setHandHeldItemWithIndex(int index) {
     if (std::dynamic_pointer_cast<HandHeldItem>(items[index])) {
         handheld_index = index;
-        LOG_INFO("The Character Hand Holding a " + items[index]->getName());
+        LOG_INFO("The Character Hand Holding a " + items[index]->getName() + ". ");
+    } else if (!items[index]) {
+        handheld_index = index;
+        LOG_INFO("The Character Hand Holding nothing. ");
     } else
         LOG_ERROR("This Index of Items is not a HandHeld Item.");
 }
@@ -308,6 +311,11 @@ void Character::freshItem() {
         }
     }
 }
+
+void Character::removeItem(int index) {
+    if (index < 4)
+        items[index] = nullptr;
+};
 
 void Character::setHP(int hp) {
     if (hp > Hp_Limit)
@@ -390,11 +398,7 @@ void Character::levelUp() {
 }
 
 std::shared_ptr<HandHeldItem> Character::getCurrentHandHeldItem() {
-    if (!items[handheld_index])
-        freshItem();
-    else
-        return std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
-    return nullptr;
+    return std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
 }
 
 void Character::findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask) {
@@ -442,7 +446,7 @@ void Character::findHandHeldScope() {
 
     std::shared_ptr<HandHeldItem> hhi = getCurrentHandHeldItem();
     if (hhi == nullptr) {
-        LOG_ERROR("No Hand Held Item found for " + name);
+        LOG_INFO("No Hand Held Item found for " + name);
         return;
     }
     for (int &j : hhi->getRng())
@@ -499,9 +503,9 @@ void Character::findAttackScope() {
 
     std::set<int> scope;
     for (std::shared_ptr<Item> &i : items) {
-        if (!i)
-            continue;
         std::shared_ptr<HandHeldItem> hhi = std::dynamic_pointer_cast<HandHeldItem>(i);
+        if (!hhi)
+            continue;
         for (int &j : hhi->getRng())
             scope.insert(j);
     }

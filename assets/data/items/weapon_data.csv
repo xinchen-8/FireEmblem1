@@ -1,5 +1,5 @@
 ﻿Name,Class,Mt,Wt,Hit,Uses,Rng,Wlv,Worth,Crt,Notes
-Rapier,Sword,5,1,100,28,1,0,900,10,"Marth onlyeffective against Cavaliers, Knights, Paladins and Generals"
+Rapier,Sword,5,1,100,28,1,0,900,10,"Marth only, effective against Cavaliers, Knights, Paladins and Generals"
 Iron Sword,Sword,5,2,100,42,1,2,320,0,–
 Steel Sword,Sword,8,4,80,38,1,2,500,0,–
 Iron Lance,Lance,8,6,80,38,1,1,450,0,–

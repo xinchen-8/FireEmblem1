@@ -33,16 +33,17 @@ class Character : public CameraGameObject {
     void setAnimation();
     void setStatus(CharacterStatus status);
     void setForword(Forword forword) { this->forword = forword; }
-    void setHandHeldItemWithIndex(int index);
 
     void setHeadshotAnimation(std::shared_ptr<Util::Animation> a_headshotAnimation) {
         headshotAnimation = a_headshotAnimation;
     }
     void setTileAnimation();
 
+    void setHandHeldItemWithIndex(int index);
     void useVulnerary(int index);
     bool pushItem(std::shared_ptr<Item> item);
     void freshItem();
+    void removeItem(int index);
     void deleteAllItems() { items = {}; }
 
     void setHP(int hp);
@@ -110,7 +111,7 @@ class Character : public CameraGameObject {
     std::string name = "";
     std::string className = "";
     bool isPlayer = true;
-    bool m_IsLevelUp = false;  // Flag to indicate if character just leveled up
+    bool m_IsLevelUp = false; // Flag to indicate if character just leveled up
 
     Forword forword = Forword::Down;
     CharacterStatus status = CharacterStatus::Normal;

@@ -7,7 +7,6 @@
 #include "Tile.hpp"
 #include "UserInterface/UIManager.hpp"
 
-
 struct A_Node {
     glm::ivec2 pos;
     int gCost, hCost, fCost;
@@ -21,6 +20,7 @@ class ProcessController {
                       std::shared_ptr<EnemyManager> enemyManager, std::shared_ptr<Selection> selection,
                       std::shared_ptr<UIManager> uiManager, std::shared_ptr<Camera> camera);
     bool ReturnCase();
+    void SpaceCase();
     void BackCase();
     void MovCase(glm::ivec2 mov);
     void MovCase(int listMov);

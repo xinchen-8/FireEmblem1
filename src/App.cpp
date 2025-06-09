@@ -157,9 +157,23 @@ void App::Update() {
         LOG_INFO("F2 pressed");
         uiManager->changeVisibleCharacterInfoFull();
     }
-    // player tip
+    // item info UI
     else if (Util::Input::IsKeyDown(Util::Keycode::F3) && accessInput) {
         LOG_INFO("F3 pressed");
+        uiManager->changeVisibleItemInfo();
+    }
+    // item change
+    // else if (Util::Input::IsKeyDown(Util::Keycode::Q) && accessInput && uiManager->getItemInfo()->getVisible()) {
+    //     LOG_INFO("Q pressed - Previous item");
+    //     uiManager->prevItemInfo();
+    // }
+    else if (Util::Input::IsKeyDown(Util::Keycode::Q) && accessInput && uiManager->getItemInfo()->getVisible()) {
+        LOG_INFO("Q pressed - Next item");
+        uiManager->nextItemInfo();
+    }
+    // player tip
+    else if (Util::Input::IsKeyDown(Util::Keycode::F4) && accessInput) {
+        LOG_INFO("F4 pressed");
         playerManager->changeTipsVisible(selection->getSelectCharacter());
         // next turn
     } else if (Util::Input::IsKeyDown(Util::Keycode::NUM_0) && selection->getStatus() == SelectionStatus::Normal) {

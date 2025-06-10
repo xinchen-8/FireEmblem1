@@ -10,9 +10,6 @@ class CharacterManager {
     CharacterManager(std::shared_ptr<MapManager> mm);
     void loadCharacter();
     void setInitialLevel(int level);
-
-    // void refreshAllCharacterMoveRange();
-    // void buildCharacterTips(); //Overload
     void characterIsDead(std::shared_ptr<Character> c);
     void removeUnwaitingCharacter(std::shared_ptr<Character> c);
     void reloadUnwaitingCharacter();
@@ -58,10 +55,15 @@ class PlayerManager : public CharacterManager {
     std::unordered_map<glm::ivec2, int> selectCharacter(std::shared_ptr<Character> character);
     void findCharacterAttackTarget(std::shared_ptr<Character> character);
 
+    void addMoney(int num) { money += num; }
+    int getMoney() { return money; }
     // special case
     bool isNearEnemy(std::string name1, std::string name2);
     void WryTrigger();
     void TalkTrigger(std::string name);
+
+  private:
+    int money = 0;
 };
 
 class EnemyManager : public CharacterManager {

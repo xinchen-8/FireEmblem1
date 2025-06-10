@@ -19,6 +19,7 @@ UIManager::UIManager(std::shared_ptr<Selection> s, std::shared_ptr<MapManager> t
     selectedWeapon = std::make_shared<WeaponUI>(tiles);
     selectedItem = std::make_shared<ItemUI>(tiles);
     battle = std::make_shared<BattleUI>(tiles);
+    shop = std::make_shared<ShopUI>(tiles);
 
     loadLevel->load(mapManager->getLevel());
     load();
@@ -72,10 +73,11 @@ void UIManager::loadActUI() {
     flags.push_back(selectedCharacter->getName() == "Marth" &&
                     mapManager->nextLevel(selectedCharacter->getAbsolutePos())); //"Next"
 
-    flags.push_back((selectedCharacter->getName() == "Marth") && mapManager->getLevel() == 1 &&
-                    !playerManager->getCharacter("Wrys")->getVisible() &&
-                    playerManager->getCharacter("Wrys")->getAbsolutePos() - glm::ivec2{0, TILE_SIZE} ==
-                        selectedCharacter->getAbsolutePos()); //"Visit"
+    flags.push_back(((selectedCharacter->getName() == "Marth") && mapManager->getLevel() == 1 &&
+                     !playerManager->getCharacter("Wrys")->getVisible() &&
+                     playerManager->getCharacter("Wrys")->getAbsolutePos() - glm::ivec2{0, TILE_SIZE} ==
+                         selectedCharacter->getAbsolutePos()) ||
+                    mapManager->isGoldCoin(selectedCharacter->getAbsolutePos())); //"Visit"
 
     auto darros = playerManager->getCharacter("Darros");
     auto castor = playerManager->getCharacter("Castor");
@@ -83,10 +85,11 @@ void UIManager::loadActUI() {
         (playerManager->isNearEnemy("Marth", "Darros") && darros->getCurHP() == darros->getHpLimit()) ||
         (playerManager->isNearEnemy("Caeda", "Castor") && castor->getCurHP() == castor->getHpLimit())); //"Talk"
 
-    flags.push_back(selectedCharacter->getAttackRange().size() != 0); //"Attack"
-    flags.push_back(true);                                            //"Item"
-    flags.push_back(true);                                            //"Wait"
-    //"Trade" not yet
+    flags.push_back(mapManager->isArmory(selectedCharacter->getAbsolutePos())); //"Armory"
+    flags.push_back((selectedCharacter->getAttackRange().size() != 0));         //"Attack"
+    flags.push_back(true);                                                      //"Item"
+    flags.push_back(true);                                                      //"Wait"
+
     selectedAct->load(flags, (selectedCharacter->getCurrentHandHeldItem() &&
                               selectedCharacter->getCurrentHandHeldItem()->getName() == "Heal"));
     selectedAct->setVisible(true);
@@ -122,9 +125,12 @@ bool UIManager::activeActUI() {
 
     } else if (act == "Visit" && selectedCharacter) {
         LOG_INFO("Select Visit Option");
-        playerManager->WryTrigger();
-        selection->setStatus(SelectionStatus::Normal);
+        if (mapManager->isGoldCoin(selectedCharacter->getAbsolutePos()))
+            playerManager->addMoney(mapManager->getGoldCoin(selectedCharacter->getAbsolutePos()));
+        else
+            playerManager->WryTrigger();
 
+        selection->setStatus(SelectionStatus::Normal);
         selectedCharacter->setStatus(CharacterStatus::Waiting);
         playerManager->removeUnwaitingCharacter(selectedCharacter);
         playerManager->clearTips();
@@ -144,6 +150,13 @@ bool UIManager::activeActUI() {
         selectedCharacter->setStatus(CharacterStatus::Waiting);
         playerManager->removeUnwaitingCharacter(selectedCharacter);
         playerManager->clearTips();
+    } else if (act == "Armory" && selectedCharacter) {
+        LOG_INFO("Select Armory Option");
+        selection->setStatus(SelectionStatus::ShopUI);
+        loadShopUI();
+        selectedItem->loadItem(selectedCharacter->getItems(), -1);
+        selectedItem->VisibleLockItemUI();
+        shop->setVisible(true);
 
     } else if (act == "Item" && selectedCharacter) {
         LOG_INFO("Select Item Option");
@@ -238,6 +251,20 @@ void UIManager::actItemUI(bool hold) {
     selectedItem->setVisible(false);
 }
 
+void UIManager::loadShopUI() {
+    selection->setStatus(SelectionStatus::ShopUI);
+    shop->load(playerManager->getMoney(), mapManager->getLevel());
+}
+
+void UIManager::actShopUI() {
+    std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
+    auto w = std::make_shared<Weapon>(*shop->getWeapon());
+    if (selectedCharacter->pushItem(std::dynamic_pointer_cast<Item>(w)))
+        playerManager->addMoney(-w->getWorth());
+    shop->load(playerManager->getMoney(), mapManager->getLevel());
+    selectedItem->loadItem(selectedCharacter->getItems());
+}
+
 void UIManager::loadBattleUI(std::shared_ptr<Character> attacker, std::shared_ptr<Character> attacked) {
     selection->setStatus(SelectionStatus::BattleUI);
     battle->load(attacker, attacked);
@@ -283,6 +310,7 @@ std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
     std::vector<std::shared_ptr<Util::GameObject>> i = selectedItem->getChildren();
     std::vector<std::shared_ptr<Util::GameObject>> b = battle->getChildren();
     std::vector<std::shared_ptr<Util::GameObject>> ll = loadLevel->getChildren();
+    std::vector<std::shared_ptr<Util::GameObject>> s = shop->getChildren();
 
     for (auto &e : reg)
         children.push_back(std::static_pointer_cast<Util::GameObject>(e));
@@ -310,5 +338,8 @@ std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
     for (auto &e : ll)
         children.push_back(std::static_pointer_cast<Util::GameObject>(e));
     children.push_back(loadLevel);
+    for (auto &e : s)
+        children.push_back(std::static_pointer_cast<Util::GameObject>(e));
+    children.push_back(shop);
     return children;
 }

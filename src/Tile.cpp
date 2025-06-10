@@ -140,7 +140,28 @@ void MapManager::loadMap(int level) {
         map[regY][regX]->mask();
         LOG_INFO("Tile {" + std::to_string(regX) + ", " + std::to_string(regY) + "} mask success.");
     }
-
+    // gold coin
+    goldCoin.clear();
+    currentYIndex += numofMasks;
+    int numofCoinPos = std::stoi((*data)[currentYIndex][0]);
+    currentYIndex++;
+    for (int i = 0; i < numofCoinPos; i++) {
+        int regY = (tileNum.y - std::stoi((*data)[currentYIndex + i][1]) - 1) * TILE_SIZE;
+        int regX = std::stoi((*data)[currentYIndex + i][0]) * TILE_SIZE;
+        goldCoin[glm::ivec2(regX, regY)] = std::stoi((*data)[currentYIndex + i][2]);
+        LOG_INFO("Pos {" + std::to_string(regX) + ", " + std::to_string(regY) + "} gold coin set success.");
+    }
+    // armory
+    armory.clear();
+    currentYIndex += numofCoinPos;
+    int numofArmoryPos = std::stoi((*data)[currentYIndex][0]);
+    currentYIndex++;
+    for (int i = 0; i < numofArmoryPos; i++) {
+        int regY = (tileNum.y - std::stoi((*data)[currentYIndex + i][1]) - 1) * TILE_SIZE;
+        int regX = std::stoi((*data)[currentYIndex + i][0]) * TILE_SIZE;
+        armory.push_back(glm::ivec2(regX, regY));
+        LOG_INFO("Pos {" + std::to_string(regX) + ", " + std::to_string(regY) + "} armory set success.");
+    }
     LOG_INFO("Map loading success.");
 }
 
@@ -162,6 +183,24 @@ void MapManager::stopAnimations() {
 
 glm::ivec2 MapManager::getTileAbsolutePos(glm::ivec2 pos) {
     return {pos.x * TILE_SIZE, (tileNum.y - 1 - pos.y) * TILE_SIZE};
+}
+
+int MapManager::getGoldCoin(glm::ivec2 pos) {
+    if (!goldCoin.count(pos))
+        return 0;
+    else {
+        int reg = goldCoin[pos];
+        goldCoin[pos] = 0;
+        return reg;
+    }
+}
+
+bool MapManager::isArmory(glm::ivec2 pos) {
+    for (auto &p : armory) {
+        if (p == pos)
+            return true;
+    }
+    return false;
 }
 
 std::shared_ptr<Tile> MapManager::getPosTile(glm::ivec2 a_pos) {

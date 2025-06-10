@@ -31,12 +31,14 @@ class ProcessController {
     void normalToMoving(std::shared_ptr<Character> &selectCharacter);
     void movingToSUI(std::shared_ptr<Character> &selectedCharacter);
 
+    // enter
     void SUItoOption();
     void TargetingToHUI(glm::ivec2 targetPos);
     void HealToNormal(std::shared_ptr<Character> &selectedCharacter, std::shared_ptr<Character> &selectPlayer);
     void ATKTargetingToATKWUI(glm::ivec2 targetPos);
     void ATKToNormal(std::shared_ptr<Character> &selectedCharacter, std::shared_ptr<Character> &selectEnemy);
     void IUIToSUI(std::shared_ptr<Character> &selectedCharacter);
+    void ShopUItoShopUI();
 
     int heuristic(const glm::ivec2 &a, const glm::ivec2 &b);
     std::unordered_map<glm::ivec2, int> findBestPathToMarth(std::shared_ptr<Character> &enemy);

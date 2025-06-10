@@ -6,6 +6,7 @@
 #include "UserInterface/ItemUI.hpp"
 #include "UserInterface/LoadUI.hpp"
 #include "UserInterface/SelectedUI.hpp"
+#include "UserInterface/ShopUI.hpp"
 #include "UserInterface/TileInfoUI.hpp"
 #include "UserInterface/UserInterface.hpp"
 #include "UserInterface/WeaponUI.hpp"
@@ -32,6 +33,10 @@ class UIManager {
     void loadItemUI();
     void updateItemUI(int listMov) { selectedItem->update(listMov); }
     void actItemUI(bool hold); // not hold is remove
+
+    void loadShopUI();
+    void updateShopUI(int listMov) { shop->update(listMov); }
+    void actShopUI();
 
     void loadBattleUI(std::shared_ptr<Character> attacker, std::shared_ptr<Character> attacked);
     bool updateBattleUI();
@@ -66,6 +71,7 @@ class UIManager {
     std::shared_ptr<WeaponUI> selectedWeapon = nullptr;
     std::shared_ptr<ItemUI> selectedItem = nullptr;
     std::shared_ptr<BattleUI> battle = nullptr;
+    std::shared_ptr<ShopUI> shop = nullptr;
 };
 
 #endif

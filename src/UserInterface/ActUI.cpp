@@ -5,12 +5,12 @@ ActUI::ActUI(std::vector<std::shared_ptr<Tile>> &tiles) : SelectedUI(tiles) {
     setRelativePos({+floor(PTSD_Config::WINDOW_WIDTH / 2) - 5 * TILE_SIZE,
                     +floor(PTSD_Config::WINDOW_HEIGHT / 2) - 4 * TILE_SIZE});
 
-    options = {"Next", "Visit", "Talk", "Attack", "Item", "Wait"}; //"Trade"
-    option_flags = {0, 0, 0, 0, 1, 1};
+    options = {"Next", "Visit", "Talk", "Armory", "Attack", "Item", "Wait"};
+    option_flags = {0, 0, 0, 0, 0, 1, 1};
 }
 
 void ActUI::load(std::vector<bool> flags, bool targetIsPlayer) {
-    options[3] = (targetIsPlayer) ? "Target" : "Attack";
+    options[4] = (targetIsPlayer) ? "Target" : "Attack";
 
     if (flags.size() == option_flags.size()) {
         option_flags = flags;

@@ -62,6 +62,10 @@ class MapManager {
     glm::ivec2 getMapTileSize() const { return glm::ivec2(map[0].size(), map.size()); }
     glm::ivec2 getAbsolutePos() const { return absolutePos; }
     std::unordered_set<glm::ivec2> getAbsoluteCantMovPosition() { return cantMovPosition; }
+    bool isGoldCoin(glm::ivec2 pos) { return goldCoin.count(pos) && goldCoin[pos] > 0; }
+    int getGoldCoin(glm::ivec2 pos);
+    bool isArmory(glm::ivec2 pos);
+
     int getLevel() const { return level; }
     std::shared_ptr<Tile> getPosTile(glm::ivec2 a_pos);
     std::shared_ptr<Tile> getTile(std::string id);
@@ -72,6 +76,9 @@ class MapManager {
     glm::ivec2 tileNum = {0, 0};
     glm::ivec2 endPosition = {0, 0};
     std::unordered_set<glm::ivec2> cantMovPosition = {};
+    std::unordered_map<glm::ivec2, int> goldCoin = {};
+    std::vector<glm::ivec2> armory = {};
+
     glm::ivec2 absolutePos = {0, 0}; // main point of camera is down left corner of map
     std::unordered_map<std::string, std::shared_ptr<Tile>> tileTable;
     std::vector<std::vector<std::shared_ptr<Tile>>> map = {};

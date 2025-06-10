@@ -1,11 +1,9 @@
 #include "UserInterface/LevelUpUI.hpp"
 
-LevelUpUI::LevelUpUI(std::vector<std::shared_ptr<Tile>>& tiles) : UserInterface(tiles) {
+LevelUpUI::LevelUpUI(std::vector<std::shared_ptr<Tile>> &tiles) : UserInterface(tiles) {
     setUISize({8, 6});
-    setRelativePos({
-        -floor(PTSD_Config::WINDOW_WIDTH / 2) + 1 * TILE_SIZE,
-        -floor(PTSD_Config::WINDOW_HEIGHT / 2) + 3 * TILE_SIZE
-    });
+    setRelativePos({-floor(PTSD_Config::WINDOW_WIDTH / 2) + 1 * TILE_SIZE,
+                    -floor(PTSD_Config::WINDOW_HEIGHT / 2) + 3 * TILE_SIZE});
 }
 
 void LevelUpUI::load(std::shared_ptr<Character> character) {
@@ -17,7 +15,8 @@ void LevelUpUI::load(std::shared_ptr<Character> character) {
 }
 
 void LevelUpUI::update() {
-    if (!m_Visible || !character) return;
+    if (!m_Visible || !character)
+        return;
 
     m_DisplayTime += 0.016f; // Assuming 60 FPS
     if (m_DisplayTime >= DISPLAY_DURATION) {
@@ -26,15 +25,11 @@ void LevelUpUI::update() {
         return;
     }
 
-    std::string content = 
-        character->getName() + " Level Up!\n" +
-        "Level " + std::to_string(character->getLevel()) + "\n" +
-        "HP: " + std::to_string(character->getHpLimit()) + "\n" +
-        "Str: " + std::to_string(character->getStr()) + "\n" +
-        "Skl: " + std::to_string(character->getSkl()) + "\n" +
-        "Spd: " + std::to_string(character->getSpd()) + "\n" +
-        "Lck: " + std::to_string(character->getLck()) + "\n" +
-        "Def: " + std::to_string(character->getDef()) + "\n" +
+    std::string content =
+        character->getName() + " Level Up!\n" + "Level " + std::to_string(character->getLevel()) + "\n" +
+        "HP: " + std::to_string(character->getHpLimit()) + "\n" + "Str: " + std::to_string(character->getStr()) + "\n" +
+        "Skl: " + std::to_string(character->getSkl()) + "\n" + "Spd: " + std::to_string(character->getSpd()) + "\n" +
+        "Lck: " + std::to_string(character->getLck()) + "\n" + "Def: " + std::to_string(character->getDef()) + "\n" +
         "Res: " + std::to_string(character->getRes());
 
     setString(content);
@@ -47,6 +42,4 @@ void LevelUpUI::setVisible(bool visible) {
     }
 }
 
-std::vector<std::shared_ptr<GameObject>> LevelUpUI::getChildren() {
-    return {};
-} 
+std::vector<std::shared_ptr<Util::GameObject>> LevelUpUI::getChildren() { return {}; }

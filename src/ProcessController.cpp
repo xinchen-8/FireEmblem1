@@ -46,6 +46,9 @@ bool ProcessController::ReturnCase() {
     // item UI => SUI
     else if (status == SelectionStatus::ITEMIUI)
         IUIToSUI(selectedCharacter);
+    // ShopUI => shopUI
+    else if (status == SelectionStatus::ShopUI)
+        ShopUItoShopUI();
     return false;
 }
 
@@ -69,6 +72,7 @@ void ProcessController::MovCase(int listMov) {
     uiManager->updateActUI(listMov);
     uiManager->updateWeaponUI(listMov);
     uiManager->updateItemUI(listMov);
+    uiManager->updateShopUI(listMov);
     // other ui...
 }
 
@@ -118,6 +122,8 @@ void ProcessController::IUIToSUI(std::shared_ptr<Character> &selectedCharacter) 
     selection->setStatus(SelectionStatus::SUI);
     uiManager->loadActUI();
 }
+
+void ProcessController::ShopUItoShopUI() { uiManager->actShopUI(); }
 
 bool ProcessController::enemyTurn(bool accessInput) {
     if (!accessInput)

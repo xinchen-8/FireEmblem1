@@ -22,7 +22,7 @@ void ItemUI::loadItem(std::vector<std::shared_ptr<Item>> items, int handheldInde
     std::string str = "";
     for (int i = 0; i < option_flags.size(); i++)
         str += options[i] + "\n";
-    setString(str + "\n");
+    setString(str + ((handheldIndex == -1) ? "\n" : "(Space: remove)"));
     selectPoint = handheldIndex;
     point->setRelativePos(m_Transform.translation + glm::vec2(-TILE_SIZE / 2, 2.7 * TILE_SIZE - 40 * selectPoint));
 }
@@ -38,4 +38,9 @@ void ItemUI::update(int listMov) {
             return;
         }
     }
+}
+
+void ItemUI::VisibleLockItemUI() {
+    setVisible(true);
+    point->SetVisible(false);
 }

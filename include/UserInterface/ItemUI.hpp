@@ -5,7 +5,8 @@
 class ItemUI : public SelectedUI {
   public:
     ItemUI(std::vector<std::shared_ptr<Tile>> &tiles);
-    void loadItem(std::vector<std::shared_ptr<Item>> items, int handheldIndex);
+    void loadItem(std::vector<std::shared_ptr<Item>> items, int handheldIndex = -1);
     void update(int listMov) override;
+    void VisibleLockItemUI(); // for ShopUI
 };
 #endif

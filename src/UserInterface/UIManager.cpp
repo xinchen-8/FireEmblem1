@@ -19,6 +19,7 @@ UIManager::UIManager(std::shared_ptr<Selection> s, std::shared_ptr<MapManager> t
     selectedWeapon = std::make_shared<WeaponUI>(tiles);
     selectedItem = std::make_shared<ItemUI>(tiles);
     battle = std::make_shared<BattleUI>(tiles);
+    levelUp = std::make_shared<LevelUpUI>(tiles);
 
     loadLevel->load(mapManager->getLevel());
     load();
@@ -242,16 +243,39 @@ bool UIManager::updateBattleUI() {
     battle->update();
 
     if (battle->isFinish()) {
-        auto c = battle->getAttackerCharacter();
-        if (c->isEnemy()) {
-            enemyManager->removeUnwaitingCharacter(c);
-            c->setStatus(CharacterStatus::Waiting);
+        auto attacker = battle->getAttackerCharacter();
+        auto defender = battle->getAttackedCharacter();
+        LOG_INFO("Battle finished");
+
+        std::shared_ptr<Character> expGainer = nullptr;
+        if (!attacker->isEnemy() && defender->isEnemy() && defender->getCurHP() == 0) {
+            expGainer = attacker;
+        }
+        else if (attacker->isEnemy() && !defender->isEnemy() && attacker->getCurHP() == 0) {
+            expGainer = defender;
+        }
+
+        if (expGainer) {
+            LOG_INFO("expGainer: " + expGainer->getName());
+            if (expGainer->isLevelUp()) {
+                LOG_INFO("Character " + expGainer->getName() + " leveled up!");
+                loadLevelUpUI(expGainer);
+            }
+        }
+
+        if (attacker->isEnemy()) {
+            enemyManager->removeUnwaitingCharacter(attacker);
+            attacker->setStatus(CharacterStatus::Waiting);
         } else {
-            c->setStatus(CharacterStatus::Waiting);
-            playerManager->removeUnwaitingCharacter(c);
+            attacker->setStatus(CharacterStatus::Waiting);
+            playerManager->removeUnwaitingCharacter(attacker);
             playerManager->clearTips();
             selection->setStatus(SelectionStatus::Normal);
         }
+
+        LOG_INFO("attacker: " + attacker->getName());
+        LOG_INFO("defender: " + defender->getName());
+
         return true; // for accessInput
     }
     return !battle->getVisible();
@@ -267,6 +291,25 @@ void UIManager::changeVisibleCharacterInfoFull() { characterInfoFull->setVisible
 
 void UIManager::changeVisibleItemInfo() { itemInfo->setVisible(!itemInfo->getVisible()); }
 
+void UIManager::loadLevelUpUI(std::shared_ptr<Character> character) {
+    if (character && character->isLevelUp()) {
+        levelUp->load(character);
+    }
+}
+
+bool UIManager::updateLevelUpUI() {
+    if (levelUp && levelUp->getVisible()) {
+        LOG_INFO("Updating LevelUpUI");
+        levelUp->update();
+        if (!levelUp->getVisible()) {
+            LOG_INFO("LevelUpUI finished displaying");
+            return true;
+        }
+        return false;
+    }
+    return true;
+}
+
 std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
     std::vector<std::shared_ptr<Util::GameObject>> children = {};
     std::vector<std::shared_ptr<Util::GameObject>> reg = tileInfo->getChildren();
@@ -278,6 +321,7 @@ std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
     std::vector<std::shared_ptr<Util::GameObject>> i = selectedItem->getChildren();
     std::vector<std::shared_ptr<Util::GameObject>> b = battle->getChildren();
     std::vector<std::shared_ptr<Util::GameObject>> ll = loadLevel->getChildren();
+    std::vector<std::shared_ptr<Util::GameObject>> lu = levelUp->getChildren();
 
     for (auto &e : reg)
         children.push_back(std::static_pointer_cast<Util::GameObject>(e));
@@ -305,5 +349,8 @@ std::vector<std::shared_ptr<Util::GameObject>> UIManager::getChildren() {
     for (auto &e : ll)
         children.push_back(std::static_pointer_cast<Util::GameObject>(e));
     children.push_back(loadLevel);
+    for (auto &e : lu)
+        children.push_back(std::static_pointer_cast<Util::GameObject>(e));
+    children.push_back(levelUp);
     return children;
 }

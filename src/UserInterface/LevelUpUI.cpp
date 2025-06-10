@@ -1,11 +1,12 @@
 #include "UserInterface/LevelUpUI.hpp"
 
 LevelUpUI::LevelUpUI(std::vector<std::shared_ptr<Tile>>& tiles) : UserInterface(tiles) {
-    setUISize({8, 6});
+    setUISize({5, 5});
     setRelativePos({
-        -floor(PTSD_Config::WINDOW_WIDTH / 2) + 1 * TILE_SIZE,
-        -floor(PTSD_Config::WINDOW_HEIGHT / 2) + 3 * TILE_SIZE
+        -floor(PTSD_Config::WINDOW_WIDTH / 2) + 9 * TILE_SIZE,
+        -floor(PTSD_Config::WINDOW_HEIGHT / 2) + 5 * TILE_SIZE
     });
+    SetZIndex(20);
 }
 
 void LevelUpUI::load(std::shared_ptr<Character> character) {
@@ -13,40 +14,45 @@ void LevelUpUI::load(std::shared_ptr<Character> character) {
         this->character = character;
         m_DisplayTime = 0.0f;
         m_Visible = true;
+        setVisible(true);
     }
 }
 
 void LevelUpUI::update() {
-    if (!m_Visible || !character) return;
+    if (!m_Visible || !character) {
+        LOG_INFO("LevelUpUI::update - not visible or no character");
+        return;
+    }
 
-    m_DisplayTime += 0.016f; // Assuming 60 FPS
+        m_DisplayTime += 1.0f / TARGET_FPS;
+
     if (m_DisplayTime >= DISPLAY_DURATION) {
         m_Visible = false;
+        setVisible(false);
         character->resetLevelUpFlag();
         return;
     }
 
     std::string content = 
         character->getName() + " Level Up!\n" +
-        "Level " + std::to_string(character->getLevel()) + "\n" +
-        "HP: " + std::to_string(character->getHpLimit()) + "\n" +
-        "Str: " + std::to_string(character->getStr()) + "\n" +
-        "Skl: " + std::to_string(character->getSkl()) + "\n" +
-        "Spd: " + std::to_string(character->getSpd()) + "\n" +
-        "Lck: " + std::to_string(character->getLck()) + "\n" +
-        "Def: " + std::to_string(character->getDef()) + "\n" +
-        "Res: " + std::to_string(character->getRes());
-
+        std::to_string(character->getLevel()) + "  Exp " + std::to_string(character->getExp()) + "\n" + "HP  " +
+        std::to_string(character->getCurHP()) + " / " + std::to_string(character->getHpLimit()) + "\n" + "Str " +
+        std::to_string(character->getStr()) + "  Lck " + std::to_string(character->getLck()) + "\n" + "Skl " +
+        std::to_string(character->getSkl()) + "  Def " + std::to_string(character->getDef()) + "\n" + "Wlv " +
+        std::to_string(character->getWlv()) + "  Res " + std::to_string(character->getRes()) + "\n" + "Spd " +
+        std::to_string(character->getSpd()) + "  Mov " + std::to_string(character->getMov());
     setString(content);
 }
 
 void LevelUpUI::setVisible(bool visible) {
     m_Visible = visible;
+    UserInterface::setVisible(visible);
     if (!visible) {
         m_DisplayTime = 0.0f;
     }
 }
 
-std::vector<std::shared_ptr<GameObject>> LevelUpUI::getChildren() {
-    return {};
+std::vector<std::shared_ptr<Util::GameObject>> LevelUpUI::getChildren() {
+    auto children = UserInterface::getChildren();
+    return children;
 } 

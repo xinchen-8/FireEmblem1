@@ -7,6 +7,8 @@
 #define TILE_INTERVAL 250
 #define FONT_SIZE 32
 
+#define TARGET_FPS 40
+
 #define ASSETS "assets/" // ../../../assets for vs
 
 #define COVERPATH ASSETS "ref/cover/"

@@ -4,12 +4,14 @@
 #include "UserInterface/BattleUI.hpp"
 #include "UserInterface/CharacterInfoUI.hpp"
 #include "UserInterface/ItemUI.hpp"
+#include "UserInterface/LevelUpUI.hpp"
 #include "UserInterface/LoadUI.hpp"
 #include "UserInterface/SelectedUI.hpp"
 #include "UserInterface/ShopUI.hpp"
 #include "UserInterface/TileInfoUI.hpp"
 #include "UserInterface/UserInterface.hpp"
 #include "UserInterface/WeaponUI.hpp"
+
 
 class UIManager {
   public:
@@ -55,6 +57,9 @@ class UIManager {
     void setItemInfoIndex(int index) { itemInfo->setItemIndex(index); }
     std::shared_ptr<ItemInfoUI> getItemInfo() { return itemInfo; }
 
+    void loadLevelUpUI(std::shared_ptr<Character> character);
+    bool updateLevelUpUI();
+
     std::vector<std::shared_ptr<Util::GameObject>> getChildren();
 
   private:
@@ -74,6 +79,7 @@ class UIManager {
     std::shared_ptr<ItemUI> selectedItem = nullptr;
     std::shared_ptr<BattleUI> battle = nullptr;
     std::shared_ptr<ShopUI> shop = nullptr;
+    std::shared_ptr<LevelUpUI> levelUp = nullptr;
 };
 
 #endif

@@ -76,6 +76,14 @@ class Character : public CameraGameObject {
     int getLckGR() const { return LckGR; }
     int getDefGR() const { return DefGR; }
     int getResGR() const { return ResGR; }
+    int getOldHpLimit() const { return oldHpLimit; }
+    int getOldStr() const { return oldStr; }
+    int getOldSkl() const { return oldSkl; }
+    int getOldWlv() const { return oldWlv; }
+    int getOldSpd() const { return oldSpd; }
+    int getOldLck() const { return oldLck; }
+    int getOldDef() const { return oldDef; }
+    int getOldRes() const { return oldRes; }
     int getAvoid() const { return Avoid; }
     int getHandHeldIndex() const { return handheld_index; }
     bool getVisible() const { return m_Visible; }
@@ -140,6 +148,15 @@ class Character : public CameraGameObject {
     int LckGR = 0;
     int DefGR = 0;
     int ResGR = 0;
+
+    int oldHpLimit = 0;
+    int oldStr = 0;
+    int oldSkl = 0;
+    int oldWlv = 0;
+    int oldSpd = 0;
+    int oldLck = 0;
+    int oldDef = 0;
+    int oldRes = 0;
 
     int Avoid = 0;
     std::shared_ptr<MapManager> mapManager = nullptr;

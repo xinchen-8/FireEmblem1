@@ -286,7 +286,7 @@ void BattleUI::update() {
                 setString(attackerCharacter->getName() + " was defeated!");
                 LOG_INFO(attackerCharacter->getName() + " was defeated!");
                 if (!attackedCharacter->isEnemy() && attackerCharacter->isEnemy()) {
-                    attackerCharacter->addExp(attackedCharacter->getExp());
+                    attackedCharacter->addExp(attackerCharacter->getExp());
                 }
             } else {
                 attackerGO->m_Transform.translation = ATKRPosition;
@@ -388,7 +388,7 @@ void BattleUI::update() {
                     setString(attackerCharacter->getName() + " was defeated!");
                     LOG_INFO(attackerCharacter->getName() + " was defeated!");
                     if (!attackedCharacter->isEnemy() && attackerCharacter->isEnemy()) {
-                        attackerCharacter->addExp(attackedCharacter->getExp());
+                        attackedCharacter->addExp(attackerCharacter->getExp());
                     }
                 } else {
                     attackerGO->m_Transform.translation = glm::ivec2(-400, 0);

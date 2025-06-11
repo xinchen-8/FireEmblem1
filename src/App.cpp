@@ -201,7 +201,16 @@ void App::Update() {
         return;
     }
 
-    accessInput = uiManager->updateBattleUI();
+    bool battleFinished = uiManager->updateBattleUI();
+    if (battleFinished) {
+        if (uiManager->updateLevelUpUI()) {
+            accessInput = true;
+        } else {
+            accessInput = false;
+        }
+    } else {
+        accessInput = false;
+    }
 
     if (!--delayKeyCounter)
         delayKeyCounter = delayKeyLimit;

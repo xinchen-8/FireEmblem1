@@ -375,6 +375,15 @@ void Character::levelUp() {
     Ex -= 100;
     m_IsLevelUp = true;
 
+    oldHpLimit = Hp_Limit;
+    oldStr = Str;
+    oldSkl = Skl;
+    oldWlv = Wlv;
+    oldSpd = Spd;
+    oldLck = Lck;
+    oldDef = Def;
+    oldRes = Res;
+
     // Check each stat growth
     auto checkGrowth = [](int growthRate) -> bool { return (rand() % 100) < growthRate; };
 

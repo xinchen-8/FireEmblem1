@@ -16,7 +16,7 @@ private:
     std::shared_ptr<Character> character = nullptr;
     bool m_Visible = false;
     float m_DisplayTime = 0.0f;
-    const float DISPLAY_DURATION = 3.0f; // Display for 3 seconds
+    const float DISPLAY_DURATION = 3.0f;
 };
 
 #endif 

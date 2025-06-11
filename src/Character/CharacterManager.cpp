@@ -277,7 +277,6 @@ void PlayerManager::changeTipsVisible(std::shared_ptr<Character> character) {
 std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(std::shared_ptr<Character> character = nullptr) {
     if (!character)
         return {};
-    std::cout << "meow0" << std::endl;
     if (auto cm = characterManager.lock()) {
         std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
         std::unordered_set<glm::ivec2> reg = mapManager->getAbsoluteCantMovPosition();
@@ -286,12 +285,9 @@ std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(std::shared_p
                 continue;
             mask.insert(*pos);
         }
-        std::cout << "meow1" << std::endl;
         character->refreshMoveRange(mask);
-        std::cout << "meow2" << std::endl;
     }
     buildCharacterTips(character);
-    std::cout << "meow3" << std::endl;
 
     character->setStatus(CharacterStatus::Moving);
     return character->getMoveRange();
@@ -329,6 +325,9 @@ void PlayerManager::buildCharacterTips(std::shared_ptr<Character> character) {
     // move range
     for (auto [pos, mov] : character->getMoveRange()) {
         std::shared_ptr<Tile> tip = getTipTile(pos);
+        if (!tip)
+            continue;
+
         tip->setStart();
         std::vector<std::string> r = {TILE_SELECTION "tip0.png"};
         tip->setAnimation(std::make_shared<Util::Animation>(r, true, TILE_INTERVAL, true, 0));
@@ -337,6 +336,9 @@ void PlayerManager::buildCharacterTips(std::shared_ptr<Character> character) {
     // attack range
     for (auto [pos, mov] : character->getAttackRange()) {
         std::shared_ptr<Tile> tip = getTipTile(pos);
+        if (!tip)
+            continue;
+
         tip->setStart();
         std::vector<std::string> r = {TILE_SELECTION "tip1.png"};
         tip->setAnimation(std::make_shared<Util::Animation>(r, true, TILE_INTERVAL, true, 0));

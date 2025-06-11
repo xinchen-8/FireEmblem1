@@ -82,9 +82,8 @@ void UIManager::loadActUI() {
 
     auto darros = playerManager->getCharacter("Darros");
     auto castor = playerManager->getCharacter("Castor");
-    flags.push_back(
-        (playerManager->isNearEnemy("Marth", "Darros") && darros->getCurHP() == darros->getHpLimit()) ||
-        (playerManager->isNearEnemy("Caeda", "Castor") && castor->getCurHP() == castor->getHpLimit())); //"Talk"
+    flags.push_back(playerManager->isNearEnemy("Marth", "Darros") ||
+                    playerManager->isNearEnemy("Caeda", "Castor")); //"Talk"
 
     flags.push_back(mapManager->isArmory(selectedCharacter->getAbsolutePos())); //"Armory"
     flags.push_back((selectedCharacter->getAttackRange().size() != 0));         //"Attack"

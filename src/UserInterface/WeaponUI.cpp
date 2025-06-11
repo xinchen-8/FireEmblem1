@@ -37,16 +37,22 @@ void WeaponUI::loadWeapon(std::vector<std::shared_ptr<HandHeldItem>> HHitems) {
     std::string str = "";
     int counter = 0;
     for (int i = 0; i < option_flags.size(); i++) {
-        if (option_flags[i]) {
-            str += options[i] + "\n";
-            counter++;
-        }
+        str += options[i] + "\n";
     }
 
-    int reg = 5 - counter;
-    while (reg-- > 0)
-        str += "\n";
-
-    setString(str);
+    setString(str + "\n");
     point->setRelativePos(m_Transform.translation + glm::vec2(-TILE_SIZE / 2, 2.7 * TILE_SIZE - 40 * selectPoint));
+}
+
+void WeaponUI::update(int listMov) {
+    if (!getVisible())
+        return;
+    for (int i = selectPoint + listMov; i < option_flags.size() && i >= 0; i += listMov) {
+        if (static_cast<bool>(option_flags[i])) {
+            selectPoint = i;
+            point->setRelativePos(m_Transform.translation + glm::vec2(-TILE_SIZE / 2, 2.7 * TILE_SIZE) -
+                                  glm::vec2(0, 40 * selectPoint));
+            return;
+        }
+    }
 }

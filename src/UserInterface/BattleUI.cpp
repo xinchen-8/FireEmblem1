@@ -64,7 +64,8 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
         content += (i < num / 5) ? "■" : "□";
     content += "\n";
 
-    num = atk_hhi->getCrt();
+    // (user->getSkl() + user->getLck()) / 2 + crt;
+    num = (attacker->getSkl() + attacker->getLck()) / 2 + atk_hhi->getCrt();
     for (int i = 0; i < 20; i++)
         content += (i < num / 5) ? "■" : "□";
     content += "\n";
@@ -80,7 +81,8 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
         content2 += (i < num2 / 5) ? "■" : "□";
     content2 += "\n";
 
-    num2 = (atd_hhi) ? atd_hhi->getCrt() : 0;
+    num2 = (attacked->getSkl() + attacked->getLck()) / 2;
+    num2 += (atd_hhi) ? atd_hhi->getCrt() : 0;
     for (int i = 0; i < 20; i++)
         content2 += (i < num2 / 5) ? "■" : "□";
     content2 += "\n";
@@ -244,7 +246,7 @@ void BattleUI::update() {
             break;
 
         case 49:
-            if (attackerCharacter->getCurrentHandHeldItem()->getUses() == 0 || attackedCharacter->getCurHP() == 0)
+            if (attackedCharacter->getCurHP() == 0)
                 isFinish = true;
             if (!canCounterAttack)
                 frame = 105;

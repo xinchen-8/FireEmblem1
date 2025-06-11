@@ -36,10 +36,10 @@ void ShopUI::load(int goldCoin, int level, std::vector<std::string> usableWeapon
             break;
         }
     }
-    if (selectPoint != -1)
-        point->setRelativePos(m_Transform.translation + glm::vec2(-TILE_SIZE / 2, 2.7 * TILE_SIZE + 150) -
-                              glm::vec2(0, 38 * selectPoint));
-    else
+
+    point->setRelativePos(m_Transform.translation + glm::vec2(-TILE_SIZE / 2, 2.7 * TILE_SIZE + 150) -
+                          glm::vec2(0, 38 * selectPoint));
+    if (selectPoint == -1)
         point->setVisible(false);
 }
 
@@ -52,6 +52,16 @@ void ShopUI::update(int listMov) {
             point->setRelativePos(m_Transform.translation + glm::vec2(-TILE_SIZE / 2, 2.7 * TILE_SIZE + 150) -
                                   glm::vec2(0, 38 * selectPoint));
             return;
+        }
+    }
+}
+
+void ShopUI::setVisible(bool visible) {
+    m_Visible = visible;
+    point->setVisible((selectPoint != -1) ? visible : false);
+    for (auto &row : form) {
+        for (auto &e : row) {
+            e->SetVisible(visible);
         }
     }
 }

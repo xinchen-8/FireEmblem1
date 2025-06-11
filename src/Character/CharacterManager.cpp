@@ -277,19 +277,22 @@ void PlayerManager::changeTipsVisible(std::shared_ptr<Character> character) {
 std::unordered_map<glm::ivec2, int> PlayerManager::selectCharacter(std::shared_ptr<Character> character = nullptr) {
     if (!character)
         return {};
-
+    std::cout << "meow0" << std::endl;
     if (auto cm = characterManager.lock()) {
         std::unordered_set<glm::ivec2> mask = cm->getCharacterPos();
-
         std::unordered_set<glm::ivec2> reg = mapManager->getAbsoluteCantMovPosition();
         for (auto pos = reg.begin(); pos != reg.end(); pos++) {
             if (*pos == character->getAbsolutePos())
                 continue;
             mask.insert(*pos);
         }
+        std::cout << "meow1" << std::endl;
         character->refreshMoveRange(mask);
+        std::cout << "meow2" << std::endl;
     }
     buildCharacterTips(character);
+    std::cout << "meow3" << std::endl;
+
     character->setStatus(CharacterStatus::Moving);
     return character->getMoveRange();
 }

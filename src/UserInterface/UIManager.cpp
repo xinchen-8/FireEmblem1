@@ -260,9 +260,11 @@ void UIManager::loadShopUI() {
 
 void UIManager::actShopUI() {
     std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
-    auto w = std::make_shared<Weapon>(*shop->getWeapon());
-    if (!w)
+    auto reg = shop->getWeapon();
+    if (!reg)
         return;
+
+    auto w = std::make_shared<Weapon>(*reg);
     if (selectedCharacter->pushItem(std::dynamic_pointer_cast<Item>(w)))
         playerManager->addMoney(-w->getWorth());
     shop->load(playerManager->getMoney(), mapManager->getLevel(), selectedCharacter->getUsableWeapon());

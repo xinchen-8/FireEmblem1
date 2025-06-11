@@ -10,6 +10,7 @@ class ShopUI : public SelectedUI {
     void load(int goldCoin, int level, std::vector<std::string> usableWeapon);
     void update(int listMov) override;
     std::shared_ptr<Weapon> getWeapon() { return (selectPoint == -1) ? nullptr : weapons[selectPoint]; }
+    void setVisible(bool visible) override;
 
   private:
     std::vector<std::shared_ptr<Weapon>> weapons = {};

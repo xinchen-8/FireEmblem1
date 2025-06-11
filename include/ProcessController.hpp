@@ -38,7 +38,10 @@ class ProcessController {
     void ATKTargetingToATKWUI(glm::ivec2 targetPos);
     void ATKToNormal(std::shared_ptr<Character> &selectedCharacter, std::shared_ptr<Character> &selectEnemy);
     void IUIToSUI(std::shared_ptr<Character> &selectedCharacter);
-    void ShopUItoShopUI();
+    void ShopUIToShopUI();
+
+    // back
+    void ShopUIToNormal(std::shared_ptr<Character> &selectedCharacter);
 
     int heuristic(const glm::ivec2 &a, const glm::ivec2 &b);
     std::unordered_map<glm::ivec2, int> findBestPathToMarth(std::shared_ptr<Character> &enemy);

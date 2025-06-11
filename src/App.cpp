@@ -115,7 +115,7 @@ void App::Update() {
     // go back
     else if (Util::Input::IsKeyDown(Util::Keycode::BACKSPACE) && accessInput) {
         LOG_INFO("Backspace pressed");
-
+        pc->BackCase();
         // SelectionStatus status = selection->getStatus();
         // std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
 

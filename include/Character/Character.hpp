@@ -99,6 +99,7 @@ class Character : public CameraGameObject {
     void findAttackScope();
     void findAttackRange(); // for personal attack scope
     void setAttackRange(std::unordered_map<glm::ivec2, int> ar) { attackRange = ar; }
+    std::vector<std::string> getUsableWeapon() { return usableHandHeldItem; }
     std::shared_ptr<Character> clone();
     // items
   protected:
@@ -116,7 +117,7 @@ class Character : public CameraGameObject {
     Forword forword = Forword::Down;
     CharacterStatus status = CharacterStatus::Normal;
     std::queue<glm::ivec2> walkPath = {};
-    std::vector<HandHeldItemType> usableHandHeldItem = {};
+    std::vector<std::string> usableHandHeldItem = {};
 
     int Lv = 0;
     int Ex = 0;

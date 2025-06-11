@@ -33,10 +33,12 @@ class UIManager {
     void loadItemUI();
     void updateItemUI(int listMov) { selectedItem->update(listMov); }
     void actItemUI(bool hold); // not hold is remove
+    void closeItemUI() { selectedItem->setVisible(false); }
 
     void loadShopUI();
     void updateShopUI(int listMov) { shop->update(listMov); }
     void actShopUI();
+    void closeShopUI() { shop->setVisible(false); }
 
     void loadBattleUI(std::shared_ptr<Character> attacker, std::shared_ptr<Character> attacked);
     bool updateBattleUI();

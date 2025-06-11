@@ -114,7 +114,7 @@ void ItemInfoUI::nextItem() {
         LOG_INFO("No character loaded in ItemInfoUI");
         return;
     }
-    
+
     auto items = character->getItems();
     LOG_INFO("Current item index: " + std::to_string(currentItemIndex));
     for (int i = 1; i <= items.size(); i++) {
@@ -136,7 +136,7 @@ void ItemInfoUI::nextItem() {
 //         LOG_INFO("No character loaded in ItemInfoUI");
 //         return;
 //     }
-    
+
 //     auto items = character->getItems();
 //     LOG_INFO("Current item index: " + std::to_string(currentItemIndex));
 //     for (int i = 1; i <= items.size(); i++) {
@@ -154,8 +154,9 @@ void ItemInfoUI::nextItem() {
 // }
 
 void ItemInfoUI::setItemIndex(int index) {
-    if (!character) return;
-    
+    if (!character)
+        return;
+
     auto items = character->getItems();
     if (index >= 0 && index < items.size() && items[index] != nullptr) {
         currentItemIndex = index;
@@ -172,19 +173,23 @@ void ItemInfoUI::update() {
     std::string content = item->getName() + "\n";
     auto handHeldItem = std::dynamic_pointer_cast<HandHeldItem>(item);
     if (handHeldItem) {
-        content += "Mt " + std::to_string(handHeldItem->getMt()) + "  Hit " + std::to_string(handHeldItem->getHit()) + "\n" +
-                  "Crt " + std::to_string(handHeldItem->getCrt()) + "  Rng " + std::to_string(handHeldItem->getRng()[0]) + "\n" +
-                  "Wlv " + std::to_string(handHeldItem->getWlv()) + "  Wt " + std::to_string(handHeldItem->getWt()) + "\n";
+        auto reg = std::to_string(handHeldItem->getRng()[0]);
+        reg += (handHeldItem->getRng()[0] == handHeldItem->getRng().back())
+                   ? " "
+                   : ("~" + std::to_string(handHeldItem->getRng().back()));
+
+        content += "Mt " + std::to_string(handHeldItem->getMt()) + "  Hit " + std::to_string(handHeldItem->getHit()) +
+                   "\n" + "Crt " + std::to_string(handHeldItem->getCrt()) + "  Rng " + reg + "\n" + "Wlv " +
+                   std::to_string(handHeldItem->getWlv()) + "  Wt " + std::to_string(handHeldItem->getWt()) + "\n";
     }
 
     auto vulnerary = std::dynamic_pointer_cast<Vulnerary>(item);
     if (vulnerary) {
-        content += "Heal 10\n\n\n";  // Vulnerary固定治療10點
+        content += "Heal 10\n\n\n"; // Vulnerary固定治療10點
     }
 
-    content += "uses " + std::to_string(item->getUses()) + "\n" +
-               "Note: \n" + item->getNote();
-    
+    content += "uses " + std::to_string(item->getUses()) + "\n" + "Note: \n" + item->getNote();
+
     LOG_INFO("Updating item info for: " + item->getName());
     setString(content);
 }

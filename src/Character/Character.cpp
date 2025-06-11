@@ -36,19 +36,19 @@ Character::Character(std::shared_ptr<MapManager> mm, std::vector<std::string> n_
     if (className == "Lord" || className == "PegasusKnight" || className == "Paladin" || className == "Cavalier" ||
         className == "Knight" || className == "Thief" || className == "Mercenary")
 
-        usableHandHeldItem.push_back(HandHeldItemType::Sword);
+        usableHandHeldItem.push_back("Sword");
     // lance
     if (className == "PegasusKnight" || className == "Paladin" || className == "Cavalier" || className == "Knight")
-        usableHandHeldItem.push_back(HandHeldItemType::Lance);
+        usableHandHeldItem.push_back("Lance");
     // bow
     if (className == "Archer" || className == "Hunter")
-        usableHandHeldItem.push_back(HandHeldItemType::Bow);
+        usableHandHeldItem.push_back("Bow");
     // staff
     if (className == "Curate")
-        usableHandHeldItem.push_back(HandHeldItemType::Staff);
+        usableHandHeldItem.push_back("Staff");
     // axe
     if (className == "Fighter" || className == "Pirate")
-        usableHandHeldItem.push_back(HandHeldItemType::Axe);
+        usableHandHeldItem.push_back("Axe");
 
     m_ZIndex = 3;
 }
@@ -402,7 +402,15 @@ void Character::levelUp() {
 }
 
 std::shared_ptr<HandHeldItem> Character::getCurrentHandHeldItem() {
-    return std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
+    auto hhi = std::dynamic_pointer_cast<HandHeldItem>(items[handheld_index]);
+    if (!hhi)
+        return hhi;
+
+    for (auto &cn : usableHandHeldItem) {
+        if (cn == hhi->getClassName())
+            return hhi;
+    }
+    return nullptr;
 }
 
 void Character::findMoveRange(int mov, glm::ivec2 a_pos, std::unordered_set<glm::ivec2> mask) {

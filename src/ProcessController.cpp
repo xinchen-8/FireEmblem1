@@ -48,7 +48,7 @@ bool ProcessController::ReturnCase() {
         IUIToSUI(selectedCharacter);
     // ShopUI => shopUI
     else if (status == SelectionStatus::ShopUI)
-        ShopUItoShopUI();
+        ShopUIToShopUI();
     return false;
 }
 
@@ -58,7 +58,22 @@ void ProcessController::SpaceCase() {
         uiManager->actItemUI(false);
 }
 
-void ProcessController::BackCase() {}
+void ProcessController::BackCase() {
+    std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
+    std::shared_ptr<Character> selectMovableCharacter =
+        playerManager->getPosMovableCharacter(selection->getAbsolutePos());
+    std::shared_ptr<Character> selectLevelCharacter = playerManager->getPosLevelCharacter(selection->getAbsolutePos());
+    std::shared_ptr<Character> selectEnemy = enemyManager->getPosLevelCharacter(selection->getAbsolutePos());
+    SelectionStatus status = selection->getStatus();
+    // ShopUI => Normal
+    if (status == SelectionStatus::ShopUI)
+        ShopUIToNormal(selectedCharacter);
+    // WUI => AttackTargeting
+    // HUI(WUI only heal) => Targeting
+    // targeting, AttackTargeting => SUI
+    // SUI => moving
+    // moving => normal
+}
 
 void ProcessController::MovCase(glm::ivec2 mov) {
     if (selection->getStatus() == SelectionStatus::SUI)
@@ -123,7 +138,16 @@ void ProcessController::IUIToSUI(std::shared_ptr<Character> &selectedCharacter) 
     uiManager->loadActUI();
 }
 
-void ProcessController::ShopUItoShopUI() { uiManager->actShopUI(); }
+void ProcessController::ShopUIToShopUI() { uiManager->actShopUI(); }
+
+void ProcessController::ShopUIToNormal(std::shared_ptr<Character> &selectedCharacter) {
+    uiManager->closeShopUI();
+    uiManager->closeItemUI();
+    selection->setStatus(SelectionStatus::Normal);
+    selectedCharacter->setStatus(CharacterStatus::Waiting);
+    playerManager->removeUnwaitingCharacter(selectedCharacter);
+    playerManager->clearTips();
+}
 
 bool ProcessController::enemyTurn(bool accessInput) {
     if (!accessInput)

@@ -253,15 +253,18 @@ void UIManager::actItemUI(bool hold) {
 
 void UIManager::loadShopUI() {
     selection->setStatus(SelectionStatus::ShopUI);
-    shop->load(playerManager->getMoney(), mapManager->getLevel());
+    std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
+    shop->load(playerManager->getMoney(), mapManager->getLevel(), selectedCharacter->getUsableWeapon());
 }
 
 void UIManager::actShopUI() {
     std::shared_ptr<Character> selectedCharacter = selection->getSelectCharacter();
     auto w = std::make_shared<Weapon>(*shop->getWeapon());
+    if (!w)
+        return;
     if (selectedCharacter->pushItem(std::dynamic_pointer_cast<Item>(w)))
         playerManager->addMoney(-w->getWorth());
-    shop->load(playerManager->getMoney(), mapManager->getLevel());
+    shop->load(playerManager->getMoney(), mapManager->getLevel(), selectedCharacter->getUsableWeapon());
     selectedItem->loadItem(selectedCharacter->getItems());
 }
 

@@ -311,6 +311,9 @@ bool UIManager::updateBattleUI() {
         LOG_INFO("attacker: " + attacker->getName());
         LOG_INFO("defender: " + defender->getName());
 
+        load();
+        update();
+
         return true; // for accessInput
     }
     return !battle->getVisible();

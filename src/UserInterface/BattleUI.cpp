@@ -126,14 +126,14 @@ void BattleUI::load(std::shared_ptr<Character> attacker, std::shared_ptr<Charact
     attackerImg = attacker->getClassName() + "_" + atk_hhi->getClassName();
     attackedImg = attacked->getClassName() + "_" + reg;
 
-    std::shared_ptr<Util::Image> attackerD = (!attackerCharacter->isEnemy())
-                                                 ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png")
-                                                 : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png");
+    std::shared_ptr<Util::Image> attackerD =
+        (!attackerCharacter->isEnemy()) ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png", false)
+                                        : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png", false);
     attackerGO->SetDrawable(attackerD);
 
-    std::shared_ptr<Util::Image> attackedD = (!attackedCharacter->isEnemy())
-                                                 ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
-                                                 : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png");
+    std::shared_ptr<Util::Image> attackedD =
+        (!attackedCharacter->isEnemy()) ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png", false)
+                                        : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png", false);
     attackedGO->SetDrawable(attackedD);
 
     int atkrSpd = attackerCharacter->getSpd();
@@ -205,8 +205,8 @@ void BattleUI::update() {
             if (attackerCharacter->attack(attackedCharacter)) {
                 attackedGO->SetDrawable(
                     (!attackedCharacter->isEnemy())
-                        ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackedImg + ".png")
-                        : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackedImg + ".png"));
+                        ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackedImg + ".png", false)
+                        : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackedImg + ".png", false));
                 regHP -= attackedCharacter->getCurHP();
                 refreshHpPoint();
                 setString(std::to_string(regHP) + " damage!");
@@ -228,9 +228,10 @@ void BattleUI::update() {
                 }
             } else {
                 attackedGO->m_Transform.translation = ATKDPosition;
-                attackedGO->SetDrawable((!attackedCharacter->isEnemy())
-                                            ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
-                                            : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png"));
+                attackedGO->SetDrawable(
+                    (!attackedCharacter->isEnemy())
+                        ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png", false)
+                        : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png", false));
             }
             break;
 
@@ -269,8 +270,8 @@ void BattleUI::update() {
             if (attackedCharacter->attack(attackerCharacter)) {
                 attackerGO->SetDrawable(
                     (!attackerCharacter->isEnemy())
-                        ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackerImg + ".png")
-                        : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackerImg + ".png"));
+                        ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackerImg + ".png", false)
+                        : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackerImg + ".png", false));
                 regHP -= attackerCharacter->getCurHP();
                 refreshHpPoint();
                 setString(std::to_string(regHP) + " damage!");
@@ -292,9 +293,10 @@ void BattleUI::update() {
                 }
             } else {
                 attackerGO->m_Transform.translation = ATKRPosition;
-                attackerGO->SetDrawable((!attackerCharacter->isEnemy())
-                                            ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png")
-                                            : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png"));
+                attackerGO->SetDrawable(
+                    (!attackerCharacter->isEnemy())
+                        ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png", false)
+                        : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png", false));
             }
             break;
 
@@ -340,8 +342,8 @@ void BattleUI::update() {
                 if (attackerCharacter->attack(attackedCharacter)) {
                     attackedGO->SetDrawable(
                         (!attackedCharacter->isEnemy())
-                            ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackedImg + ".png")
-                            : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackedImg + ".png"));
+                            ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackedImg + ".png", false)
+                            : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackedImg + ".png", false));
                     regHP -= attackedCharacter->getCurHP();
                     refreshHpPoint();
                     setString(std::to_string(regHP) + " damage!");
@@ -356,8 +358,8 @@ void BattleUI::update() {
                 if (attackedCharacter->attack(attackerCharacter)) {
                     attackerGO->SetDrawable(
                         (!attackerCharacter->isEnemy())
-                            ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackerImg + ".png")
-                            : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackerImg + ".png"));
+                            ? std::make_shared<Util::Image>(BATTLE_PLAYER "Attacked_" + attackerImg + ".png", false)
+                            : std::make_shared<Util::Image>(BATTLE_ENEMY "Attacked_" + attackerImg + ".png", false));
                     regHP -= attackerCharacter->getCurHP();
                     refreshHpPoint();
                     setString(std::to_string(regHP) + " damage!");
@@ -381,9 +383,10 @@ void BattleUI::update() {
                     }
                 } else {
                     attackedGO->m_Transform.translation = glm::ivec2(400, 0);
-                    attackedGO->SetDrawable((!attackedCharacter->isEnemy())
-                                                ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png")
-                                                : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png"));
+                    attackedGO->SetDrawable(
+                        (!attackedCharacter->isEnemy())
+                            ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackedImg + ".png", false)
+                            : std::make_shared<Util::Image>(BATTLE_ENEMY + attackedImg + ".png", false));
                 }
             } else {
                 if (attackerCharacter->getCurHP() == 0) {
@@ -394,9 +397,10 @@ void BattleUI::update() {
                     }
                 } else {
                     attackerGO->m_Transform.translation = glm::ivec2(-400, 0);
-                    attackerGO->SetDrawable((!attackerCharacter->isEnemy())
-                                                ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png")
-                                                : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png"));
+                    attackerGO->SetDrawable(
+                        (!attackerCharacter->isEnemy())
+                            ? std::make_shared<Util::Image>(BATTLE_PLAYER + attackerImg + ".png", false)
+                            : std::make_shared<Util::Image>(BATTLE_ENEMY + attackerImg + ".png", false));
                 }
             }
             break;

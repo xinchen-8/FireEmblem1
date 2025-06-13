@@ -338,6 +338,8 @@ bool Character::attacked(int power, int crt, int acc, bool isMagical) { // retur
         if ((rand() % 100) < acc - (Avoid + Spd)) { // for accuracy
             power -= Def;
             power *= ((rand() % 100) < crt) ? 3 : 1;
+            if (power < 0)
+                power = 0;
             Hp_Current -= power;
             LOG_INFO(name + "was attacked: HP-" + std::to_string(power));
             Hp_Current = (Hp_Current < 0) ? 0 : Hp_Current;

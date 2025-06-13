@@ -3,6 +3,7 @@
 #include "UserInterface/ActUI.hpp"
 #include "UserInterface/BattleUI.hpp"
 #include "UserInterface/CharacterInfoUI.hpp"
+#include "UserInterface/ItemInfoUI.hpp"
 #include "UserInterface/ItemUI.hpp"
 #include "UserInterface/LevelUpUI.hpp"
 #include "UserInterface/LoadUI.hpp"

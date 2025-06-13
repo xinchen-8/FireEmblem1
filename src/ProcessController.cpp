@@ -135,6 +135,7 @@ void ProcessController::ATKToNormal(std::shared_ptr<Character> &selectedCharacte
 void ProcessController::IUIToSUI(std::shared_ptr<Character> &selectedCharacter) {
     uiManager->actItemUI(true);
     selection->setStatus(SelectionStatus::SUI);
+    playerManager->findCharacterAttackTarget(selectedCharacter);
     uiManager->loadActUI();
 }
 

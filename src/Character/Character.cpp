@@ -252,19 +252,19 @@ void Character::setTileAnimation() {
         }
 
         if (i == gapOfAnimation - 1) {
-            standAnimation = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0);
+            standAnimation = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0, false);
             reg = {};
         } else if (i == gapOfAnimation + 1) {
-            walkAnimation[Forword::Down] = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0);
+            walkAnimation[Forword::Down] = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0, false);
             reg = {};
         } else if (i == gapOfAnimation + 3) {
-            walkAnimation[Forword::Right] = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0);
+            walkAnimation[Forword::Right] = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0, false);
             reg = {};
         } else if (i == gapOfAnimation + 5) {
-            walkAnimation[Forword::Up] = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0);
+            walkAnimation[Forword::Up] = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0, false);
             reg = {};
         } else if (i == 2 * 3 + gapOfAnimation * 2 - 1) {
-            waitAnimation = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0);
+            waitAnimation = std::make_shared<Util::Animation>(reg, true, TILE_INTERVAL, true, 0, false);
             reg = {};
         }
     }

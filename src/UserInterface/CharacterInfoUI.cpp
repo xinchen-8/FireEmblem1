@@ -61,7 +61,7 @@ void CharacterInfoUIFull::update() {
     } else
         profilePath = TILE_UI "text4.png";
     LOG_INFO("Load Profile Image: " + profilePath);
-    profile->SetDrawable(std::make_shared<Util::Image>(profilePath));
+    profile->SetDrawable(std::make_shared<Util::Image>(profilePath, false));
     profile->m_Transform.scale = {3.f, 3.f};
 }
 

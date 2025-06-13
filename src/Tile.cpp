@@ -52,7 +52,7 @@ Tile::Tile(std::vector<std::string> t_list) : avoid(std::stoi(t_list[2])) {
     m_ZIndex = (t_list[4] != "0" || t_list[5] != "0") ? 1 : 0;
     SetPivot(glm::ivec2(TILE_PIXEL * std::stof(t_list[4]), TILE_PIXEL * std::stof(t_list[5])));
 
-    m_Drawable = std::make_shared<Util::Animation>(textures, true, TILE_INTERVAL, true, 0);
+    m_Drawable = std::make_shared<Util::Animation>(textures, true, TILE_INTERVAL, true, 0, false);
     m_Transform.scale = glm::ivec2(TILE_SCALE, TILE_SCALE);
 
     char reg = t_list[1].back();
@@ -66,7 +66,7 @@ Tile::Tile(std::vector<std::string> t_list) : avoid(std::stoi(t_list[2])) {
 }
 
 Tile::Tile(std::string id, std::string img_path) {
-    m_Drawable = std::make_shared<Util::Animation>(std::vector{img_path}, false, 0, false, 0);
+    m_Drawable = std::make_shared<Util::Animation>(std::vector{img_path}, false, 0, false, 0, false);
     m_Transform.scale = glm::ivec2(TILE_SCALE, TILE_SCALE);
     LOG_INFO("tile: " + id + ". " + img_path + " Tile building success.");
 }

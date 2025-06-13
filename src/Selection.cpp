@@ -4,13 +4,13 @@ Selection::Selection() {
     std::vector<std::string> paths;
     paths.push_back(TILE_SELECTION "selection0.png");
     paths.push_back(TILE_SELECTION "transparent.png");
-    chooseAnimation = std::make_shared<Util::Animation>(paths, true, TILE_INTERVAL, true, 0);
+    chooseAnimation = std::make_shared<Util::Animation>(paths, true, TILE_INTERVAL, true, 0, false);
     m_Drawable = chooseAnimation;
     m_Transform.scale = {TILE_SCALE, TILE_SCALE};
     m_ZIndex = 5;
 
     paths[0] = TILE_SELECTION "selection1.png";
-    moveAnimation = std::make_shared<Util::Animation>(paths, true, TILE_INTERVAL, true, 0);
+    moveAnimation = std::make_shared<Util::Animation>(paths, true, TILE_INTERVAL, true, 0, false);
 }
 
 bool Selection::moveJudge(Forword forword, glm::ivec2 map_size) {

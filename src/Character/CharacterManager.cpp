@@ -330,7 +330,7 @@ void PlayerManager::buildCharacterTips(std::shared_ptr<Character> character) {
 
         tip->setStart();
         std::vector<std::string> r = {TILE_SELECTION "tip0.png"};
-        tip->setAnimation(std::make_shared<Util::Animation>(r, true, TILE_INTERVAL, true, 0));
+        tip->setAnimation(std::make_shared<Util::Animation>(r, true, TILE_INTERVAL, true, 0, false));
         tip->SetVisible(tipsVisible);
     }
     // attack range
@@ -341,7 +341,7 @@ void PlayerManager::buildCharacterTips(std::shared_ptr<Character> character) {
 
         tip->setStart();
         std::vector<std::string> r = {TILE_SELECTION "tip1.png"};
-        tip->setAnimation(std::make_shared<Util::Animation>(r, true, TILE_INTERVAL, true, 0));
+        tip->setAnimation(std::make_shared<Util::Animation>(r, true, TILE_INTERVAL, true, 0, false));
         tip->SetVisible(tipsVisible);
     }
 }

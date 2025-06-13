@@ -22,7 +22,7 @@ LoadUI::LoadUI(std::vector<std::shared_ptr<Tile>> &tiles) : UserInterface(tiles)
     std::vector<std::string> sp;
     for (int i = 1; i < 9; i++)
         sp.push_back(COVERPATH "cover" + std::to_string(i) + ".png");
-    sword->SetDrawable(std::make_shared<Util::Animation>(sp, true, TILE_INTERVAL, true, 0));
+    sword->SetDrawable(std::make_shared<Util::Animation>(sp, true, TILE_INTERVAL, true, 0, false));
     sword->m_Transform.translation = glm::vec2(-250, -50);
     sword->m_Transform.scale = {2, 2};
     sword->SetZIndex(21);

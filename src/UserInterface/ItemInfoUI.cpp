@@ -112,26 +112,33 @@ void ItemInfoUI::update() {
     
     // 處理 Note 文字換行
     std::string note = item->getNote();
-    if (note == "-"){
-        content += "\nuses " + std::to_string(item->getUses()) + "\n" + "Note: \n" + note + "\n ";
-    }
-    else{
     const int maxWidth = 22; // 每行最大字數
     std::string wrappedNote;
     int currentWidth = 0;
+    int linecount = 0;
     
     for (size_t i = 0; i < note.length(); i++) {
         if (currentWidth >= maxWidth && note[i] == ' ') {
             wrappedNote += "\n";
             currentWidth = 0;
+            linecount++;
         } else {
             wrappedNote += note[i];
             currentWidth++;
         }
     }
+    LOG_INFO("Linecount: " + std::to_string(linecount));
+
+    if (linecount == 2) {
         content += "uses " + std::to_string(item->getUses()) + "\n" + "Note: \n" + wrappedNote;
-    
     }
+    else {
+        for (int i = 0; i < 2 - linecount; i++) {
+            content += "\n";
+        }
+        content += "uses " + std::to_string(item->getUses()) + "\n" + "Note: \n" + wrappedNote;
+    }
+
     LOG_INFO("Updating item info for: " + item->getName());
     setString(content);
 }
